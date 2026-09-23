@@ -1,0 +1,15 @@
+# JOCKY Forensic Script Example
+# Demonstrating authorized, read-only digital forensic analysis workflow
+
+CASE "LAB-2026-001"
+
+TARGET "LAB-PC"
+
+COLLECT SYSTEM
+COLLECT PROCESSES
+COLLECT NETWORK
+COLLECT FILES "./evidence"
+
+ANALYZE
+VERIFY INTEGRITY
+REPORT

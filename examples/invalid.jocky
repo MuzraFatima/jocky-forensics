@@ -1,0 +1,11 @@
+# Invalid JOCKY Forensic Script Example
+# Demonstrates syntax error detection with line and column reporting
+
+CASE "LAB-2026-INVALID"
+TARGET "LAB-PC"
+
+# Invalid command: 'INJECT' is not an authorized forensic command
+INJECT MALWARE
+
+# Invalid COLLECT target
+COLLECT PASSWORDS
