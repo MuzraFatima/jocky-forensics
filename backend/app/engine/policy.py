@@ -18,9 +18,17 @@ AUTHORIZED_OPERATIONS: Set[Tuple[str, Optional[str]]] = {
     ("COLLECT", "PROCESSES"),
     ("COLLECT", "NETWORK"),
     ("COLLECT", "FILES"),
+    ("COLLECT", "USERS"),
+    ("COLLECT", "REGISTRY"),
+    ("COLLECT", "WINDOWS_METADATA"),
     ("ANALYZE", None),
+    ("ANALYZE", "PROCESS_NETWORK"),
     ("VERIFY", "INTEGRITY"),
     ("REPORT", None),
+    ("REPORT", "JSON"),
+    ("REPORT", "HTML"),
+    ("REPORT", "MD"),
+    ("REPORT", "MARKDOWN"),
 }
 
 
