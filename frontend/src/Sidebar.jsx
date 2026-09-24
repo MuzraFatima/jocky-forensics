@@ -160,6 +160,15 @@ function ScriptIcon({ size = 18 }) {
   );
 }
 
+function SearchIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+
 // Panel Collapse / Expand Icon
 function PanelToggleIcon({ collapsed = false, size = 18 }) {
   return (
@@ -194,32 +203,30 @@ export default function Sidebar({
   const navItems = [
     {
       id: 'overview',
-      label: 'Overview & Analysis',
+      label: 'Dashboard',
       icon: (props) => <OverviewIcon {...props} />,
     },
     {
-      id: 'support',
-      label: 'Cybersecurity Support',
-      icon: (props) => <SupportIcon {...props} />,
-      statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
-      accentColor: 'var(--accent-indigo)',
+      id: 'execute',
+      label: 'Investigation',
+      icon: (props) => <ExecuteIcon {...props} />,
     },
     {
-      id: 'correlation',
-      label: 'Correlation Graph',
-      icon: (props) => <CorrelationIcon {...props} />,
-      count: counts.correlation,
+      id: 'script',
+      label: 'JOCKY Script',
+      icon: (props) => <ScriptIcon {...props} />,
     },
     {
-      id: 'timeline',
-      label: 'Forensic Timeline',
-      icon: (props) => <TimelineIcon {...props} />,
-      count: counts.timeline,
+      id: 'commands',
+      label: 'Command Search',
+      icon: (props) => <SearchIcon {...props} />,
+      statusBadge: 'DSL',
     },
     {
-      id: 'system',
-      label: 'System Telemetry',
-      icon: (props) => <SystemIcon {...props} />,
+      id: 'evidence',
+      label: 'Evidence',
+      icon: (props) => <EvidenceIcon {...props} />,
+      count: counts.evidence,
     },
     {
       id: 'processes',
@@ -229,9 +236,31 @@ export default function Sidebar({
     },
     {
       id: 'network',
-      label: 'Network Sockets',
+      label: 'Network',
       icon: (props) => <NetworkIcon {...props} />,
       count: counts.network,
+    },
+    {
+      id: 'timeline',
+      label: 'Timeline',
+      icon: (props) => <TimelineIcon {...props} />,
+      count: counts.timeline,
+    },
+    {
+      id: 'correlation',
+      label: 'Correlation',
+      icon: (props) => <CorrelationIcon {...props} />,
+      count: counts.correlation,
+    },
+    {
+      id: 'reports',
+      label: 'Reports',
+      icon: (props) => <ReportsIcon {...props} />,
+    },
+    {
+      id: 'system',
+      label: 'System Telemetry',
+      icon: (props) => <SystemIcon {...props} />,
     },
     {
       id: 'files',
@@ -249,25 +278,11 @@ export default function Sidebar({
       icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} />,
     },
     {
-      id: 'evidence',
-      label: 'Evidence Vault',
-      icon: (props) => <EvidenceIcon {...props} />,
-      count: counts.evidence,
-    },
-    {
-      id: 'reports',
-      label: 'Forensic Reports',
-      icon: (props) => <ReportsIcon {...props} />,
-    },
-    {
-      id: 'execute',
-      label: 'Execution Engine',
-      icon: (props) => <ExecuteIcon {...props} />,
-    },
-    {
-      id: 'script',
-      label: 'JOCKY Script Editor',
-      icon: (props) => <ScriptIcon {...props} />,
+      id: 'support',
+      label: 'Cybersecurity Support',
+      icon: (props) => <SupportIcon {...props} />,
+      statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
+      accentColor: 'var(--accent-indigo)',
     },
   ];
 

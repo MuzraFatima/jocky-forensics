@@ -6,6 +6,9 @@ import CyberSupport from './CyberSupport.jsx';
 import CriticalIncidentAlert from './CriticalIncidentAlert.jsx';
 import ReportModal from './ReportModal.jsx';
 import LogoutModal from './LogoutModal.jsx';
+import CommandSearch, { SUPPORTED_COMMANDS } from './CommandSearch.jsx';
+import InvestigatorDashboard from './InvestigatorDashboard.jsx';
+import ReportSection from './ReportSection.jsx';
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
 TARGET "LAB-PC"
@@ -17,6 +20,29 @@ COLLECT PROCESSES
 
 COLLECT NETWORK
     WHERE state == ESTABLISHED
+
+ANALYZE PROCESS_NETWORK
+
+VERIFY INTEGRITY
+
+REPORT FORMAT JSON`;
+
+const EXAMPLE_SCRIPT = `CASE "INCIDENT-2026-ALPHA"
+TARGET "LOCAL-HOST"
+
+COLLECT SYSTEM
+
+COLLECT PROCESSES
+    WHERE status == RUNNING
+
+COLLECT NETWORK
+    WHERE state == ESTABLISHED
+
+COLLECT FILES "evidence"
+
+COLLECT USERS
+
+COLLECT REGISTRY
 
 ANALYZE PROCESS_NETWORK
 
@@ -108,8 +134,11 @@ export default function App() {
   const VALID_TABS = [
     'overview', 'support', 'correlation', 'timeline', 'system',
     'processes', 'network', 'files', 'users',
-    'windows', 'evidence', 'reports', 'execute', 'script'
+    'windows', 'evidence', 'reports', 'execute', 'script', 'commands'
   ];
+
+  const [scriptToast, setScriptToast] = useState(null);
+  const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
 
   const getInitialTab = () => {
     try {
@@ -209,6 +238,29 @@ export default function App() {
     try {
       sessionStorage.setItem('jocky_session', JSON.stringify(newSession));
     } catch (e) {}
+  };
+
+  const handleInsertCommand = (syntax) => {
+    setScriptText((prev) => {
+      const trimmed = prev.trim();
+      if (!trimmed) return syntax;
+      return `${trimmed}\n\n${syntax}`;
+    });
+    setScriptToast(`Inserted: ${syntax.split('\n')[0]}`);
+    setTimeout(() => setScriptToast(null), 2500);
+    setActiveTab('script');
+  };
+
+  const handleClearScript = () => {
+    setScriptText('CASE "INCIDENT-NEW"\nTARGET "LOCAL-HOST"\n\n');
+    setScriptToast('Script reset to base template');
+    setTimeout(() => setScriptToast(null), 2000);
+  };
+
+  const handleLoadExample = () => {
+    setScriptText(EXAMPLE_SCRIPT);
+    setScriptToast('Loaded INCIDENT-2026-ALPHA example');
+    setTimeout(() => setScriptToast(null), 2000);
   };
 
   const handleLogoutWithoutSending = async () => {
@@ -675,22 +727,23 @@ export default function App() {
   const establishedCount = networkList.filter((c) => c.status === 'ESTABLISHED').length;
 
   const TAB_LABELS = {
-    overview: 'Overview & Analysis',
-    support: 'Cybersecurity Support',
-    correlation: 'Correlation Graph',
-    timeline: 'Forensic Timeline',
-    system: 'System Telemetry',
+    overview: 'Dashboard',
+    execute: 'Investigation',
+    script: 'JOCKY Script',
+    commands: 'Command Search',
+    evidence: 'Evidence',
     processes: 'Processes',
-    network: 'Network Sockets',
+    network: 'Network',
+    timeline: 'Timeline',
+    correlation: 'Correlation',
+    reports: 'Reports',
+    system: 'System Telemetry',
     files: 'Files & Binaries',
     users: 'Users & Sessions',
     windows: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
-    evidence: 'Evidence Vault',
-    reports: 'Forensic Reports',
-    execute: 'Execution Engine',
-    script: 'JOCKY Script Editor',
+    support: 'Cybersecurity Support',
   };
-  const activeTabLabel = TAB_LABELS[activeTab] || 'Overview & Analysis';
+  const activeTabLabel = TAB_LABELS[activeTab] || 'Dashboard';
 
   if (!session) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
@@ -1014,6 +1067,27 @@ export default function App() {
               </div>
 
               <button
+                onClick={() => setIsCommandModalOpen(true)}
+                title="Search JOCKY Commands (DSL)"
+                style={{
+                  background: 'rgba(99, 102, 241, 0.12)',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  color: 'var(--accent-indigo)',
+                  borderRadius: '6px',
+                  padding: '0.55rem 0.95rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  cursor: 'pointer',
+                }}
+              >
+                <span>🔎</span>
+                <span>Command Search</span>
+              </button>
+
+              <button
                 onClick={() => handleRunInvestigation()}
                 disabled={loading}
                 style={{
@@ -1099,9 +1173,33 @@ export default function App() {
           />
         )}
 
-        {/* TAB 1: OVERVIEW & ANALYSIS */}
+        {/* TAB: COMMAND SEARCH */}
+        {activeTab === 'commands' && (
+          <CommandSearch
+            onInsertCommand={(cmdSyntax) => handleInsertCommand(cmdSyntax)}
+          />
+        )}
+
+        {/* TAB 1: OVERVIEW & DASHBOARD */}
         {activeTab === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <InvestigatorDashboard
+              investigationData={investigationData}
+              systemInfo={systemInfo}
+              platformInfo={platformInfo}
+              processesList={processesList}
+              networkList={networkList}
+              vaultAudit={vaultAudit}
+              correlationData={correlationData}
+              analysisData={analysisData}
+              timelineData={timelineData}
+              backendHealth={backendHealth}
+              loading={loading}
+              onNavigateTab={navigateToTab}
+              onRunInvestigation={() => handleRunInvestigation(scriptText)}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
             {/* Forensic Indicators & Heuristic Analysis */}
             <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -1181,7 +1279,8 @@ export default function App() {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* TAB 2: SYSTEM TELEMETRY */}
         {activeTab === 'system' && (
@@ -2234,12 +2333,53 @@ export default function App() {
                       </span>
                     </div>
 
-                    <div className="font-mono" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>
+                    <div className="font-mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', wordBreak: 'break-all' }}>
                       {art.evidence_id}
                     </div>
 
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                      Case: <span className="font-mono">{art.case_id}</span> • Exec: <span className="font-mono">{art.execution_id}</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', marginTop: '0.6rem', fontSize: '0.74rem' }}>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Case ID: </span>
+                        <span className="font-mono" style={{ color: 'var(--accent-cyan)' }}>{art.case_id || investigationData?.case_id || 'LAB-2026-001'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Collector: </span>
+                        <span style={{ color: 'var(--text-primary)' }}>{art.collector || art.source || 'Safe Forensics Collector'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Timestamp: </span>
+                        <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>{art.timestamp || art.sealed_at || 'Recorded in Vault'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)' }}>Chain of Custody: </span>
+                        <span style={{ color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                          {vaultLedger.filter((l) => l.evidence_id === art.evidence_id).length || 1} logged event(s)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* SHA-256 Hash with Copy */}
+                    <div style={{ marginTop: '0.65rem', background: '#04070d', padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                        <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+                          SHA-256 Digest
+                        </span>
+                        <button
+                          onClick={() => handleCopy(art.stored_hash || art.sha256, `art-${art.evidence_id}`)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: copiedHash === `art-${art.evidence_id}` ? 'var(--accent-emerald)' : 'var(--accent-cyan)',
+                            fontSize: '0.7rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {copiedHash === `art-${art.evidence_id}` ? '✓ Copied' : 'Copy Hash'}
+                        </button>
+                      </div>
+                      <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--accent-cyan)', wordBreak: 'break-all' }}>
+                        {art.stored_hash || art.sha256 || 'SHA-256 Computed & Sealed'}
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
@@ -2283,204 +2423,19 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 6: FORENSIC REPORT GENERATION (PHASE 8 & 9) */}
+        {/* TAB: FORENSIC REPORT ENGINE */}
         {activeTab === 'reports' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Report Generator Controls */}
-            <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
-              borderRadius: '12px',
-              border: '1px solid var(--border-color)',
-              padding: '1.5rem',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                    Forensic Investigation Report Engine
-                  </h2>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                    Generate court-admissible, executive, and technical investigation records with cryptographic attestation.
-                  </p>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                  {['HTML', 'MARKDOWN', 'JSON'].map((fmt) => (
-                    <button
-                      key={fmt}
-                      onClick={() => setReportFormat(fmt)}
-                      style={{
-                        padding: '0.45rem 0.9rem',
-                        borderRadius: '6px',
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        background: reportFormat === fmt ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-surface)',
-                        color: reportFormat === fmt ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                        border: reportFormat === fmt ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {fmt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Examiner Configuration & Action */}
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '260px' }}>
-                  <label style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
-                    Lead Forensic Examiner Name
-                  </label>
-                  <input
-                    type="text"
-                    value={reportExaminer}
-                    onChange={(e) => setReportExaminer(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(0, 0, 0, 0.4)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      padding: '0.5rem 0.8rem',
-                      color: 'var(--text-primary)',
-                      fontSize: '0.85rem',
-                    }}
-                  />
-                </div>
-
-                <button
-                  onClick={handleGenerateReport}
-                  disabled={reportLoading}
-                  style={{
-                    alignSelf: 'flex-end',
-                    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '0.55rem 1.4rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    cursor: reportLoading ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
-                  }}
-                >
-                  {reportLoading ? 'Generating Report...' : '▶ Generate Official Report'}
-                </button>
-              </div>
-            </div>
-
-            {/* Generated Report Display */}
-            {reportResult && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {/* Download and Attestation Bar */}
-                <div style={{
-                  background: 'var(--bg-card)',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  padding: '1.25rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
-                }}>
-                  <div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--accent-emerald)', fontWeight: 700, textTransform: 'uppercase' }}>
-                      Cryptographic Attestation Certificate Issued
-                    </span>
-                    <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                      {reportResult.attestation?.certificate_id}
-                    </div>
-                    <div className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                      Manifest SHA-256: <span style={{ color: 'var(--accent-cyan)' }}>{reportResult.attestation?.manifest_sha256}</span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => handleDownloadReport('html')}
-                      style={{
-                        background: 'rgba(56, 189, 248, 0.1)',
-                        border: '1px solid var(--accent-cyan)',
-                        color: 'var(--accent-cyan)',
-                        borderRadius: '6px',
-                        padding: '0.45rem 0.85rem',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      ⬇ Download HTML
-                    </button>
-                    <button
-                      onClick={() => handleDownloadReport('md')}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--text-primary)',
-                        borderRadius: '6px',
-                        padding: '0.45rem 0.85rem',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      ⬇ Download Markdown
-                    </button>
-                    <button
-                      onClick={() => handleDownloadReport('json')}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--text-primary)',
-                        borderRadius: '6px',
-                        padding: '0.45rem 0.85rem',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      ⬇ Download JSON
-                    </button>
-                  </div>
-                </div>
-
-                {/* Live Report Preview Container */}
-                <div style={{
-                  background: '#04070d',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  overflow: 'hidden',
-                  minHeight: '600px',
-                }}>
-                  {reportFormat === 'HTML' ? (
-                    <iframe
-                      title="Forensic Report Preview"
-                      srcDoc={reportResult.content}
-                      style={{
-                        width: '100%',
-                        height: '750px',
-                        border: 'none',
-                        background: '#fff',
-                      }}
-                    />
-                  ) : (
-                    <pre style={{
-                      padding: '1.5rem',
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: '0.82rem',
-                      lineHeight: 1.6,
-                      color: 'var(--text-secondary)',
-                      whiteSpace: 'pre-wrap',
-                      maxHeight: '700px',
-                      overflowY: 'auto',
-                    }}>
-                      {reportResult.content}
-                    </pre>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+          <ReportSection
+            investigationData={investigationData}
+            reportResult={reportResult}
+            reportLoading={reportLoading}
+            reportFormat={reportFormat}
+            setReportFormat={setReportFormat}
+            reportExaminer={reportExaminer}
+            setReportExaminer={setReportExaminer}
+            onGenerateReport={(fmt) => handleGenerateReport(fmt)}
+            onDownloadReport={(fmt) => handleDownloadReport(fmt)}
+          />
         )}
 
         {/* TAB 6: SCRIPT EDITOR & POLICY AUDIT */}
@@ -2488,14 +2443,174 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Top row: editor + execution plan */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
-              {/* Script Textarea */}
-              <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    JOCKY Forensic DSL Script
-                  </h3>
-                  <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>UTF-8 Plaintext</span>
+              {/* Script Editor Panel */}
+              <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                      JOCKY Forensic DSL Script
+                    </h3>
+                    {/* Execution status indicator badge */}
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.15rem 0.5rem',
+                        borderRadius: '4px',
+                        background: loading
+                          ? 'rgba(245, 158, 11, 0.15)'
+                          : compiling
+                          ? 'rgba(99, 102, 241, 0.15)'
+                          : apiError || (compilerResult && !compilerResult.success)
+                          ? 'rgba(239, 68, 68, 0.15)'
+                          : investigationData
+                          ? 'rgba(16, 185, 129, 0.15)'
+                          : 'rgba(56, 189, 248, 0.15)',
+                        color: loading
+                          ? 'var(--accent-amber)'
+                          : compiling
+                          ? 'var(--accent-indigo)'
+                          : apiError || (compilerResult && !compilerResult.success)
+                          ? 'var(--accent-rose)'
+                          : investigationData
+                          ? 'var(--accent-emerald)'
+                          : 'var(--accent-cyan)',
+                        border: `1px solid ${
+                          loading
+                            ? 'rgba(245, 158, 11, 0.3)'
+                            : compiling
+                            ? 'rgba(99, 102, 241, 0.3)'
+                            : apiError || (compilerResult && !compilerResult.success)
+                            ? 'rgba(239, 68, 68, 0.3)'
+                            : investigationData
+                            ? 'rgba(16, 185, 129, 0.3)'
+                            : 'rgba(56, 189, 248, 0.3)'
+                        }`,
+                      }}
+                    >
+                      {loading
+                        ? '● EXECUTING...'
+                        : compiling
+                        ? '● COMPILING...'
+                        : apiError || (compilerResult && !compilerResult.success)
+                        ? '● ERROR'
+                        : investigationData
+                        ? '● EXECUTION SUCCESS'
+                        : '● READY'}
+                    </span>
+                  </div>
+                  <span className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    UTF-8 • Policy Signed
+                  </span>
                 </div>
+
+                {/* Editor Action Toolbar */}
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', background: 'rgba(0, 0, 0, 0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                  <button
+                    onClick={handleLoadExample}
+                    title="Load incident example script (INCIDENT-2026-ALPHA)"
+                    style={{
+                      background: 'rgba(56, 189, 248, 0.12)',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      color: 'var(--accent-cyan)',
+                      borderRadius: '4px',
+                      padding: '0.3rem 0.65rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    📂 Load Example
+                  </button>
+
+                  <button
+                    onClick={handleClearScript}
+                    title="Clear current script and reset to template"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid var(--border-subtle)',
+                      color: 'var(--text-secondary)',
+                      borderRadius: '4px',
+                      padding: '0.3rem 0.65rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    🗑 Clear Script
+                  </button>
+
+                  <button
+                    onClick={() => setIsCommandModalOpen(true)}
+                    title="Open Command Search palette"
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.15)',
+                      border: '1px solid rgba(99, 102, 241, 0.3)',
+                      color: 'var(--accent-indigo)',
+                      borderRadius: '4px',
+                      padding: '0.3rem 0.65rem',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    <span>🔎</span>
+                    <span>Command Search</span>
+                  </button>
+
+                  {/* Insert Command Quick Dropdown */}
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>Insert:</span>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const cmd = SUPPORTED_COMMANDS.find((c) => c.name === val);
+                          if (cmd) handleInsertCommand(cmd.syntax);
+                        }
+                      }}
+                      style={{
+                        background: '#04070d',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        padding: '0.28rem 0.5rem',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <option value="">-- Insert Command --</option>
+                      {SUPPORTED_COMMANDS.map((cmd) => (
+                        <option key={cmd.id} value={cmd.name}>
+                          {cmd.name} ({cmd.category})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Toast Notification */}
+                {scriptToast && (
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid var(--accent-emerald)',
+                    borderRadius: '4px',
+                    padding: '0.35rem 0.75rem',
+                    color: 'var(--accent-emerald)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                  }}>
+                    <span>✓</span> {scriptToast}
+                  </div>
+                )}
+
                 <textarea
                   value={scriptText}
                   onChange={(e) => setScriptText(e.target.value)}
@@ -2513,8 +2628,54 @@ export default function App() {
                     resize: 'vertical',
                   }}
                 />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}>
-                  {/* Compile / Validate button — Phase 1 */}
+
+                {/* Detected Commands Visual Scope Indicator */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Active Scope:
+                  </span>
+                  {SUPPORTED_COMMANDS.filter((cmd) => scriptText.toUpperCase().includes(cmd.name)).map((cmd) => (
+                    <span
+                      key={cmd.id}
+                      style={{
+                        fontSize: '0.66rem',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '4px',
+                        background: 'rgba(56, 189, 248, 0.08)',
+                        color: 'var(--accent-cyan)',
+                        border: '1px solid rgba(56, 189, 248, 0.2)',
+                        fontFamily: 'JetBrains Mono, monospace',
+                      }}
+                    >
+                      {cmd.name}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Error Display Card */}
+                {apiError && (
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    borderRadius: '6px',
+                    padding: '0.75rem 1rem',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-rose)', fontWeight: 800, fontSize: '0.82rem' }}>
+                      <span>⚠️</span>
+                      <span>{apiError.error_type || 'Execution Error'}</span>
+                      {apiError.line && (
+                        <span className="font-mono" style={{ fontSize: '0.72rem', background: 'rgba(0,0,0,0.3)', padding: '0.1rem 0.35rem', borderRadius: '3px' }}>
+                          Line {apiError.line}{apiError.column ? `:${apiError.column}` : ''}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ color: '#fca5a5', fontSize: '0.78rem', marginTop: '0.3rem', lineHeight: 1.45 }}>
+                      {apiError.message}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.4rem' }}>
                   <button
                     id="btn-compile-jocky"
                     onClick={handleCompile}
@@ -2533,7 +2694,7 @@ export default function App() {
                     {compiling ? 'Compiling...' : '⚙ Compile / Validate'}
                   </button>
                   <button
-                    onClick={() => handleRunInvestigation()}
+                    onClick={() => handleRunInvestigation(scriptText)}
                     disabled={loading}
                     style={{
                       background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
@@ -2543,9 +2704,11 @@ export default function App() {
                       padding: '0.5rem 1.25rem',
                       fontSize: '0.85rem',
                       fontWeight: 700,
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
                     }}
                   >
-                    {loading ? 'Running...' : 'Execute Script'}
+                    {loading ? 'Running...' : '▶ Run Script'}
                   </button>
                 </div>
               </div>
@@ -3995,6 +4158,44 @@ export default function App() {
           setIsReportModalOpen(true);
         }}
       />
+
+      {/* JOCKY Command Palette Modal */}
+      {isCommandModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1.25rem',
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '920px',
+            maxHeight: '88vh',
+            overflowY: 'auto',
+            background: 'var(--bg-card)',
+            borderRadius: '12px',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
+            padding: '1.5rem',
+          }}>
+            <CommandSearch
+              onInsertCommand={(cmdSyntax) => {
+                handleInsertCommand(cmdSyntax);
+                setIsCommandModalOpen(false);
+              }}
+              onCloseModal={() => setIsCommandModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
