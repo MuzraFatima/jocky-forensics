@@ -9,12 +9,24 @@ client = TestClient(app)
 
 
 def test_root_endpoint():
-    """Verify root endpoint metadata and status."""
+    """Verify root endpoint serves frontend HTML."""
     response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers.get("content-type", "")
+
+
+def test_api_status_endpoint():
+    """Verify API root/status endpoint metadata."""
+    response = client.get("/api/status")
     assert response.status_code == 200
     data = response.json()
     assert data["framework"] == "JOCKY"
     assert data["status"] == "operational"
+
+    res_api = client.get("/api")
+    assert res_api.status_code == 200
+    assert res_api.json()["framework"] == "JOCKY"
+
 
 
 def test_health_check():

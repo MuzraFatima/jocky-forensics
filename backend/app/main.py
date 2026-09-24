@@ -101,9 +101,10 @@ class ReportGenerationRequest(BaseModel):
     evidence: Optional[Dict[str, Any]] = None
 
 
-@app.get("/")
+@app.get("/api")
+@app.get("/api/status")
 def read_root():
-    """Root endpoint providing framework metadata."""
+    """API root/status endpoint providing framework metadata."""
     return {
         "framework": "JOCKY",
         "description": "Domain-Specific Forensic Analysis Framework",
@@ -965,6 +966,13 @@ if _dist_dir.is_dir():
     if _assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=str(_assets_dir)), name="assets")
 
+    @app.get("/")
+    async def serve_root():
+        index_file = _dist_dir / "index.html"
+        if index_file.is_file():
+            return FileResponse(str(index_file))
+        return JSONResponse(status_code=404, content={"detail": "Frontend index.html not found"})
+
     @app.get("/{full_path:path}")
     async def serve_spa_frontend(full_path: str):
         # Don't intercept API routes, OpenAPI docs, or Swagger
@@ -973,7 +981,10 @@ if _dist_dir.is_dir():
         file_path = _dist_dir / full_path
         if file_path.is_file():
             return FileResponse(str(file_path))
-        return FileResponse(str(_dist_dir / "index.html"))
+        index_file = _dist_dir / "index.html"
+        if index_file.is_file():
+            return FileResponse(str(index_file))
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
 
 
 
