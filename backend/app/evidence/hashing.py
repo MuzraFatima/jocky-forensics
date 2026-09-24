@@ -8,7 +8,7 @@ for forensic evidence payloads, ensuring mathematical tamper-evidence.
 import hashlib
 import hmac
 import json
-from typing import Any, Union
+from typing import Any,Optional, Union
 
 
 def compute_sha256(data: Any) -> str:
