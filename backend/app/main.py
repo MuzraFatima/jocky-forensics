@@ -6,6 +6,14 @@ Exposes REST endpoints for script parsing, policy validation, execution monitori
 evidence verification, and report retrieval.
 """
 
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path
+_repo_root = Path(__file__).resolve().parent.parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Request, Response
@@ -21,6 +29,7 @@ from backend.app.language import (
     parse_jocky_script,
 )
 from backend.app.engine import ForensicExecutor, PolicyEngine, execute_jocky_ir
+from backend.app.security import security_router
 
 app = FastAPI(
     title="JOCKY Forensic Analysis Framework API",
@@ -37,8 +46,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount Security & Incident Response router
+app.include_router(security_router)
+
 policy_engine = PolicyEngine()
 executor = ForensicExecutor(policy_engine=policy_engine)
+
 
 
 class ScriptParseRequest(BaseModel):

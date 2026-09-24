@@ -32,6 +32,16 @@ def temp_vault():
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_api_test_case():
+    """Ensures test artifacts in the live vault are cleaned up after tests finish."""
+    yield
+    from backend.app.evidence import _default_vault
+    test_case_dir = _default_vault.cases_dir / "API-TEST-CASE"
+    if test_case_dir.exists():
+        shutil.rmtree(test_case_dir, ignore_errors=True)
+
+
 client = TestClient(app)
 
 

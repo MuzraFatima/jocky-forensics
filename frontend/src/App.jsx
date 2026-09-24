@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import Sidebar from './Sidebar.jsx';
+import Login from './Login.jsx';
+import CyberSupport from './CyberSupport.jsx';
+import CriticalIncidentAlert from './CriticalIncidentAlert.jsx';
+import ReportModal from './ReportModal.jsx';
+import LogoutModal from './LogoutModal.jsx';
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
 TARGET "LAB-PC"
@@ -98,7 +104,177 @@ function ProcessTreeNode({ node, depth = 0 }) {
 
 export default function App() {
   const [scriptText, setScriptText] = useState(CANONICAL_SCRIPT);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, system, processes, network, evidence, script
+  const VALID_TABS = [
+    'overview', 'support', 'correlation', 'timeline', 'system',
+    'processes', 'network', 'files', 'users',
+    'windows', 'evidence', 'reports', 'execute', 'script'
+  ];
+
+  const getInitialTab = () => {
+    try {
+      const hash = window.location.hash.replace('#', '').trim();
+      return VALID_TABS.includes(hash) ? hash : 'overview';
+    } catch {
+      return 'overview';
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('jocky_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900);
+
+  // Authentication & Security Workflow State
+  const [session, setSession] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('jocky_session');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [currentIncident, setCurrentIncident] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLogoutWorkflow, setIsLogoutWorkflow] = useState(false);
+  const [analystStatus, setAnalystStatus] = useState('ONLINE');
+
+  const handleLoginSuccess = (newSession) => {
+    setSession(newSession);
+    try {
+      sessionStorage.setItem('jocky_session', JSON.stringify(newSession));
+    } catch (e) {}
+  };
+
+  const handleLogoutWithoutSending = async () => {
+    try {
+      if (session?.token) {
+        await fetch('http://127.0.0.1:8000/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: session.token,
+            report_sent_status: 'LOGOUT_WITHOUT_SENDING',
+            case_id: investigationData?.case_id || 'LAB-2026-001',
+          }),
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setSession(null);
+    setIsLogoutModalOpen(false);
+    try {
+      sessionStorage.removeItem('jocky_session');
+    } catch (e) {}
+  };
+
+  const handleLogoutAfterReport = async () => {
+    try {
+      if (session?.token) {
+        await fetch('http://127.0.0.1:8000/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: session.token,
+            report_sent_status: 'REPORT_DISPATCHED_BEFORE_LOGOUT',
+            case_id: investigationData?.case_id || 'LAB-2026-001',
+          }),
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setSession(null);
+    setIsReportModalOpen(false);
+    setIsLogoutModalOpen(false);
+    try {
+      sessionStorage.removeItem('jocky_session');
+    } catch (e) {}
+  };
+
+  const fetchIncidentData = async () => {
+    try {
+      const cId = investigationData?.case_id || 'LAB-2026-001';
+      const tgt = investigationData?.target || 'LAB-PC';
+      const res = await fetch(`http://127.0.0.1:8000/api/security/incident/current?case_id=${encodeURIComponent(cId)}&target=${encodeURIComponent(tgt)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.incident) {
+          setCurrentIncident(data.incident);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch current incident:', e);
+    }
+  };
+
+  const fetchAnalystStatus = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/security/analyst/status');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status) setAnalystStatus(data.status);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    if (session) {
+      fetchIncidentData();
+      fetchAnalystStatus();
+    }
+  }, [session, investigationData]);
+
+  const navigateToTab = (tabId) => {
+    setActiveTab(tabId);
+    try {
+      window.location.hash = tabId;
+    } catch (e) {}
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
+
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('jocky_sidebar_collapsed', String(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').trim();
+      if (VALID_TABS.includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 900;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [investigationData, setInvestigationData] = useState(null);
@@ -495,62 +671,128 @@ export default function App() {
   const listenCount = networkList.filter((c) => c.status === 'LISTEN').length;
   const establishedCount = networkList.filter((c) => c.status === 'ESTABLISHED').length;
 
+  const TAB_LABELS = {
+    overview: 'Overview & Analysis',
+    support: 'Cybersecurity Support',
+    correlation: 'Correlation Graph',
+    timeline: 'Forensic Timeline',
+    system: 'System Telemetry',
+    processes: 'Processes',
+    network: 'Network Sockets',
+    files: 'Files & Binaries',
+    users: 'Users & Sessions',
+    windows: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
+    evidence: 'Evidence Vault',
+    reports: 'Forensic Reports',
+    execute: 'Execution Engine',
+    script: 'JOCKY Script Editor',
+  };
+  const activeTabLabel = TAB_LABELS[activeTab] || 'Overview & Analysis';
+
+  if (!session) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top SOC Navbar */}
-      <header style={{
-        borderBottom: '1px solid var(--border-color)',
-        backdropFilter: 'blur(16px)',
-        backgroundColor: 'rgba(6, 9, 15, 0.85)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        padding: '0.75rem 2rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '19px',
-            color: '#fff',
-            boxShadow: '0 0 20px rgba(14, 165, 233, 0.45)',
-          }}>
-            J
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <h1 style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
-                JOCKY FORENSICS
-              </h1>
-              <span style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
+    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-primary)' }}>
+      {/* ChatGPT-style Left Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={navigateToTab}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
+        platformInfo={platformInfo}
+        session={session}
+        onOpenLogout={() => setIsLogoutModalOpen(true)}
+        analystStatus={analystStatus}
+        counts={{
+          correlation: correlationData?.summary?.correlated_chains_count ?? null,
+          timeline: timelineData?.length ?? null,
+          processes: processCount || null,
+          network: networkCount || null,
+          evidence: vaultAudit?.total_artifacts ?? null,
+        }}
+      />
+
+      {/* Main Content Layout Container */}
+      <div
+        className="main-content-layout"
+        style={{
+          marginLeft: isMobile ? 0 : (sidebarCollapsed ? '68px' : '260px'),
+          width: isMobile ? '100%' : `calc(100% - ${sidebarCollapsed ? '68px' : '260px'})`,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        {/* Top SOC Navbar */}
+        <header style={{
+          borderBottom: '1px solid var(--border-color)',
+          backdropFilter: 'blur(16px)',
+          backgroundColor: 'rgba(6, 9, 15, 0.85)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          padding: '0.75rem 2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button
+              onClick={() => (isMobile ? setMobileOpen(!mobileOpen) : handleToggleSidebar())}
+              title={isMobile ? 'Toggle Navigation Menu' : (sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar')}
+              aria-label="Toggle Navigation Menu"
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
                 color: 'var(--accent-cyan)',
-                background: 'rgba(56, 189, 248, 0.1)',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
-                padding: '0.15rem 0.4rem',
-                borderRadius: '4px',
-                letterSpacing: '0.05em',
-              }}>
-                SIH26148 PROTOTYPE
-              </span>
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.1rem',
+                flexShrink: 0,
+              }}
+            >
+              ☰
+            </button>
+
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h1 style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+                  JOCKY FORENSICS
+                </h1>
+                <span style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  color: 'var(--accent-cyan)',
+                  background: 'rgba(56, 189, 248, 0.1)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  padding: '0.15rem 0.4rem',
+                  borderRadius: '4px',
+                  letterSpacing: '0.05em',
+                }}>
+                  SIH26148 PROTOTYPE
+                </span>
+                <span style={{ color: 'var(--border-accent)', fontSize: '0.75rem' }}>•</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                  {activeTabLabel}
+                </span>
+              </div>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                Domain-Specific Scripting &amp; Authorized Read-Only Forensic Architecture
+              </p>
             </div>
-            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              Domain-Specific Scripting &amp; Authorized Read-Only Forensic Architecture
-            </p>
           </div>
-        </div>
 
         {/* Global Security & Status Pills */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -630,6 +872,49 @@ export default function App() {
           >
             ⬇ Export JSON
           </button>
+
+          <button
+            onClick={() => {
+              setIsLogoutWorkflow(false);
+              setIsReportModalOpen(true);
+            }}
+            title="Generate & Send Forensic Report"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.4rem 0.9rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(99, 102, 241, 0.2))',
+              color: '#fff',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              cursor: 'pointer',
+            }}
+          >
+            📄 Generate &amp; Send Report
+          </button>
+
+          <button
+            onClick={() => setIsLogoutModalOpen(true)}
+            title="End Investigation Session"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: 'rgba(244, 63, 94, 0.08)',
+              color: '#fda4af',
+              border: '1px solid rgba(244, 63, 94, 0.3)',
+              cursor: 'pointer',
+            }}
+          >
+            <span>⎋</span> Logout
+          </button>
         </div>
       </header>
 
@@ -664,6 +949,28 @@ export default function App() {
             </button>
           </div>
         )}
+
+        {/* Critical Incident Alert Banner */}
+        <CriticalIncidentAlert
+          incident={currentIncident}
+          onViewIncident={() => {
+            navigateToTab('timeline');
+          }}
+          onPreserveEvidence={async () => {
+            try {
+              await handleVerifyVault();
+            } catch (e) {
+              console.error(e);
+            }
+          }}
+          onContactSecurity={() => {
+            navigateToTab('support');
+          }}
+          onGenerateReport={() => {
+            setIsLogoutWorkflow(false);
+            setIsReportModalOpen(true);
+          }}
+        />
 
         {/* Executive Case & Action Bar */}
         <section style={{
@@ -774,48 +1081,20 @@ export default function App() {
           </div>
         </section>
 
-        {/* Tab Navigation */}
-        <nav style={{
-          display: 'flex',
-          gap: '0.5rem',
-          borderBottom: '1px solid var(--border-color)',
-          marginBottom: '1.5rem',
-          overflowX: 'auto',
-          paddingBottom: '0.25rem',
-        }}>
-          {[
-            { id: 'overview', label: 'Overview & Analysis' },
-            { id: 'correlation', label: `🕸️ Correlation Graph ${correlationData?.summary?.correlated_chains_count ? `(${correlationData.summary.correlated_chains_count})` : ''}` },
-            { id: 'timeline', label: `⏱️ Forensic Timeline ${timelineData?.length ? `(${timelineData.length})` : ''}` },
-            { id: 'system', label: 'System Telemetry' },
-            { id: 'processes', label: `Processes (${processCount})` },
-            { id: 'network', label: `Network Sockets (${networkCount})` },
-            { id: 'files', label: '📁 Files & Binaries' },
-            { id: 'users', label: '👤 Users & Sessions' },
-            { id: 'windows', label: platformInfo?.is_linux ? '🐧 Linux Persistence' : '🪟 Windows Persistence' },
-            { id: 'evidence', label: `🛡️ Evidence Vault ${vaultAudit?.total_artifacts ? `(${vaultAudit.total_artifacts})` : ''}` },
-            { id: 'reports', label: '📄 Forensic Reports' },
-            { id: 'execute', label: '⚡ Execution Engine' },
-            { id: 'script', label: 'JOCKY Script Editor' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.6rem 1.1rem',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                border: 'none',
-                background: activeTab === tab.id ? 'rgba(56, 189, 248, 0.12)' : 'transparent',
-                color: activeTab === tab.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                borderBottom: activeTab === tab.id ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
+
+
+        {/* TAB: CYBERSECURITY SUPPORT */}
+        {activeTab === 'support' && (
+          <CyberSupport
+            session={session}
+            activeCaseId={investigationData?.case_id || 'LAB-2026-001'}
+            currentIncident={currentIncident}
+            onOpenReportModal={() => {
+              setIsLogoutWorkflow(false);
+              setIsReportModalOpen(true);
+            }}
+          />
+        )}
 
         {/* TAB 1: OVERVIEW & ANALYSIS */}
         {activeTab === 'overview' && (
@@ -3687,6 +3966,32 @@ export default function App() {
       }}>
         JOCKY Forensic Analysis Framework • SIH 2026 Problem SIH26148 • Strictly Authorized Read-Only Architecture
       </footer>
+      </div>
+
+      {/* Generate & Send Report Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => {
+          setIsReportModalOpen(false);
+          setIsLogoutWorkflow(false);
+        }}
+        caseId={investigationData?.case_id || 'LAB-2026-001'}
+        session={session}
+        isLogoutWorkflow={isLogoutWorkflow}
+        onLogoutAfterReport={handleLogoutAfterReport}
+      />
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onLogoutWithoutSending={handleLogoutWithoutSending}
+        onGenerateAndSend={() => {
+          setIsLogoutModalOpen(false);
+          setIsLogoutWorkflow(true);
+          setIsReportModalOpen(true);
+        }}
+      />
     </div>
   );
 }

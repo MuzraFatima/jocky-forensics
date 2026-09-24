@@ -120,3 +120,146 @@ input:focus, textarea:focus {
 .pulse-dot {
   animation: pulseGlow 2s infinite ease-in-out;
 }
+
+/* ==========================================================================
+   ChatGPT-Style Left Sidebar & Layout
+   ========================================================================== */
+
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: #080d19;
+  border-right: 1px solid var(--border-color);
+  transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1), transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.sidebar-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.6rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.62rem 0.75rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  position: relative;
+  outline: none;
+}
+
+.sidebar-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-btn:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: -1px;
+}
+
+.sidebar-nav-btn.active {
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0.04) 100%);
+  border-color: rgba(56, 189, 248, 0.28);
+  color: var(--accent-cyan);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accent-cyan);
+}
+
+.sidebar-nav-btn.collapsed {
+  justify-content: center;
+  padding: 0.65rem 0;
+}
+
+.sidebar-badge {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sidebar-badge-muted {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.sidebar-tooltip {
+  position: fixed;
+  z-index: 10000;
+  background: #0c1322;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(14, 165, 233, 0.15);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeInTooltip 0.15s ease-out;
+}
+
+@keyframes fadeInTooltip {
+  from { opacity: 0; transform: translateY(-50%) translateX(-4px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 14, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 900px) {
+  .sidebar-container {
+    transform: translateX(-100%);
+    width: 260px !important;
+  }
+
+  .sidebar-container.mobile-open {
+    transform: translateX(0);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.85);
+  }
+
+  .main-content-layout {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
