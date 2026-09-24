@@ -130,6 +130,63 @@ export default function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900);
 
+  // Base Forensic & Telemetry State
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [investigationData, setInvestigationData] = useState(null);
+  const [backendHealth, setBackendHealth] = useState({ status: 'checking', details: null });
+
+  // Filter states
+  const [processSearch, setProcessSearch] = useState('');
+  const [networkSearch, setNetworkSearch] = useState('');
+  const [networkProtoFilter, setNetworkProtoFilter] = useState('ALL'); // ALL, TCP, UDP, LISTEN, ESTABLISHED
+  const [copiedHash, setCopiedHash] = useState(null);
+  // Compiler state (Phase 1 DSL)
+  const [compilerResult, setCompilerResult] = useState(null);
+  const [compiling, setCompiling] = useState(false);
+  // Phase 2 Execute state
+  const [executeData, setExecuteData] = useState(null);
+  const [executeLoading, setExecuteLoading] = useState(false);
+  const [executeError, setExecuteError] = useState(null);
+
+  // Phase 3 Forensic Collector states
+  const [filesData, setFilesData] = useState(null);
+  const [usersData, setUsersData] = useState(null);
+  const [windowsData, setWindowsData] = useState(null);
+  const [directLoading, setDirectLoading] = useState({});
+  const [fileSearch, setFileSearch] = useState('');
+  const [serviceSearch, setServiceSearch] = useState('');
+
+  // Phase 4 Correlation state
+  const [correlationData, setCorrelationData] = useState(null);
+  const [correlationLoading, setCorrelationLoading] = useState(false);
+  const [correlationSearch, setCorrelationSearch] = useState('');
+  const [correlationSubTab, setCorrelationSubTab] = useState('chains'); // chains, tree, entities
+
+  // Phase 5 Timeline & Heuristics state
+  const [timelineData, setTimelineData] = useState(null);
+  const [analysisData, setAnalysisData] = useState(null);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineSearch, setTimelineSearch] = useState('');
+  const [timelineEventTypeFilter, setTimelineEventTypeFilter] = useState('ALL');
+  const [ruleSeverityFilter, setRuleSeverityFilter] = useState('ALL');
+
+  // Phase 6 Evidence Vault state
+  const [vaultAudit, setVaultAudit] = useState(null);
+  const [vaultLedger, setVaultLedger] = useState([]);
+  const [vaultLoading, setVaultLoading] = useState(false);
+  const [showLedger, setShowLedger] = useState(false);
+  const [vaultTamperMsg, setVaultTamperMsg] = useState(null);
+
+  // Phase 7 Platform state
+  const [platformInfo, setPlatformInfo] = useState(null);
+
+  // Phase 8 Report state
+  const [reportFormat, setReportFormat] = useState('HTML');
+  const [reportExaminer, setReportExaminer] = useState('JOCKY Lead Forensic Examiner');
+  const [reportResult, setReportResult] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
   // Authentication & Security Workflow State
   const [session, setSession] = useState(() => {
     try {
@@ -275,61 +332,6 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const [investigationData, setInvestigationData] = useState(null);
-  const [backendHealth, setBackendHealth] = useState({ status: 'checking', details: null });
-
-  // Filter states
-  const [processSearch, setProcessSearch] = useState('');
-  const [networkSearch, setNetworkSearch] = useState('');
-  const [networkProtoFilter, setNetworkProtoFilter] = useState('ALL'); // ALL, TCP, UDP, LISTEN, ESTABLISHED
-  const [copiedHash, setCopiedHash] = useState(null);
-  // Compiler state (Phase 1 DSL)
-  const [compilerResult, setCompilerResult] = useState(null);
-  const [compiling, setCompiling] = useState(false);
-  // Phase 2 Execute state
-  const [executeData, setExecuteData] = useState(null);
-  const [executeLoading, setExecuteLoading] = useState(false);
-  const [executeError, setExecuteError] = useState(null);
-
-  // Phase 3 Forensic Collector states
-  const [filesData, setFilesData] = useState(null);
-  const [usersData, setUsersData] = useState(null);
-  const [windowsData, setWindowsData] = useState(null);
-  const [directLoading, setDirectLoading] = useState({});
-  const [fileSearch, setFileSearch] = useState('');
-  const [serviceSearch, setServiceSearch] = useState('');
-
-  // Phase 4 Correlation state
-  const [correlationData, setCorrelationData] = useState(null);
-  const [correlationLoading, setCorrelationLoading] = useState(false);
-  const [correlationSearch, setCorrelationSearch] = useState('');
-  const [correlationSubTab, setCorrelationSubTab] = useState('chains'); // chains, tree, entities
-
-  // Phase 5 Timeline & Heuristics state
-  const [timelineData, setTimelineData] = useState(null);
-  const [analysisData, setAnalysisData] = useState(null);
-  const [timelineLoading, setTimelineLoading] = useState(false);
-  const [timelineSearch, setTimelineSearch] = useState('');
-  const [timelineEventTypeFilter, setTimelineEventTypeFilter] = useState('ALL');
-  const [ruleSeverityFilter, setRuleSeverityFilter] = useState('ALL');
-
-  // Phase 6 Evidence Vault state
-  const [vaultAudit, setVaultAudit] = useState(null);
-  const [vaultLedger, setVaultLedger] = useState([]);
-  const [vaultLoading, setVaultLoading] = useState(false);
-  const [showLedger, setShowLedger] = useState(false);
-  const [vaultTamperMsg, setVaultTamperMsg] = useState(null);
-
-  // Phase 7 Platform state
-  const [platformInfo, setPlatformInfo] = useState(null);
-
-  // Phase 8 Report state
-  const [reportFormat, setReportFormat] = useState('HTML');
-  const [reportExaminer, setReportExaminer] = useState('JOCKY Lead Forensic Examiner');
-  const [reportResult, setReportResult] = useState(null);
-  const [reportLoading, setReportLoading] = useState(false);
 
   const handleFetchVault = async (caseId) => {
     setVaultLoading(true);
