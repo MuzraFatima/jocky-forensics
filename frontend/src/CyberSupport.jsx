@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE } from './config.js';
 
 export default function CyberSupport({
   session,
@@ -41,7 +42,7 @@ export default function CyberSupport({
   // Fetch analyst status on mount
   const fetchAnalystStatus = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/analyst/status');
+      const res = await fetch(`${API_BASE}/api/security/analyst/status`);
       if (res.ok) {
         const data = await res.json();
         setAnalystData(data);
@@ -62,7 +63,7 @@ export default function CyberSupport({
     setStatusLoading(true);
     const newStatus = analystData.status === 'ONLINE' ? 'OFFLINE' : 'ONLINE';
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/analyst/toggle', {
+      const res = await fetch(`${API_BASE}/api/security/analyst/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -117,7 +118,7 @@ export default function CyberSupport({
     setSending(true);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/chat', {
+      const res = await fetch(`${API_BASE}/api/security/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

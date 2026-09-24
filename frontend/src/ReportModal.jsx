@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from './config.js';
 
 export default function ReportModal({
   isOpen,
@@ -22,7 +23,7 @@ export default function ReportModal({
   const handleToggleService = async () => {
     const nextState = !serviceReachable;
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/service/toggle', {
+      const res = await fetch(`${API_BASE}/api/security/service/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reachable: nextState }),
@@ -41,7 +42,7 @@ export default function ReportModal({
     setDeliveryResult(null);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/report/send', {
+      const res = await fetch(`${API_BASE}/api/security/report/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ export default function ReportModal({
 
   const handleGenerateOnly = () => {
     // Downloads directly using existing live download endpoint
-    const url = `http://127.0.0.1:8000/api/forensics/report/download?format=${format.toLowerCase()}&case_id=${encodeURIComponent(caseId)}`;
+    const url = `${API_BASE}/api/forensics/report/download?format=${format.toLowerCase()}&case_id=${encodeURIComponent(caseId)}`;
     window.open(url, '_blank');
     onClose();
   };
@@ -79,7 +80,7 @@ export default function ReportModal({
   const handleRetry = async (reportId) => {
     setRetrying(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/security/report/retry/${reportId}`, {
+      const res = await fetch(`${API_BASE}/api/security/report/retry/${reportId}`, {
         method: 'POST',
         headers: {
           Authorization: session?.token ? `Bearer ${session.token}` : '',

@@ -2,6 +2,17 @@
 
 > **SIH 2026 Problem Statement SIH26148**: "Creation of scripts/functions with new programming language to commence Computer & Network forensic analysis without triggering security solutions."
 
+[![Live Demo](https://img.shields.io/badge/Demo-Live%20Application-brightgreen?style=for-the-badge&logo=render)](https://YOUR-APP-NAME.onrender.com)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
+
+---
+
+## 🌐 Live Demo Link
+
+> **Live Application URL**: `https://YOUR-APP-NAME.onrender.com`  
+> *(Replace `YOUR-APP-NAME` with your free Render app name once deployed)*
+
 ---
 
 ## ⚠️ Important Scope & Compliance Statement
@@ -123,3 +134,39 @@ npm run dev
 # From jocky-forensics root
 python -m pytest tests/
 ```
+
+---
+
+## 🚀 How to Deploy & Get a Live URL (Free)
+
+This project contains a multi-stage Dockerfile and unified server setup so you can deploy both the React UI and FastAPI backend to a single free live link with zero CORS issues.
+
+### Option 1: 1-Click Deploy on Render (Recommended — Free)
+
+1. Push this repository to your GitHub account (`git push origin main`).
+2. Go to **[Render.com](https://render.com/)** and log in with your GitHub account.
+3. Click **New +** > **Web Service**.
+4. Select your **`jocky-forensics`** repository.
+5. In the configuration settings:
+   - **Name**: `jocky-forensics` (or your preferred name)
+   - **Language / Runtime**: **Docker** (it will automatically detect the root `Dockerfile`)
+   - **Region**: Any close to you (e.g., Oregon or Frankfurt)
+   - **Instance Type**: **Free**
+6. Click **Create Web Service**.
+7. Render will build the React frontend and launch the FastAPI server. Once finished, you will receive a public HTTPS URL:
+   `https://<your-service-name>.onrender.com`
+8. Paste that link into your GitHub repository's **About / Website** section and update the `[Live Demo]` badge at the top of this `README.md`!
+
+---
+
+### Option 2: Run with Docker Locally
+
+```bash
+# Build the unified image
+docker build -t jocky-forensics .
+
+# Run the container
+docker run -p 8000:8000 jocky-forensics
+```
+Visit `http://localhost:8000` to interact with the full application.
+

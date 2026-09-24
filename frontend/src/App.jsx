@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from './config.js';
 import Sidebar from './Sidebar.jsx';
 import Login from './Login.jsx';
 import CyberSupport from './CyberSupport.jsx';
@@ -213,7 +214,7 @@ export default function App() {
   const handleLogoutWithoutSending = async () => {
     try {
       if (session?.token) {
-        await fetch('http://127.0.0.1:8000/api/auth/logout', {
+        await fetch(`${API_BASE}/api/auth/logout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -236,7 +237,7 @@ export default function App() {
   const handleLogoutAfterReport = async () => {
     try {
       if (session?.token) {
-        await fetch('http://127.0.0.1:8000/api/auth/logout', {
+        await fetch(`${API_BASE}/api/auth/logout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -261,7 +262,7 @@ export default function App() {
     try {
       const cId = investigationData?.case_id || 'LAB-2026-001';
       const tgt = investigationData?.target || 'LAB-PC';
-      const res = await fetch(`http://127.0.0.1:8000/api/security/incident/current?case_id=${encodeURIComponent(cId)}&target=${encodeURIComponent(tgt)}`);
+      const res = await fetch(`${API_BASE}/api/security/incident/current?case_id=${encodeURIComponent(cId)}&target=${encodeURIComponent(tgt)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.incident) {
@@ -275,7 +276,7 @@ export default function App() {
 
   const fetchAnalystStatus = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/security/analyst/status');
+      const res = await fetch(`${API_BASE}/api/security/analyst/status`);
       if (res.ok) {
         const data = await res.json();
         if (data.status) setAnalystStatus(data.status);
@@ -337,7 +338,7 @@ export default function App() {
     setVaultLoading(true);
     try {
       const q = caseId ? `?case_id=${encodeURIComponent(caseId)}` : '';
-      const res = await fetch(`http://127.0.0.1:8000/api/forensics/vault/audit${q}`);
+      const res = await fetch(`${API_BASE}/api/forensics/vault/audit${q}`);
       const json = await res.json();
       if (json.success) {
         setVaultAudit(json.audit_summary);
@@ -352,7 +353,7 @@ export default function App() {
 
   const handleVerifyArtifact = async (evidenceId) => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/forensics/vault/verify', {
+      const res = await fetch(`${API_BASE}/api/forensics/vault/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evidence_id: evidenceId }),
@@ -369,7 +370,7 @@ export default function App() {
   const handleAuditEntireVault = async () => {
     setVaultLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/forensics/vault/verify', {
+      const res = await fetch(`${API_BASE}/api/forensics/vault/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -388,7 +389,7 @@ export default function App() {
   const handleSimulateTamper = async (evidenceId) => {
     if (!evidenceId) return;
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/forensics/vault/simulate-tampering', {
+      const res = await fetch(`${API_BASE}/api/forensics/vault/simulate-tampering`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evidence_id: evidenceId, new_val: 'SIMULATED_MALICIOUS_INJECTION' }),
@@ -396,7 +397,7 @@ export default function App() {
       const json = await res.json();
       if (json.success) {
         setVaultTamperMsg(`Tampered payload for ${evidenceId}. Re-auditing vault...`);
-        await fetch('http://127.0.0.1:8000/api/forensics/vault/verify', {
+        await fetch(`${API_BASE}/api/forensics/vault/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ evidence_id: evidenceId }),
@@ -410,13 +411,13 @@ export default function App() {
 
   const handleExportBundle = (caseId) => {
     const cId = caseId || investigationData?.case_id || 'LAB-2026-001';
-    window.open(`http://127.0.0.1:8000/api/forensics/vault/export/${encodeURIComponent(cId)}`, '_blank');
+    window.open(`${API_BASE}/api/forensics/vault/export/${encodeURIComponent(cId)}`, '_blank');
   };
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/forensics/report', {
+      const res = await fetch(`${API_BASE}/api/forensics/report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -440,13 +441,13 @@ export default function App() {
 
   const handleDownloadReport = (fmt) => {
     const cId = investigationData?.case_id || 'LAB-2026-001';
-    window.open(`http://127.0.0.1:8000/api/forensics/report/download?format=${fmt || reportFormat}&case_id=${encodeURIComponent(cId)}`, '_blank');
+    window.open(`${API_BASE}/api/forensics/report/download?format=${fmt || reportFormat}&case_id=${encodeURIComponent(cId)}`, '_blank');
   };
 
   const handleFetchCorrelation = async () => {
     setCorrelationLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/forensics/correlate');
+      const res = await fetch(`${API_BASE}/api/forensics/correlate`);
       const json = await res.json();
       if (json.success) {
         setCorrelationData(json.correlation);
@@ -462,8 +463,8 @@ export default function App() {
     setTimelineLoading(true);
     try {
       const [tlRes, anRes] = await Promise.all([
-        fetch('http://127.0.0.1:8000/api/forensics/timeline'),
-        fetch('http://127.0.0.1:8000/api/forensics/analysis')
+        fetch(`${API_BASE}/api/forensics/timeline`),
+        fetch(`${API_BASE}/api/forensics/analysis`)
       ]);
       const tlJson = await tlRes.json();
       const anJson = await anRes.json();
@@ -479,7 +480,7 @@ export default function App() {
   const handleDirectCollect = async (source) => {
     setDirectLoading((prev) => ({ ...prev, [source]: true }));
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/forensics/collect/${source}`);
+      const res = await fetch(`${API_BASE}/api/forensics/collect/${source}`);
       const json = await res.json();
       if (json.success) {
         if (source === 'files') setFilesData(json.artifact);
@@ -495,7 +496,7 @@ export default function App() {
 
   // Check backend health on mount and auto-trigger initial run if online
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/health')
+    fetch(`${API_BASE}/api/health`)
       .then((res) => res.json())
       .then((data) => {
         setBackendHealth({ status: 'online', details: data });
@@ -507,7 +508,7 @@ export default function App() {
       });
 
     // Fetch cross-platform status and initial vault audit
-    fetch('http://127.0.0.1:8000/api/forensics/platform')
+    fetch(`${API_BASE}/api/forensics/platform`)
       .then((res) => res.json())
       .then((data) => { if (data.success) setPlatformInfo(data); })
       .catch(() => {});
@@ -520,7 +521,7 @@ export default function App() {
     setApiError(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/jocky/investigate', {
+      const response = await fetch(`${API_BASE}/api/jocky/investigate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ script: codeToRun }),
@@ -564,7 +565,7 @@ export default function App() {
     setCompiling(true);
     setCompilerResult(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/jocky/compile', {
+      const response = await fetch(`${API_BASE}/api/jocky/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ script: scriptText }),
@@ -589,7 +590,7 @@ export default function App() {
     setExecuteError(null);
     setExecuteData(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/jocky/execute', {
+      const response = await fetch(`${API_BASE}/api/jocky/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ script: codeToRun }),

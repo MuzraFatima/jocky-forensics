@@ -18,7 +18,8 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend.app.language import (
@@ -953,6 +954,27 @@ def download_report_endpoint(format: str = "html", case_id: str = "CASE-LIVE-001
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# -----------------------------------------------------------------------------
+# Static Frontend Serving (Single-Service Deployment Mode)
+# -----------------------------------------------------------------------------
+_dist_dir = _repo_root / "frontend" / "dist"
+if _dist_dir.is_dir():
+    _assets_dir = _dist_dir / "assets"
+    if _assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=str(_assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa_frontend(full_path: str):
+        # Don't intercept API routes, OpenAPI docs, or Swagger
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+        file_path = _dist_dir / full_path
+        if file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(_dist_dir / "index.html"))
+
 
 
 
