@@ -12,6 +12,7 @@ Validates:
 """
 
 import json
+from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
@@ -188,3 +189,182 @@ def test_api_report_download_endpoint():
     assert "text/html" in res.headers["content-type"]
     assert 'filename="jocky_report_CASE-DL-01.html"' in res.headers["content-disposition"]
     assert "<!DOCTYPE html>" in res.text
+
+
+def test_report_contains_all_required_forensic_elements(sample_case_data):
+    """
+    Prompt 5 Verification:
+    Ensures all 9 required forensic elements exist and are consistent across
+    Report Data, JSON, Markdown, and HTML:
+    1. Case ID and target
+    2. Investigation/execution timestamp
+    3. Evidence/artifact IDs
+    4. SHA-256 hashes
+    5. Chain-of-custody information
+    6. Collector/source information
+    7. Correlation/timeline findings
+    8. Integrity verification result
+    9. Forensic rule results
+    """
+    builder = ForensicReportBuilder(
+        case_id="CASE-POLISH-2026",
+        target="ENDPOINT-POLISH",
+        examiner="Lead Forensic Inspector Smith",
+        execution_id="EXEC-POLISH-999",
+    )
+    rep_data = builder.build_report_data(**sample_case_data)
+
+    # 1. Case ID & Target
+    assert rep_data["case_id"] == "CASE-POLISH-2026"
+    assert rep_data["target"] == "ENDPOINT-POLISH"
+
+    # 2. Investigation/execution timestamp
+    assert "investigation_timestamp" in rep_data
+    assert "generated_at_utc" in rep_data
+    assert "EXEC-POLISH-999" in rep_data["execution_id"]
+
+    # 3. Evidence/artifact IDs
+    manifest = rep_data["evidence_manifest"]
+    assert len(manifest) >= 2
+    eids = [m["evidence_id"] for m in manifest]
+    assert "EVID-SYS-01" in eids
+    assert "EVID-PROC-01" in eids
+
+    # 4. SHA-256 hashes
+    for m in manifest:
+        assert len(m["sha256"]) == 64
+    assert len(rep_data["attestation"]["manifest_sha256"]) == 64
+
+    # 5. Chain-of-custody information
+    custody = rep_data["chain_of_custody"]
+    assert len(custody) >= 2
+    actions = [c["action"] for c in custody]
+    assert "ACQUIRED" in actions
+    for c in custody:
+        assert "who" in c
+        assert "what" in c
+        assert "why" in c
+        assert "when" in c
+        assert "sha256" in c
+
+    # 6. Collector/source information
+    collectors = rep_data["collector_info"]
+    assert len(collectors) >= 2
+    sources = [c["source"] for c in collectors]
+    assert "system" in sources
+    assert "processes" in sources
+    for col in collectors:
+        assert col["mode"] == "NON-INVASIVE READ-ONLY"
+        assert col["items_captured"] >= 1
+        assert "evidence_id" in col
+        assert len(col["sha256"]) == 64
+
+    # 7. Correlation/timeline findings
+    assert len(rep_data["correlated_chains"]) >= 1
+    assert len(rep_data["timeline_highlights"]) >= 1
+    assert rep_data["timeline_highlights"][0]["event_type"] == "PROCESS_START"
+
+    # 8. Integrity verification result
+    iv = rep_data["integrity_verification"]
+    assert iv["vault_status"] == "INTACT"
+    assert iv["algorithm"] == "SHA-256"
+    assert iv["tampered_count"] == 0
+
+    # 9. Forensic rule results
+    dets = rep_data["detections"]
+    assert len(dets) >= 1
+    assert dets[0]["rule_id"] == "RULE-001"
+    assert dets[0]["severity"] == "HIGH"
+
+    # Verify JSON representations
+    json_out = builder.generate_json(rep_data)
+    parsed_json = json.loads(json_out)
+    assert parsed_json["case_id"] == "CASE-POLISH-2026"
+    assert "chain_of_custody" in parsed_json
+    assert "collector_info" in parsed_json
+    assert "integrity_verification" in parsed_json
+    assert "evidence_manifest" in parsed_json
+
+    # Verify Markdown representations
+    md_out = builder.generate_markdown(rep_data)
+    assert "CASE-POLISH-2026" in md_out
+    assert "ENDPOINT-POLISH" in md_out
+    assert "## 7. Forensic Chain of Custody Ledger" in md_out
+    assert "## 8. Collector Acquisition Scope & Sources" in md_out
+    assert "## 9. Chronological Forensic Timeline" in md_out
+    assert "RULE-001" in md_out
+    assert "EVID-SYS-01" in md_out
+
+    # Verify HTML representations
+    html_out = builder.generate_html(rep_data)
+    assert "<!DOCTYPE html>" in html_out
+    assert "CASE-POLISH-2026" in html_out
+    assert "ENDPOINT-POLISH" in html_out
+    assert "Forensic Chain of Custody Ledger" in html_out
+    assert "Collector Acquisition Scope &amp; Sources" in html_out
+    assert "Chronological Forensic Timeline Highlights" in html_out
+    assert "EVID-SYS-01" in html_out
+    assert "RULE-001" in html_out
+    assert "Lead Forensic Inspector Smith" in html_out
+
+
+def test_save_report_to_disk_and_independent_reading(sample_case_data, tmp_path):
+    """
+    Verifies that generated reports (HTML, JSON, Markdown) can be saved to disk
+    and opened/read independently by external systems.
+    """
+    builder = ForensicReportBuilder(
+        case_id="CASE-SAVE-TEST",
+        target="ENDPOINT-SAVE",
+    )
+    rep_data = builder.build_report_data(**sample_case_data)
+
+    # Save HTML
+    html_content = builder.generate_html(rep_data)
+    html_file = builder.save_report(html_content, format_type="HTML", output_dir=tmp_path)
+    assert html_file.is_file()
+    read_html = html_file.read_text(encoding="utf-8")
+    assert "<!DOCTYPE html>" in read_html
+    assert "CASE-SAVE-TEST" in read_html
+
+    # Save JSON
+    json_content = builder.generate_json(rep_data)
+    json_file = builder.save_report(json_content, format_type="JSON", output_dir=tmp_path)
+    assert json_file.is_file()
+    read_json = json_file.read_text(encoding="utf-8")
+    parsed = json.loads(read_json)
+    assert parsed["case_id"] == "CASE-SAVE-TEST"
+    assert parsed["target"] == "ENDPOINT-SAVE"
+
+    # Save Markdown
+    md_content = builder.generate_markdown(rep_data)
+    md_file = builder.save_report(md_content, format_type="MD", output_dir=tmp_path)
+    assert md_file.is_file()
+    read_md = md_file.read_text(encoding="utf-8")
+    assert "# JOCKY Digital Forensic Investigation Report: CASE-SAVE-TEST" in read_md
+    assert "## 7. Forensic Chain of Custody Ledger" in read_md
+
+
+def test_api_report_returns_saved_path(sample_case_data):
+    """
+    Verifies that POST /api/forensics/report saves the report to disk and returns saved_path.
+    """
+    payload = {
+        "case_id": "API-SAVE-CHECK",
+        "target": "SRV-SAVE",
+        "format": "HTML",
+        "examiner": "Detective Miller",
+        "evidence": sample_case_data["collected_data"],
+    }
+    res = client.post("/api/forensics/report", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert "saved_path" in data
+    assert data["saved_path"] is not None
+
+    # Verify physical file existence and readability
+    p = Path(data["saved_path"])
+    assert p.is_file()
+    assert "API-SAVE-CHECK" in p.read_text(encoding="utf-8")
+

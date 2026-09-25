@@ -1,11 +1,12 @@
 """
 JOCKY Forensic Collector Dispatcher
 
-Provides transparent cross-platform dispatching between Windows and Linux/POSIX
-forensic collector implementations while maintaining 100% schema parity:
+Provides transparent cross-platform dispatching between Windows, Linux/POSIX,
+and macOS (Darwin) forensic collector implementations while maintaining 100% schema parity:
 - On Windows: routes to Win32/NTFS/Registry collectors.
 - On Linux/POSIX: routes to /proc, /etc, crontab, and systemd collectors.
-- Automatically normalizes differences so the correlation and timeline engines
+- On macOS (Darwin): routes to SystemVersion, LaunchDaemons, LaunchAgents, and POSIX collectors.
+- Automatically normalizes differences so the correlation, timeline, and report engines
   operate uniformly regardless of host OS.
 """
 
@@ -33,18 +34,40 @@ from .linux_collectors import (
     collect_linux_users_info,
 )
 
+# macOS collectors
+from .macos_collectors import (
+    collect_macos_files_info,
+    collect_macos_network_info,
+    collect_macos_persistence_info,
+    collect_macos_process_info,
+    collect_macos_system_info,
+    collect_macos_users_info,
+)
+
 
 def get_current_platform() -> str:
-    """Returns 'Windows', 'Linux', or the OS name detected by platform.system()."""
+    """Returns 'Windows', 'Linux', 'Darwin', or the OS name detected by platform.system()."""
     return platform.system()
 
 
 def is_windows() -> bool:
+    """Returns True if running on Windows."""
     return get_current_platform() == "Windows"
 
 
 def is_linux() -> bool:
+    """Returns True if running on Linux."""
     return get_current_platform() == "Linux"
+
+
+def is_macos() -> bool:
+    """Returns True if running on macOS (Darwin)."""
+    return get_current_platform() in ("Darwin", "macOS")
+
+
+def is_darwin() -> bool:
+    """Alias for is_macos()."""
+    return is_macos()
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +77,9 @@ def is_linux() -> bool:
 def dispatch_system_info(root_dir: str = "/", force_platform: Optional[str] = None) -> Dict[str, Any]:
     """Collects system telemetry from the active host or forced platform."""
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_system_info(root_dir=root_dir)
+    elif plat == "Linux":
         return collect_linux_system_info(root_dir=root_dir)
     return win_collect_system()
 
@@ -62,7 +87,9 @@ def dispatch_system_info(root_dir: str = "/", force_platform: Optional[str] = No
 def dispatch_process_info(root_dir: str = "/", force_platform: Optional[str] = None) -> Dict[str, Any]:
     """Collects running processes from the active host or forced platform."""
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_process_info(root_dir=root_dir)
+    elif plat == "Linux":
         return collect_linux_process_info(root_dir=root_dir)
     return win_collect_processes()
 
@@ -70,7 +97,9 @@ def dispatch_process_info(root_dir: str = "/", force_platform: Optional[str] = N
 def dispatch_network_info(root_dir: str = "/", force_platform: Optional[str] = None) -> Dict[str, Any]:
     """Collects network socket telemetry from the active host or forced platform."""
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_network_info(root_dir=root_dir)
+    elif plat == "Linux":
         return collect_linux_network_info(root_dir=root_dir)
     return win_collect_network()
 
@@ -83,7 +112,9 @@ def dispatch_files_info(
 ) -> Dict[str, Any]:
     """Collects filesystem metadata and binary hashes."""
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_files_info(root_dir=root_dir, target_dir=target_path, max_files=max_files)
+    elif plat == "Linux":
         return collect_linux_files_info(root_dir=root_dir, target_dir=target_path, max_files=max_files)
     return win_collect_files(target_path=target_path, max_files=max_files)
 
@@ -91,7 +122,9 @@ def dispatch_files_info(
 def dispatch_users_info(root_dir: str = "/", force_platform: Optional[str] = None) -> Dict[str, Any]:
     """Collects user identity and session telemetry."""
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_users_info(root_dir=root_dir)
+    elif plat == "Linux":
         return collect_linux_users_info(root_dir=root_dir)
     return win_collect_users()
 
@@ -101,9 +134,12 @@ def dispatch_persistence_info(root_dir: str = "/", force_platform: Optional[str]
     Collects persistence mechanisms:
     - On Windows: Run keys, Scheduled Tasks, Win32 Services.
     - On Linux: /etc/crontab, /etc/cron.d, systemd service units.
+    - On macOS: LaunchDaemons, LaunchAgents, crontabs.
     """
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return collect_macos_persistence_info(root_dir=root_dir)
+    elif plat == "Linux":
         return collect_linux_persistence_info(root_dir=root_dir)
     return win_collect_persistence()
 
@@ -111,10 +147,21 @@ def dispatch_persistence_info(root_dir: str = "/", force_platform: Optional[str]
 def get_platform_collectors(force_platform: Optional[str] = None) -> Dict[str, Callable]:
     """
     Returns a unified mapping of canonical collector names to their platform-aware
-    collector functions.
+    collector functions for Windows, Linux, or macOS.
     """
     plat = force_platform or get_current_platform()
-    if plat == "Linux":
+    if plat in ("Darwin", "macOS"):
+        return {
+            "system": lambda **kw: collect_macos_system_info(**kw),
+            "processes": lambda **kw: collect_macos_process_info(**kw),
+            "network": lambda **kw: collect_macos_network_info(**kw),
+            "files": lambda **kw: collect_macos_files_info(**kw),
+            "users": lambda **kw: collect_macos_users_info(**kw),
+            "persistence": lambda **kw: collect_macos_persistence_info(**kw),
+            "launch_daemons": lambda **kw: collect_macos_persistence_info(**kw),
+            "launch_agents": lambda **kw: collect_macos_persistence_info(**kw),
+        }
+    elif plat == "Linux":
         return {
             "system": lambda **kw: collect_linux_system_info(**kw),
             "processes": lambda **kw: collect_linux_process_info(**kw),

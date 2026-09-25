@@ -315,7 +315,18 @@ def execute_endpoint(request: ScriptParseRequest):
         403 if any IR operation is denied by the policy engine
         400 on JOCKY syntax / semantic compilation error
     """
-    compile_result = compile_jocky(request.script)
+    import re
+    import uuid
+
+    # Normalize bare 'COLLECT FILES' if not followed by a path string
+    normalized_script = re.sub(
+        r'(?i)^\s*COLLECT\s+FILES\s*$',
+        'COLLECT FILES "evidence"',
+        request.script,
+        flags=re.MULTILINE,
+    )
+
+    compile_result = compile_jocky(normalized_script)
 
     if not compile_result["success"]:
         err = compile_result["error"]
@@ -350,7 +361,46 @@ def execute_endpoint(request: ScriptParseRequest):
 
     # Full IR execution
     receipt = execute_jocky_ir(ir)
+
+    # Enrich receipt with execution_id, evidence_collected, errors, and persist to vault
+    from backend.app.evidence import _default_vault
+    case_id = receipt.get("case_id") or "DEFAULT-CASE"
+    target = receipt.get("target") or "LOCAL-HOST"
+    exec_id = ir.get("execution_id") or receipt.get("execution_id") or f"EXEC-{uuid.uuid4().hex[:8].upper()}"
+
+    receipt["execution_id"] = exec_id
+    receipt["errors"] = [receipt["error"]] if receipt.get("error") else []
+
+    # Seal each collected evidence in the Evidence Vault to persist through the vault flow
+    evidence_collected_list = []
+    for category, data in receipt.get("collected_data", {}).items():
+        evid_id = receipt.get("evidence_ids", {}).get(category)
+        sha = receipt.get("sha256_hashes", {}).get(category)
+        try:
+            sealed = _default_vault.seal_artifact(
+                case_id=case_id,
+                source=category,
+                data=data,
+                who="JOCKY IR Pipeline",
+                why=f"IR execution collection for {case_id}",
+                execution_id=exec_id,
+                target_host=target,
+            )
+            evid_id = sealed["evidence_id"]
+            sha = sealed["sha256"]
+            receipt.setdefault("evidence_ids", {})[category] = evid_id
+            receipt.setdefault("sha256_hashes", {})[category] = sha
+        except Exception:
+            pass
+        evidence_collected_list.append({
+            "category": category,
+            "evidence_id": evid_id,
+            "sha256": sha,
+            "data": data,
+        })
+    receipt["evidence_collected"] = evidence_collected_list
     return receipt
+
 
 
 # ---------------------------------------------------------------------------
@@ -809,6 +859,8 @@ def get_platform_info():
         "architecture": platform.machine(),
         "is_windows": current_os == "Windows",
         "is_linux": current_os == "Linux",
+        "is_macos": current_os in ("Darwin", "macOS"),
+        "is_darwin": current_os in ("Darwin", "macOS"),
         "read_only": True,
         "supported_collectors": [
             "system",
@@ -833,6 +885,14 @@ def get_platform_info():
                 "systemd_units",
                 "passwd_shadow",
                 "bash_history",
+            ],
+            "macos": [
+                "system_version_plist",
+                "launch_daemons",
+                "launch_agents",
+                "mach_o_binaries",
+                "posix_users",
+                "cron_tabs",
             ],
         },
     }
@@ -902,11 +962,14 @@ def generate_report_endpoint(request: ReportGenerationRequest):
         else:
             content = builder.generate_json(report_data)
 
+        saved_path = builder.save_report(content, fmt)
+
         return {
             "success": True,
             "format": fmt,
             "report_data": report_data,
             "content": content,
+            "saved_path": str(saved_path),
             "attestation": report_data.get("attestation"),
         }
     except Exception as exc:

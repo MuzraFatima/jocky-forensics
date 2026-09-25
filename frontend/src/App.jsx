@@ -177,6 +177,7 @@ export default function App() {
   const [executeData, setExecuteData] = useState(null);
   const [executeLoading, setExecuteLoading] = useState(false);
   const [executeError, setExecuteError] = useState(null);
+  const [collectorProgress, setCollectorProgress] = useState(null);
 
   // Phase 3 Forensic Collector states
   const [filesData, setFilesData] = useState(null);
@@ -465,18 +466,22 @@ export default function App() {
     window.open(`${API_BASE}/api/forensics/vault/export/${encodeURIComponent(cId)}`, '_blank');
   };
 
-  const handleGenerateReport = async () => {
+  const handleGenerateReport = async (fmtOverride) => {
     setReportLoading(true);
+    const chosenFormat = (fmtOverride || reportFormat || 'HTML').toUpperCase();
+    const collected = investigationData?.collected_data || executeData?.collected_data || null;
+    const caseId = investigationData?.case_id || executeData?.case_id || 'LAB-2026-001';
+    const target = investigationData?.target || executeData?.target || 'LAB-PC';
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/report`, {
+      const res = await fetch(`${API_BASE}/api/reports/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          case_id: investigationData?.case_id || 'LAB-2026-001',
-          target: investigationData?.target || 'LAB-PC',
-          format: reportFormat,
-          examiner: reportExaminer,
-          evidence: investigationData?.collected_data,
+          case_id: caseId,
+          target: target,
+          format: chosenFormat,
+          examiner: reportExaminer || 'JOCKY Lead Forensic Examiner',
+          evidence: collected,
         }),
       });
       const json = await res.json();
@@ -491,24 +496,31 @@ export default function App() {
   };
 
   const handleDownloadReport = (fmt) => {
-    const cId = investigationData?.case_id || 'LAB-2026-001';
-    window.open(`${API_BASE}/api/forensics/report/download?format=${fmt || reportFormat}&case_id=${encodeURIComponent(cId)}`, '_blank');
+    const cId = investigationData?.case_id || executeData?.case_id || 'LAB-2026-001';
+    window.open(`${API_BASE}/api/forensics/report/download?format=${(fmt || reportFormat).toLowerCase()}&case_id=${encodeURIComponent(cId)}`, '_blank');
   };
 
-  const handleFetchCorrelation = async () => {
+  const handleAnalyzeEvidenceCorrelate = async (customEvidence = null) => {
     setCorrelationLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/correlate`);
+      const evidence = customEvidence || investigationData?.collected_data || executeData?.collected_data || {};
+      const res = await fetch(`${API_BASE}/api/forensics/correlate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ evidence }),
+      });
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.correlation) {
         setCorrelationData(json.correlation);
       }
     } catch (err) {
-      console.error('Error fetching correlation graph:', err);
+      console.error('Error correlating evidence:', err);
     } finally {
       setCorrelationLoading(false);
     }
   };
+  const handleFetchCorrelation = handleAnalyzeEvidenceCorrelate;
+
 
   const handleFetchTimeline = async () => {
     setTimelineLoading(true);
@@ -567,41 +579,95 @@ export default function App() {
     handleFetchVault();
   }, []);
 
-  const handleRunInvestigation = async (codeToRun = scriptText) => {
+  const handleExecuteScript = async (codeToRun = scriptText) => {
     setLoading(true);
+    setExecuteLoading(true);
     setApiError(null);
+    setExecuteError(null);
+
+    // Normalize bare COLLECT FILES so scripts without paths execute seamlessly
+    const normalizedCode = (codeToRun || '').replace(
+      /^\s*COLLECT\s+FILES\s*$/gim,
+      'COLLECT FILES "evidence"'
+    );
+
+    // Initialize collector progress pipeline: SYSTEM → PROCESSES → NETWORK → FILES
+    setCollectorProgress({
+      active: true,
+      system: normalizedCode.includes('COLLECT SYSTEM') ? 'running' : 'skipped',
+      processes: normalizedCode.includes('COLLECT PROCESSES') ? 'pending' : 'skipped',
+      network: normalizedCode.includes('COLLECT NETWORK') ? 'pending' : 'skipped',
+      files: normalizedCode.includes('COLLECT FILES') ? 'pending' : 'skipped',
+    });
 
     try {
-      const response = await fetch(`${API_BASE}/api/jocky/investigate`, {
+      const response = await fetch(`${API_BASE}/api/jocky/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script: codeToRun }),
+        body: JSON.stringify({ script: normalizedCode }),
       });
 
       const result = await response.json();
+      const { success, execution_id, evidence_collected, errors } = result;
 
-      if (!response.ok || result.success === false) {
+      if (!response.ok || success === false || (errors && errors.length > 0)) {
+        const errMsg = (errors && errors.length > 0)
+          ? errors.join('; ')
+          : (result.message || 'The script failed to execute.');
         setApiError({
-          error_type: result.error_type || 'InvestigationError',
-          message: result.message || 'The script failed to execute.',
+          error_type: result.error_type || 'ExecutionError',
+          message: errMsg,
           line: result.line,
           column: result.column,
         });
+        setExecuteError(result);
+        setCollectorProgress((prev) => ({
+          ...(prev || {}),
+          system: prev?.system === 'running' ? 'failed' : (prev?.system || 'failed'),
+          processes: prev?.processes === 'running' ? 'failed' : (prev?.processes || 'failed'),
+          network: prev?.network === 'running' ? 'failed' : (prev?.network || 'failed'),
+          files: prev?.files === 'running' ? 'failed' : (prev?.files || 'failed'),
+        }));
       } else {
         setInvestigationData(result);
-        if (result.correlation) setCorrelationData(result.correlation);
+        setExecuteData(result);
+
+        const cd = result.collected_data || {};
+        setCollectorProgress({
+          active: true,
+          system: cd.system ? 'completed' : 'skipped',
+          processes: cd.processes ? 'completed' : 'skipped',
+          network: cd.network ? 'completed' : 'skipped',
+          files: cd.files ? 'completed' : 'skipped',
+        });
+
+        if (result.correlation) {
+          setCorrelationData(result.correlation);
+        } else if (result.collected_data) {
+          handleAnalyzeEvidenceCorrelate(result.collected_data);
+        }
+
         if (result.timeline) setTimelineData(result.timeline);
         if (result.detections) setAnalysisData({ detections: result.detections });
+
+        handleFetchVault(result.case_id);
       }
     } catch (err) {
-      setApiError({
+      const netErr = {
         error_type: 'NetworkError',
         message: `Failed to connect to JOCKY backend: ${err.message}`,
-      });
+      };
+      setApiError(netErr);
+      setExecuteError(netErr);
     } finally {
       setLoading(false);
+      setExecuteLoading(false);
     }
   };
+
+  const handleRunInvestigation = handleExecuteScript;
+  const handleRunExecute = handleExecuteScript;
+
 
   useEffect(() => {
     if (activeTab === 'correlation' && !correlationData && !correlationLoading) {
@@ -636,34 +702,158 @@ export default function App() {
     }
   };
 
-  const handleRunExecute = async (codeToRun = scriptText) => {
-    setExecuteLoading(true);
-    setExecuteError(null);
-    setExecuteData(null);
-    try {
-      const response = await fetch(`${API_BASE}/api/jocky/execute`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script: codeToRun }),
-      });
-      const result = await response.json();
-      if (!response.ok || result.success === false) {
-        setExecuteError(result);
-      } else {
-        setExecuteData(result);
-        if (result.correlation) setCorrelationData(result.correlation);
-        if (result.timeline) setTimelineData(result.timeline);
-        if (result.detections) setAnalysisData({ detections: result.detections });
-      }
-    } catch (err) {
-      setExecuteError({
-        error_type: 'NetworkError',
-        message: `Failed to connect to JOCKY backend: ${err.message}`,
-      });
-    } finally {
-      setExecuteLoading(false);
-    }
+  const renderCollectorProgressUI = () => {
+    if (!collectorProgress && !loading && !executeLoading) return null;
+    return (
+      <div id="collector-pipeline-ui" style={{
+        background: 'rgba(15, 23, 42, 0.85)',
+        border: '1px solid rgba(99, 102, 241, 0.3)',
+        borderRadius: '10px',
+        padding: '1.25rem',
+        marginTop: '1rem',
+        marginBottom: '1.25rem',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.37)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>⚡</span>
+            <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+              Collector Execution Pipeline
+            </span>
+            <span style={{
+              fontSize: '0.72rem',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '4px',
+              fontWeight: 700,
+              background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: (loading || executeLoading) ? 'var(--accent-cyan)' : 'var(--accent-emerald)',
+              border: `1px solid ${(loading || executeLoading) ? 'rgba(14, 165, 233, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+            }}>
+              {(loading || executeLoading) ? 'Executing...' : 'Completed'}
+            </span>
+          </div>
+          {(investigationData?.execution_id || executeData?.execution_id) && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+              Execution ID: {investigationData?.execution_id || executeData?.execution_id}
+            </span>
+          )}
+        </div>
+
+        {/* Stage Progress: SYSTEM → PROCESSES → NETWORK → FILES */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          flexWrap: 'wrap',
+          padding: '0.75rem',
+          background: 'rgba(0, 0, 0, 0.25)',
+          borderRadius: '8px',
+          border: '1px solid var(--border-subtle)',
+        }}>
+          {['SYSTEM', 'PROCESSES', 'NETWORK', 'FILES'].map((stage, idx, arr) => {
+            const stageKey = stage.toLowerCase();
+            const status = collectorProgress?.[stageKey] || ((loading || executeLoading) ? 'running' : 'completed');
+            const isRunning = (loading || executeLoading) && (status === 'running' || status === 'pending');
+            const isDone = !loading && !executeLoading && (status === 'completed' || status === 'done' || !!investigationData?.collected_data?.[stageKey]);
+            const hasData = investigationData?.collected_data?.[stageKey] || executeData?.collected_data?.[stageKey];
+
+            let badgeLabel = stage;
+            if (stage === 'SYSTEM' && hasData) {
+              badgeLabel = `SYSTEM (${hasData.hostname || hasData.os || 'Verified'})`;
+            } else if (stage === 'PROCESSES' && hasData) {
+              const pCount = hasData.count || (hasData.processes && hasData.processes.length) || 0;
+              badgeLabel = `PROCESSES (${pCount} active)`;
+            } else if (stage === 'NETWORK' && hasData) {
+              const nCount = hasData.count || (hasData.connections && hasData.connections.length) || 0;
+              badgeLabel = `NETWORK (${nCount} sockets)`;
+            } else if (stage === 'FILES' && hasData) {
+              const fCount = hasData.count || (hasData.files && hasData.files.length) || 0;
+              badgeLabel = `FILES (${fCount} files)`;
+            }
+
+            return (
+              <React.Fragment key={stage}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '6px',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  background: isDone
+                    ? 'rgba(16, 185, 129, 0.12)'
+                    : isRunning
+                    ? 'rgba(14, 165, 233, 0.15)'
+                    : 'rgba(255, 255, 255, 0.04)',
+                  color: isDone
+                    ? 'var(--accent-emerald)'
+                    : isRunning
+                    ? 'var(--accent-cyan)'
+                    : 'var(--text-muted)',
+                  border: `1px solid ${
+                    isDone
+                      ? 'rgba(16, 185, 129, 0.3)'
+                      : isRunning
+                      ? 'rgba(14, 165, 233, 0.4)'
+                      : 'rgba(255, 255, 255, 0.08)'
+                  }`,
+                  transition: 'all 0.2s ease',
+                }}>
+                  <span>{isDone ? '✓' : isRunning ? '⚡' : '○'}</span>
+                  <span>{badgeLabel}</span>
+                </div>
+                {idx < arr.length - 1 && (
+                  <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Display Collector Results & Evidence Hashes */}
+        {investigationData?.evidence_collected && investigationData.evidence_collected.length > 0 && (
+          <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+              Collected Evidence Artifacts ({investigationData.evidence_collected.length} sealed):
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.5rem' }}>
+              {investigationData.evidence_collected.map((ev, i) => (
+                <div key={i} style={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '6px',
+                  padding: '0.5rem 0.75rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.2rem',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.78rem', color: 'var(--accent-indigo)' }}>
+                      {ev.category?.toUpperCase()}
+                    </span>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                      ✓ SEALED IN VAULT
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    {ev.evidence_id}
+                  </div>
+                  {ev.sha256 && (
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace' }}>
+                      SHA: {ev.sha256.slice(0, 16)}...
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
+
 
   const handleExportJSON = () => {
     if (!investigationData) return;
@@ -1044,10 +1234,11 @@ export default function App() {
               </div>
 
               <button
-                onClick={() => handleRunInvestigation()}
-                disabled={loading}
+                id="btn-run-investigation"
+                onClick={() => handleExecuteScript()}
+                disabled={loading || executeLoading}
                 style={{
-                  background: loading ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                  background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '6px',
@@ -1058,14 +1249,18 @@ export default function App() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
-                  cursor: loading ? 'not-allowed' : 'pointer',
+                  cursor: (loading || executeLoading) ? 'not-allowed' : 'pointer',
                 }}
               >
-                {loading ? 'Executing Pipeline...' : '▶ Run Investigation'}
+                {(loading || executeLoading) ? 'Executing...' : '▶ Run Investigation'}
               </button>
             </div>
           </div>
         </section>
+
+        {/* Real-time Collector Pipeline Execution UI */}
+        {renderCollectorProgressUI()}
+
 
         {/* Metric KPI Cards */}
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -2654,24 +2849,29 @@ export default function App() {
                     {compiling ? 'Compiling...' : '⚙ Compile / Validate'}
                   </button>
                   <button
-                    onClick={() => handleRunInvestigation(scriptText)}
-                    disabled={loading}
+                    id="btn-execute-script"
+                    onClick={() => handleExecuteScript(scriptText)}
+                    disabled={loading || executeLoading}
                     style={{
-                      background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                      background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
                       color: '#fff',
                       border: 'none',
                       borderRadius: '6px',
                       padding: '0.5rem 1.25rem',
                       fontSize: '0.85rem',
                       fontWeight: 700,
-                      cursor: loading ? 'not-allowed' : 'pointer',
+                      cursor: (loading || executeLoading) ? 'not-allowed' : 'pointer',
                       boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
                     }}
                   >
-                    {loading ? 'Running...' : '▶ Run Script'}
+                    {(loading || executeLoading) ? 'Executing...' : '▶ Analyze and Execute Script'}
                   </button>
                 </div>
               </div>
+
+              {/* Real-time Collector Pipeline Execution UI */}
+              {renderCollectorProgressUI()}
+
 
               {/* Execution Plan Audit */}
               <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
@@ -2923,9 +3123,13 @@ export default function App() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {executeLoading ? '⚡ Running IR Pipeline...' : '⚡ Run IR Execute'}
+                {executeLoading ? '⚡ Executing...' : '⚡ Run IR Execute'}
               </button>
             </div>
+
+            {/* Real-time Collector Pipeline Execution UI */}
+            {renderCollectorProgressUI()}
+
 
             {/* Execute Error Banner */}
             {executeError && (
@@ -3321,7 +3525,8 @@ export default function App() {
               </div>
 
               <button
-                onClick={handleFetchCorrelation}
+                id="btn-correlate-evidence"
+                onClick={() => handleAnalyzeEvidenceCorrelate()}
                 disabled={correlationLoading}
                 style={{
                   background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',

@@ -9,11 +9,11 @@ for forensic investigations.
 from .custody import CustodyRecord
 from .hashing import compute_sha256, hash_file, verify_sha256
 from .store import EvidenceStore
-from .vault import EvidenceVault
+from .vault import EvidenceVault, _default_vault
 
 # Shared default instances
 _default_store = EvidenceStore()
-_default_vault = EvidenceVault()
+
 
 
 def record_custody(case_id: str, artifact_name: str, sha256_hash: str, who: str = "investigator", why: str = "Evidence preservation"):

@@ -84,15 +84,20 @@ def _collect_windows_profile_list() -> List[Dict[str, Any]]:
 
 
 def _enumerate_home_directories() -> List[str]:
-    """Inspects C:\\Users or /home for user account directories."""
+    """Inspects C:\\Users (Windows), /Users (macOS), or /home (Linux) for user account directories."""
     discovered: List[str] = []
-    base_dir = r"C:\Users" if platform.system() == "Windows" else "/home"
+    if platform.system() == "Windows":
+        base_dir = r"C:\Users"
+    elif platform.system() in ("Darwin", "macOS"):
+        base_dir = "/Users"
+    else:
+        base_dir = "/home"
     if os.path.exists(base_dir):
         try:
             with os.scandir(base_dir) as it:
                 for entry in it:
                     if entry.is_dir(follow_symlinks=False):
-                        if entry.name not in ("All Users", "Default", "Default User", "Public"):
+                        if entry.name not in ("All Users", "Default", "Default User", "Public", "Shared"):
                             discovered.append(entry.name)
         except Exception:
             pass

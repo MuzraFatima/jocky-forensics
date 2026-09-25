@@ -201,9 +201,94 @@ def test_export_vault_bundle_creates_verifiable_manifest(temp_vault):
     assert manifest["manifest_sha256"] == expected_manifest_hash
 
 
+def test_persistence_after_restart_and_tamper_detection():
+    """
+    Validates that:
+    1. Live forensic evidence (SYSTEM + PROCESSES) is physically written to disk.
+    2. A fresh EvidenceVault instance (simulating backend/process restart) can reload and verify the artifact.
+    3. SHA-256 digests and chain-of-custody ledger survive restarts intact.
+    4. Tamper detection reliably flags modified artifacts across restarts.
+    """
+    temp_dir = tempfile.mkdtemp(prefix="jocky_persist_test_")
+    try:
+        from backend.app.collectors.system import collect_system_info
+        from backend.app.collectors.processes import collect_process_info
+
+        # 1. Initialize original vault instance
+        vault1 = EvidenceVault(base_dir=temp_dir)
+        sys_data = collect_system_info()
+        proc_data = collect_process_info()
+        combined_payload = {"system": sys_data, "processes": proc_data}
+        case_id = "CASE-RESTART-001"
+
+        # 2. Seal artifact
+        sealed = vault1.seal_artifact(
+            case_id=case_id,
+            source="system_processes",
+            data=combined_payload,
+            who="Detective Vance",
+            why="Live forensic acquisition across restart test",
+            execution_id="EXEC-REST-99",
+            collector_identity="JOCKY-Collector-Live",
+            collector_version="1.0.0",
+        )
+        evidence_id = sealed["evidence_id"]
+        original_hash = sealed["sha256"]
+
+        # 3. Check physical file exists on disk
+        artifact_path = Path(temp_dir) / "cases" / case_id / f"{evidence_id}.json"
+        assert artifact_path.exists(), f"Physical file {artifact_path} does not exist on disk"
+        assert artifact_path.stat().st_size > 0
+
+        # 4. Simulate complete process restart with fresh EvidenceVault instance
+        del vault1
+        vault2 = EvidenceVault(base_dir=temp_dir)
+
+        # 5. Retrieve artifact from fresh vault instance
+        retrieved = vault2.get_artifact(evidence_id)
+        assert retrieved is not None, "Failed to retrieve sealed artifact after simulated restart"
+        assert retrieved["evidence_id"] == evidence_id
+        assert retrieved["case_id"] == case_id
+        assert retrieved["sha256"] == original_hash
+        assert len(retrieved["custody_log"]) == 1
+        assert retrieved["custody_log"][0]["action"] == "ACQUIRED"
+
+        # 6. Verify cryptographic integrity using fresh vault instance
+        verify_res = vault2.verify_artifact(evidence_id, who="Independent Auditor")
+        assert verify_res["valid"] is True
+        assert verify_res["tampered"] is False
+        assert verify_res["stored_hash"] == original_hash
+        assert verify_res["recomputed_hash"] == original_hash
+
+        # Chain of custody should now record both ACQUIRED and VERIFIED
+        re_retrieved = vault2.get_artifact(evidence_id)
+        assert len(re_retrieved["custody_log"]) == 2
+        assert re_retrieved["custody_log"][1]["action"] == "VERIFIED"
+
+        # 7. Simulate disk tampering
+        tamper_success = vault2.simulate_tampering(evidence_id, key_to_alter="tampered_key", new_val="CORRUPT")
+        assert tamper_success is True
+
+        # 8. Simulate another process restart to verify tamper detection persists
+        del vault2
+        vault3 = EvidenceVault(base_dir=temp_dir)
+        tamper_audit = vault3.verify_artifact(evidence_id, who="Post-Tamper Auditor")
+        assert tamper_audit["valid"] is False
+        assert tamper_audit["tampered"] is True
+        assert tamper_audit["stored_hash"] != tamper_audit["recomputed_hash"]
+
+        # Full vault audit also flags COMPROMISED
+        vault_audit = vault3.verify_vault_integrity(case_id=case_id)
+        assert vault_audit["vault_status"] == "COMPROMISED"
+        assert vault_audit["tampered_count"] == 1
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
 # ---------------------------------------------------------------------------
 # Integration Tests: Vault REST Endpoints
 # ---------------------------------------------------------------------------
+
 
 def test_api_vault_seal_and_verify():
     # 1. Seal an artifact via POST /api/forensics/vault/seal

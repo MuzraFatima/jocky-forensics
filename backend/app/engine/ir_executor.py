@@ -718,6 +718,8 @@ class IRExecutor:
                 else:
                     rendered_content = builder.generate_json(rep_data)
 
+                saved_path = builder.save_report(rendered_content, fmt)
+
                 report_summary = {
                     "case_id": case_id,
                     "target": target,
@@ -730,6 +732,7 @@ class IRExecutor:
                     "sha256_hashes": sha256_hashes,
                     "report_data": rep_data,
                     "content": rendered_content,
+                    "saved_path": str(saved_path),
                     "attestation": rep_data.get("attestation"),
                 }
                 receipts.append(_receipt_entry(

@@ -275,6 +275,8 @@ def generate_report_alias_endpoint(
         else:
             content = builder.generate_json(report_data)
 
+        saved_path = builder.save_report(content, fmt)
+
         record_audit_event(
             action="REPORT_GENERATED",
             user=user,
@@ -284,6 +286,7 @@ def generate_report_alias_endpoint(
                 "format": fmt,
                 "findings_count": len(detections),
                 "vault_status": vault_audit.get("status", "VERIFIED"),
+                "saved_path": str(saved_path),
             },
         )
 
@@ -292,6 +295,7 @@ def generate_report_alias_endpoint(
             "format": fmt,
             "report_data": report_data,
             "content": content,
+            "saved_path": str(saved_path),
             "attestation": report_data.get("attestation"),
         }
     except Exception as exc:

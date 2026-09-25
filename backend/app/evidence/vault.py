@@ -54,16 +54,17 @@ class EvidenceVault:
 
     def _get_artifact_path(self, evidence_id: str, case_id: Optional[str] = None) -> Path:
         """Resolves the JSON file path for a sealed evidence artifact."""
+        clean_id = evidence_id[:-5] if evidence_id.endswith(".json") else evidence_id
         if case_id:
             c_dir = self.cases_dir / case_id
             c_dir.mkdir(parents=True, exist_ok=True)
-            return c_dir / f"{evidence_id}.json"
+            return c_dir / f"{clean_id}.json"
 
         # Search across all case subdirectories
-        for found in self.cases_dir.glob(f"**/{evidence_id}.json"):
+        for found in self.cases_dir.glob(f"**/{clean_id}.json"):
             return found
 
-        return self.cases_dir / f"{evidence_id}.json"
+        return self.cases_dir / f"{clean_id}.json"
 
     def seal_artifact(
         self,
@@ -351,3 +352,8 @@ class EvidenceVault:
             json.dump(record, f, indent=2, sort_keys=True, default=str)
 
         return True
+
+
+# Shared default singleton instance
+_default_vault = EvidenceVault()
+
