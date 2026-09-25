@@ -203,79 +203,8 @@ export default function Sidebar({
   const navItems = [
     {
       id: 'overview',
-      label: 'Dashboard',
+      label: 'Overview & Analysis',
       icon: (props) => <OverviewIcon {...props} />,
-    },
-    {
-      id: 'execute',
-      label: 'Investigation',
-      icon: (props) => <ExecuteIcon {...props} />,
-    },
-    {
-      id: 'script',
-      label: 'JOCKY Script',
-      icon: (props) => <ScriptIcon {...props} />,
-    },
-    {
-      id: 'commands',
-      label: 'Command Search',
-      icon: (props) => <SearchIcon {...props} />,
-      statusBadge: 'DSL',
-    },
-    {
-      id: 'evidence',
-      label: 'Evidence',
-      icon: (props) => <EvidenceIcon {...props} />,
-      count: counts.evidence,
-    },
-    {
-      id: 'processes',
-      label: 'Processes',
-      icon: (props) => <ProcessesIcon {...props} />,
-      count: counts.processes,
-    },
-    {
-      id: 'network',
-      label: 'Network',
-      icon: (props) => <NetworkIcon {...props} />,
-      count: counts.network,
-    },
-    {
-      id: 'timeline',
-      label: 'Timeline',
-      icon: (props) => <TimelineIcon {...props} />,
-      count: counts.timeline,
-    },
-    {
-      id: 'correlation',
-      label: 'Correlation',
-      icon: (props) => <CorrelationIcon {...props} />,
-      count: counts.correlation,
-    },
-    {
-      id: 'reports',
-      label: 'Reports',
-      icon: (props) => <ReportsIcon {...props} />,
-    },
-    {
-      id: 'system',
-      label: 'System Telemetry',
-      icon: (props) => <SystemIcon {...props} />,
-    },
-    {
-      id: 'files',
-      label: 'Files & Binaries',
-      icon: (props) => <FilesIcon {...props} />,
-    },
-    {
-      id: 'users',
-      label: 'Users & Sessions',
-      icon: (props) => <UsersIcon {...props} />,
-    },
-    {
-      id: 'windows',
-      label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
-      icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} />,
     },
     {
       id: 'support',
@@ -283,6 +212,79 @@ export default function Sidebar({
       icon: (props) => <SupportIcon {...props} />,
       statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
       accentColor: 'var(--accent-indigo)',
+    },
+    {
+      id: 'correlation',
+      label: 'Correlation Graph',
+      icon: (props) => <CorrelationIcon {...props} />,
+      count: counts.correlation,
+    },
+    {
+      id: 'timeline',
+      label: 'Forensic Timeline',
+      icon: (props) => <TimelineIcon {...props} />,
+      count: counts.timeline,
+    },
+    {
+      id: 'system',
+      label: 'System Telemetry',
+      icon: (props) => <SystemIcon {...props} />,
+    },
+    {
+      id: 'processes',
+      label: 'Active Processes',
+      icon: (props) => <ProcessesIcon {...props} />,
+      count: counts.processes,
+    },
+    {
+      id: 'network',
+      label: 'Network Sockets',
+      icon: (props) => <NetworkIcon {...props} />,
+      count: counts.network,
+    },
+    {
+      id: 'files',
+      label: 'Files & Binaries',
+      icon: (props) => <FilesIcon {...props} />,
+      count: counts.files,
+    },
+    {
+      id: 'users',
+      label: 'Users & Sessions',
+      icon: (props) => <UsersIcon {...props} />,
+      count: counts.users,
+    },
+    {
+      id: 'windows',
+      label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
+      icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} />,
+    },
+    {
+      id: 'evidence',
+      label: 'Evidence Vault',
+      icon: (props) => <EvidenceIcon {...props} />,
+      count: counts.evidence,
+    },
+    {
+      id: 'reports',
+      label: 'Forensic Reports',
+      icon: (props) => <ReportsIcon {...props} />,
+    },
+    {
+      id: 'execute',
+      label: 'Execution Engine',
+      icon: (props) => <ExecuteIcon {...props} />,
+    },
+    {
+      id: 'script',
+      label: 'JOCKY Script Editor',
+      icon: (props) => <ScriptIcon {...props} />,
+    },
+    {
+      id: 'commands',
+      label: 'Command Search',
+      icon: (props) => <SearchIcon {...props} />,
+      statusBadge: 'DSL',
     },
   ];
 

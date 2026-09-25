@@ -7,7 +7,6 @@ import CriticalIncidentAlert from './CriticalIncidentAlert.jsx';
 import ReportModal from './ReportModal.jsx';
 import LogoutModal from './LogoutModal.jsx';
 import CommandSearch, { SUPPORTED_COMMANDS } from './CommandSearch.jsx';
-import InvestigatorDashboard from './InvestigatorDashboard.jsx';
 import ReportSection from './ReportSection.jsx';
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
@@ -727,23 +726,23 @@ export default function App() {
   const establishedCount = networkList.filter((c) => c.status === 'ESTABLISHED').length;
 
   const TAB_LABELS = {
-    overview: 'Dashboard',
-    execute: 'Investigation',
-    script: 'JOCKY Script',
-    commands: 'Command Search',
-    evidence: 'Evidence',
-    processes: 'Processes',
-    network: 'Network',
-    timeline: 'Timeline',
-    correlation: 'Correlation',
-    reports: 'Reports',
+    overview: 'Overview & Analysis',
+    support: 'Cybersecurity Support',
+    correlation: 'Correlation Graph',
+    timeline: 'Forensic Timeline',
     system: 'System Telemetry',
+    processes: 'Active Processes',
+    network: 'Network Sockets',
     files: 'Files & Binaries',
     users: 'Users & Sessions',
     windows: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
-    support: 'Cybersecurity Support',
+    evidence: 'Evidence Vault',
+    reports: 'Forensic Reports',
+    execute: 'Execution Engine',
+    script: 'JOCKY Script Editor',
+    commands: 'Command Search',
   };
-  const activeTabLabel = TAB_LABELS[activeTab] || 'Dashboard';
+  const activeTabLabel = TAB_LABELS[activeTab] || 'Overview & Analysis';
 
   if (!session) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
@@ -1006,28 +1005,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Critical Incident Alert Banner */}
-        <CriticalIncidentAlert
-          incident={currentIncident}
-          onViewIncident={() => {
-            navigateToTab('timeline');
-          }}
-          onPreserveEvidence={async () => {
-            try {
-              await handleVerifyVault();
-            } catch (e) {
-              console.error(e);
-            }
-          }}
-          onContactSecurity={() => {
-            navigateToTab('support');
-          }}
-          onGenerateReport={() => {
-            setIsLogoutWorkflow(false);
-            setIsReportModalOpen(true);
-          }}
-        />
-
         {/* Executive Case & Action Bar */}
         <section style={{
           background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(12, 17, 29, 0.8) 100%)',
@@ -1065,27 +1042,6 @@ export default function App() {
                   {loading ? 'RUNNING...' : (investigationData?.status || 'READY')}
                 </span>
               </div>
-
-              <button
-                onClick={() => setIsCommandModalOpen(true)}
-                title="Search JOCKY Commands (DSL)"
-                style={{
-                  background: 'rgba(99, 102, 241, 0.12)',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  color: 'var(--accent-indigo)',
-                  borderRadius: '6px',
-                  padding: '0.55rem 0.95rem',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  cursor: 'pointer',
-                }}
-              >
-                <span>🔎</span>
-                <span>Command Search</span>
-              </button>
 
               <button
                 onClick={() => handleRunInvestigation()}
@@ -1162,15 +1118,37 @@ export default function App() {
 
         {/* TAB: CYBERSECURITY SUPPORT */}
         {activeTab === 'support' && (
-          <CyberSupport
-            session={session}
-            activeCaseId={investigationData?.case_id || 'LAB-2026-001'}
-            currentIncident={currentIncident}
-            onOpenReportModal={() => {
-              setIsLogoutWorkflow(false);
-              setIsReportModalOpen(true);
-            }}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <CriticalIncidentAlert
+              incident={currentIncident}
+              onViewIncident={() => {
+                navigateToTab('timeline');
+              }}
+              onPreserveEvidence={async () => {
+                try {
+                  await handleVerifyVault();
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              onContactSecurity={() => {
+                navigateToTab('support');
+              }}
+              onGenerateReport={() => {
+                setIsLogoutWorkflow(false);
+                setIsReportModalOpen(true);
+              }}
+            />
+            <CyberSupport
+              session={session}
+              activeCaseId={investigationData?.case_id || 'LAB-2026-001'}
+              currentIncident={currentIncident}
+              onOpenReportModal={() => {
+                setIsLogoutWorkflow(false);
+                setIsReportModalOpen(true);
+              }}
+            />
+          </div>
         )}
 
         {/* TAB: COMMAND SEARCH */}
@@ -1180,26 +1158,9 @@ export default function App() {
           />
         )}
 
-        {/* TAB 1: OVERVIEW & DASHBOARD */}
+        {/* TAB 1: OVERVIEW & ANALYSIS */}
         {activeTab === 'overview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <InvestigatorDashboard
-              investigationData={investigationData}
-              systemInfo={systemInfo}
-              platformInfo={platformInfo}
-              processesList={processesList}
-              networkList={networkList}
-              vaultAudit={vaultAudit}
-              correlationData={correlationData}
-              analysisData={analysisData}
-              timelineData={timelineData}
-              backendHealth={backendHealth}
-              loading={loading}
-              onNavigateTab={navigateToTab}
-              onRunInvestigation={() => handleRunInvestigation(scriptText)}
-            />
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
             {/* Forensic Indicators & Heuristic Analysis */}
             <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -1279,8 +1240,7 @@ export default function App() {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* TAB 2: SYSTEM TELEMETRY */}
         {activeTab === 'system' && (
