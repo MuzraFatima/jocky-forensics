@@ -9,6 +9,7 @@ Unit and integration tests for JOCKY Security & Incident Response Subsystem:
 - Evidence Integrity Invariants
 """
 
+import uuid
 from fastapi.testclient import TestClient
 from backend.app.main import app
 from backend.app.security import (
@@ -220,3 +221,156 @@ def test_evidence_vault_unmodified_by_security_workflow():
     vault_audit = _default_vault.verify_vault_integrity()
     assert vault_audit.get("vault_status") in ("INTACT", "VERIFIED")
     assert vault_audit.get("tampered_count", 0) == 0
+
+
+def test_auth_register_and_login_workflow():
+    """Verify investigator registration and subsequent authentication."""
+    uid = uuid.uuid4().hex[:6]
+    test_email = f"field_examiner_{uid}@agency.gov"
+    reg_payload = {
+        "email": test_email,
+        "username": test_email,
+        "password": "SecurePassword2026!",
+        "role": "Incident Responder",
+        "case_id": "CASE-REG-01",
+    }
+    reg_resp = client.post("/api/auth/register", json=reg_payload)
+    assert reg_resp.status_code == 200
+    reg_data = reg_resp.json()
+    assert reg_data["success"] is True
+    assert "token" in reg_data["session"]
+    assert reg_data["session"]["username"] == test_email
+    assert reg_data["session"]["role"] == "Incident Responder"
+
+    # Verify session check
+    token = reg_data["session"]["token"]
+    me_resp = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_resp.status_code == 200
+    assert me_resp.json()["session"]["username"] == test_email
+
+    # Now verify login with the new account
+    login_resp = client.post("/api/auth/login", json={
+        "username": test_email,
+        "password": "SecurePassword2026!",
+        "case_id": "CASE-REG-01",
+    })
+    assert login_resp.status_code == 200
+    login_data = login_resp.json()
+    assert login_data["success"] is True
+    assert "token" in login_data["session"]
+
+
+def test_auth_register_duplicate_user_rejected():
+    """Verify duplicate registration attempt is rejected with 409 Conflict."""
+    uid = uuid.uuid4().hex[:6]
+    test_email = f"duplicate_examiner_{uid}@agency.gov"
+    reg_payload = {
+        "email": test_email,
+        "password": "SecurePassword2026!",
+    }
+    # First registration -> 200
+    res1 = client.post("/api/auth/register", json=reg_payload)
+    assert res1.status_code == 200
+
+    # Second registration with same email -> 409
+    res2 = client.post("/api/auth/register", json=reg_payload)
+    assert res2.status_code == 409
+    assert res2.json()["success"] is False
+    assert "already exists" in res2.json()["error"]
+
+
+def test_auth_registered_user_wrong_password():
+    """Verify login with registered user but invalid password returns 401."""
+    uid = uuid.uuid4().hex[:6]
+    test_email = f"sec_agent_{uid}@agency.gov"
+    reg_payload = {
+        "email": test_email,
+        "password": "CorrectPassword123!",
+    }
+    client.post("/api/auth/register", json=reg_payload)
+
+    # Attempt login with wrong password
+    login_resp = client.post("/api/auth/login", json={
+        "username": test_email,
+        "password": "IncorrectPassword999!",
+    })
+    assert login_resp.status_code == 401
+    assert login_resp.json()["success"] is False
+
+
+def test_auth_demo_and_admin_accounts_still_work():
+    """Verify existing demo and admin accounts continue to authenticate seamlessly."""
+    # 1. Investigator demo
+    resp_inv = client.post("/api/auth/login", json={
+        "username": "investigator@jocky.local",
+        "password": "jocky-forensics-2026",
+    })
+    assert resp_inv.status_code == 200
+    assert resp_inv.json()["success"] is True
+
+    # 2. Admin demo
+    resp_adm = client.post("/api/auth/login", json={
+        "username": "admin@jocky.local",
+        "password": "admin-forensics-2026",
+    })
+    assert resp_adm.status_code == 200
+    assert resp_adm.json()["success"] is True
+
+    # 3. Short aliases
+    resp_short = client.post("/api/auth/login", json={
+        "username": "admin",
+        "password": "admin-forensics-2026",
+    })
+    assert resp_short.status_code == 200
+    assert resp_short.json()["success"] is True
+
+
+def test_auth_persistence_across_backend_restart(tmp_path):
+    """
+    Verify registered accounts are securely hashed with PBKDF2-HMAC-SHA256,
+    persisted to disk, and successfully re-loaded across fresh AuthManager re-initializations.
+    """
+    from backend.app.security.auth import AuthManager
+
+    # Instantiate AuthManager with custom isolated storage
+    manager_1 = AuthManager(storage_dir=tmp_path)
+    user_email = "persistent_examiner@jocky.local"
+    raw_password = "PersistentSecretKey2026!"
+
+    # Register user in manager 1
+    session_1 = manager_1.register(
+        username=user_email,
+        password=raw_password,
+        role="Senior Forensic Specialist",
+    )
+    assert session_1["username"] == user_email
+
+    # Verify password in memory is hashed, NOT plaintext
+    record = manager_1.get_user(user_email)
+    assert record is not None
+    assert record["password"].startswith("pbkdf2_sha256$")
+    assert raw_password not in record["password"]
+
+    # Verify persistent file exists and does NOT contain raw password
+    users_file = tmp_path / "users.json"
+    assert users_file.is_file()
+    file_content = users_file.read_text(encoding="utf-8")
+    assert raw_password not in file_content
+    assert "pbkdf2_sha256$" in file_content
+
+    # Simulate backend / process restart: create fresh AuthManager with same storage_dir
+    manager_2 = AuthManager(storage_dir=tmp_path)
+
+    # Verify user was restored
+    user_restored = manager_2.get_user(user_email)
+    assert user_restored is not None
+    assert user_restored["username"] == user_email
+
+    # Authenticate with original password in restarted manager
+    auth_result = manager_2.authenticate(user_email, raw_password)
+    assert auth_result is not None
+    assert auth_result["username"] == user_email
+
+    # Wrong password fails in restarted manager
+    assert manager_2.authenticate(user_email, "WrongPassword") is None
+

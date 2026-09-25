@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from .audit import get_audit_events, record_audit_event
-from .auth import authenticate_user, revoke_token, validate_token
+from .auth import authenticate_user, register_user, revoke_token, validate_token
 from .analyst import analyst_manager, get_analyst_status, set_analyst_status
 from .ai_provider import query_ai_assistant
 from .incident import get_current_incident
@@ -30,6 +30,15 @@ router = APIRouter(tags=["Security & Incident Response"])
 class LoginRequest(BaseModel):
     username: str = Field(..., description="Investigator username or email")
     password: str = Field(..., description="Investigator access password")
+    case_id: Optional[str] = "LAB-2026-001"
+
+
+class RegisterRequest(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: str = Field(..., description="Investigator access password")
+    role: Optional[str] = "Lead Forensic Examiner"
+    badge: Optional[str] = None
     case_id: Optional[str] = "LAB-2026-001"
 
 
@@ -94,6 +103,38 @@ def login_endpoint(req: LoginRequest, request: Request):
             },
         )
     return {"success": True, "session": session}
+
+
+@router.post("/api/auth/register")
+@router.post("/auth/register")
+def register_endpoint(req: RegisterRequest, request: Request):
+    """Registers a new investigator account with email/username and secure PBKDF2 password."""
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    identifier = (req.email or req.username or "").strip()
+    if not identifier:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Email or username is required."})
+    if not req.password or len(req.password) < 6:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Password must be at least 6 characters long."})
+
+    try:
+        session = register_user(
+            username=identifier,
+            password=req.password,
+            role=req.role or "Lead Forensic Examiner",
+            badge=req.badge,
+            case_id=req.case_id or "LAB-2026-001",
+            ip_address=client_ip,
+        )
+        return {
+            "success": True,
+            "message": "Investigator registered successfully.",
+            "session": session,
+        }
+    except ValueError as err:
+        return JSONResponse(status_code=409, content={"success": False, "error": str(err)})
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"success": False, "error": f"Registration failed: {str(exc)}"})
+
 
 
 @router.post("/api/auth/logout")

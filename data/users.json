@@ -1,0 +1,74 @@
+[
+  {
+    "badge": "SIH26148-B044CC0E",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:34:54.204768+00:00",
+    "password_hash": "pbkdf2_sha256$60b7f73d9ef3df8b00bd5229f40c6e47$b237dad6c329470208d6065c3c219c5ae778cc761a9af7c59819313c1ab7642b",
+    "role": "Incident Responder",
+    "username": "field_examiner@agency.gov"
+  },
+  {
+    "badge": "SIH26148-89D05693",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:34:54.856898+00:00",
+    "password_hash": "pbkdf2_sha256$ea5fbc87af189aeaf51f6f06934f10f6$f517d9851466600667ab605a00ad9654dfb00ecd725a5dbfdfabca227d8d12ae",
+    "role": "Lead Forensic Examiner",
+    "username": "duplicate_examiner@agency.gov"
+  },
+  {
+    "badge": "SIH26148-10100E5D",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:34:55.229572+00:00",
+    "password_hash": "pbkdf2_sha256$27b6a0fc6a9197f867a4393a3f9e9507$a5d62f24475f24e01e52c6045f79356533328ac2baeabe55fbe356d3ed97d647",
+    "role": "Lead Forensic Examiner",
+    "username": "sec_agent_42@agency.gov"
+  },
+  {
+    "badge": "SIH26148-954D81F0",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:37:44.773577+00:00",
+    "password_hash": "pbkdf2_sha256$6523c791595152c1f00b79628b6c0752$d4bca115010909c882e49c7ca02a5be4bd950d229d69d4fe7ac0650b33c3fe06",
+    "role": "Incident Responder",
+    "username": "field_examiner_051134@agency.gov"
+  },
+  {
+    "badge": "SIH26148-204C3A3B",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:37:45.161578+00:00",
+    "password_hash": "pbkdf2_sha256$6da206f80bf173080e6753331928a487$b477cfe7c8a3dcc463cebdaf698c277b186812251288f0354653affc1a35a496",
+    "role": "Lead Forensic Examiner",
+    "username": "duplicate_examiner_dc740e@agency.gov"
+  },
+  {
+    "badge": "SIH26148-4B05D86B",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:37:45.499823+00:00",
+    "password_hash": "pbkdf2_sha256$f24e77b3b3121e17f960125ef22627c8$ea0e8ba8389806615c5e4db265c413f1f8ee4b5a53ec88218bd60173ad30341f",
+    "role": "Lead Forensic Examiner",
+    "username": "sec_agent_68c1b4@agency.gov"
+  },
+  {
+    "badge": "SIH26148-CC47DABE",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:39:33.861037+00:00",
+    "password_hash": "pbkdf2_sha256$6de747bad879ad51e01ade4cda217f49$821c8b4b4c518a085626a55957ce66dbd6e8fafbbb321b2a699aad400af5e716",
+    "role": "Incident Responder",
+    "username": "field_examiner_af6e98@agency.gov"
+  },
+  {
+    "badge": "SIH26148-8B2FEA1C",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:39:34.302678+00:00",
+    "password_hash": "pbkdf2_sha256$2b2334dbf7b52afcc59d4af38c71a823$6f42aee528c7e70161ee37d3b976f6fc6720bbf0ce354cb1ded9834768237676",
+    "role": "Lead Forensic Examiner",
+    "username": "duplicate_examiner_1acb63@agency.gov"
+  },
+  {
+    "badge": "SIH26148-00ADFDD8",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-25T05:39:34.490129+00:00",
+    "password_hash": "pbkdf2_sha256$81bf664b3b7328f4f810078538e31835$82bfc37083ea334e793651e66cd717f7d11fbf27d75482ea0e69a11baac74bd4",
+    "role": "Lead Forensic Examiner",
+    "username": "sec_agent_731bf9@agency.gov"
+  }
+]

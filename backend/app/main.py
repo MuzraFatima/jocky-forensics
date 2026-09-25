@@ -6,6 +6,7 @@ Exposes REST endpoints for script parsing, policy validation, execution monitori
 evidence verification, and report retrieval.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -38,11 +39,28 @@ app = FastAPI(
     description="Authorized domain-specific forensic scripting & analysis framework",
 )
 
-# CORS configuration for React frontend communication
+# CORS configuration for React frontend communication & live deployment
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+if cors_origins_env.strip():
+    allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+else:
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
+
+# If allowed_origins contains "*", browsers disallow credentials=True
+allow_all = "*" in allowed_origins or cors_origins_env.strip() == "*"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"] if allow_all else allowed_origins,
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", None),
+    allow_credentials=True if not allow_all else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
