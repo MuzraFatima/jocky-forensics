@@ -214,12 +214,47 @@ class AgentManager:
             user_id = meta["user_id"]
             del self._pairing_codes[code]
 
-            # 4. Generate cryptographically random device credentials
-            device_id = f"DEV-{secrets.token_hex(6).upper()}"
+            # 4. Check if this physical endpoint is already actively enrolled for this investigator
+            # Pairing the same physical endpoint repeatedly updates the existing device without creating duplicate active devices (Req 12)
+            existing_dev = None
+            req_hostname = request.hostname.strip().lower()
+            req_platform = request.platform.strip().lower()
+
+            for dev in self._devices.values():
+                if dev.user_id == user_id and not dev.is_revoked and dev.status == DeviceStatus.ACTIVE:
+                    if request.device_fingerprint and getattr(dev, "device_fingerprint", None):
+                        if dev.device_fingerprint == request.device_fingerprint:
+                            existing_dev = dev
+                            break
+                    elif dev.hostname.strip().lower() == req_hostname and dev.platform.strip().lower() == req_platform:
+                        existing_dev = dev
+                        break
+
             raw_device_token = secrets.token_urlsafe(32)
             token_hash = hash_device_token(raw_device_token)
 
-            # 5. Create device record
+            if existing_dev:
+                device_id = existing_dev.device_id
+                existing_dev.token_hash = token_hash
+                existing_dev.last_seen = now
+                existing_dev.agent_version = request.agent_version
+                existing_dev.status = DeviceStatus.ACTIVE
+                # Clear any stale unconsumed jobs from prior session
+                if device_id in self._job_queues:
+                    self._job_queues[device_id].clear()
+                self._persist_devices()
+
+                return PairingExchangeResponse(
+                    device_id=device_id,
+                    device_token=raw_device_token,
+                    user_id=user_id,
+                    status=DeviceStatus.ACTIVE,
+                    paired_at=now,
+                )
+
+            # 5. Otherwise generate new device credentials
+            device_id = f"DEV-{secrets.token_hex(6).upper()}"
+
             record = DeviceRecord(
                 device_id=device_id,
                 user_id=user_id,

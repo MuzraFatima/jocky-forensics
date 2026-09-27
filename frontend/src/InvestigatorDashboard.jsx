@@ -1,4 +1,5 @@
 import React from 'react';
+import { getUniqueTargetDevices } from './deviceUtils.js';
 
 export default function InvestigatorDashboard({
   investigationData,
@@ -23,7 +24,7 @@ export default function InvestigatorDashboard({
   const caseId = investigationData?.case_id || 'N/A';
   const targetHost = investigationData?.target || systemInfo?.hostname || 'N/A';
   const selectedDevice = devices.find((d) => d.device_id === selectedDeviceId);
-  const activeEndpoints = devices.filter((d) => !d.is_revoked && d.status !== 'revoked');
+  const activeEndpoints = getUniqueTargetDevices(devices, selectedDeviceId);
   const onlineCount = activeEndpoints.filter((d) => Boolean(d.is_online)).length;
   const executionStatus = loading
     ? 'Running...'

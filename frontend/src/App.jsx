@@ -11,6 +11,7 @@ import ReportSection from './ReportSection.jsx';
 import EndpointDevices from './EndpointDevices.jsx';
 import AdvancedTechniques from './AdvancedTechniques.jsx';
 import { api } from './api.js';
+import { getUniqueTargetDevices } from './deviceUtils.js';
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
 TARGET "LAB-PC"
@@ -1033,7 +1034,7 @@ export default function App() {
           processes: processCount || null,
           network: networkCount || null,
           evidence: vaultAudit?.total_artifacts ?? null,
-          onlineEndpoints: devices.filter((d) => !d.is_revoked && d.status !== 'revoked' && d.is_online).length,
+          onlineEndpoints: getUniqueTargetDevices(devices).filter((d) => Boolean(d.is_online)).length,
         }}
       />
 
@@ -1337,7 +1338,7 @@ export default function App() {
                   }}
                 >
                   <option value="">💻 Local Machine</option>
-                  {devices.filter((d) => !d.is_revoked && d.status !== 'revoked').map((d) => (
+                  {getUniqueTargetDevices(devices, selectedDeviceId).map((d) => (
                     <option key={d.device_id} value={d.device_id}>
                       🛰️ {d.hostname || d.device_id} ({d.is_online ? 'ONLINE' : 'OFFLINE'})
                     </option>

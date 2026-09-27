@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api, getExternalServerUrl } from './api.js';
+import { getUniqueTargetDevices, getUniqueDeviceCards } from './deviceUtils.js';
 
 /**
  * Format relative time string (e.g. "12s ago", "3m ago", "never")
@@ -188,8 +189,9 @@ export default function EndpointDevices({
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const activeEndpoints = devices.filter((d) => !d.is_revoked && d.status !== 'revoked');
+  const activeEndpoints = getUniqueTargetDevices(devices, selectedDeviceId);
   const onlineCount = activeEndpoints.filter((d) => isDeviceOnline(d)).length;
+  const uniqueDeviceCards = getUniqueDeviceCards(devices, selectedDeviceId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -254,7 +256,7 @@ export default function EndpointDevices({
                 outline: 'none',
               }}
             >
-              <option value="">💻 Local Cloud Server (Default)</option>
+              <option value="">💻 Local Machine (Default)</option>
               {activeEndpoints.map((d) => (
                 <option key={d.device_id} value={d.device_id}>
                   🛰️ {d.hostname || d.device_id} ({isDeviceOnline(d) ? 'ONLINE' : 'OFFLINE'})
@@ -501,7 +503,7 @@ export default function EndpointDevices({
             gap: '1.25rem',
           }}
         >
-          {devices.map((device) => {
+          {uniqueDeviceCards.map((device) => {
             const online = isDeviceOnline(device);
             const isSelected = selectedDeviceId === device.device_id;
             const isRevoked = device.is_revoked || device.status === 'revoked';

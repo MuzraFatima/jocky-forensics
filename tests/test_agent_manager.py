@@ -361,3 +361,52 @@ def test_concurrent_pairing_and_job_safety(temp_manager):
     assert len(created_codes) == 20
     # All generated pairing codes must be distinct
     assert len(set(created_codes)) == 20
+
+
+def test_repeated_pairing_same_endpoint_reuses_device_id(temp_manager):
+    """Verify pairing the same physical endpoint repeatedly does not create duplicate active devices."""
+    user_id = "investigator_alpha@agency.gov"
+
+    # First pairing
+    code1 = temp_manager.generate_pairing_code(user_id=user_id).pairing_code
+    req1 = PairingExchangeRequest(
+        pairing_code=code1,
+        hostname="WORKSTATION-X",
+        platform="Windows 11 Pro",
+        agent_version="1.0.0",
+    )
+    resp1 = temp_manager.exchange_pairing_code(req1)
+    dev_id1 = resp1.device_id
+    token1 = resp1.device_token
+
+    # Verify 1 active device exists
+    devs = temp_manager.list_devices(user_id=user_id)
+    assert len(devs) == 1
+    assert devs[0].device_id == dev_id1
+
+    # Second pairing from the same physical endpoint
+    code2 = temp_manager.generate_pairing_code(user_id=user_id).pairing_code
+    req2 = PairingExchangeRequest(
+        pairing_code=code2,
+        hostname="WORKSTATION-X",
+        platform="Windows 11 Pro",
+        agent_version="1.0.1",
+    )
+    resp2 = temp_manager.exchange_pairing_code(req2)
+    dev_id2 = resp2.device_id
+    token2 = resp2.device_token
+
+    # Stable device_id is preserved, new credentials issued
+    assert dev_id2 == dev_id1
+    assert token2 != token1
+
+    # Still exactly 1 active device, no duplicates
+    devs_after = temp_manager.list_devices(user_id=user_id)
+    assert len(devs_after) == 1
+    assert devs_after[0].device_id == dev_id1
+    assert devs_after[0].agent_version == "1.0.1"
+
+    # Authenticating with new token succeeds, old token fails
+    assert temp_manager.verify_device_token(dev_id1, token2) is not None
+    assert temp_manager.verify_device_token(dev_id1, token1) is None
+

@@ -220,108 +220,93 @@ export default function Sidebar({
   const [hoveredTab, setHoveredTab] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
 
-  const navItems = [
+  // Visible Judge-Facing Navigation Sections (Simplified for SIH Judges)
+  const navSections = [
     {
-      id: 'overview',
-      label: 'Overview & Analysis',
-      icon: (props) => <OverviewIcon {...props} />,
+      title: 'FORENSIC INVESTIGATION',
+      items: [
+        {
+          id: 'overview',
+          label: 'Overview & Analysis',
+          icon: (props) => <OverviewIcon {...props} />,
+        },
+        {
+          id: 'endpoints',
+          label: 'Endpoint Devices',
+          icon: (props) => <EndpointIcon {...props} />,
+          statusBadge: counts.onlineEndpoints > 0 ? `${counts.onlineEndpoints} ONLINE` : null,
+          accentColor: 'var(--accent-cyan)',
+        },
+        {
+          id: 'script',
+          label: 'JOCKY Script Editor',
+          icon: (props) => <ScriptIcon {...props} />,
+        },
+      ],
     },
     {
-      id: 'endpoints',
-      label: 'Endpoint Devices',
-      icon: (props) => <EndpointIcon {...props} />,
-      statusBadge: counts.onlineEndpoints > 0 ? `${counts.onlineEndpoints} ONLINE` : null,
-      accentColor: 'var(--accent-cyan)',
+      title: 'EVIDENCE & ANALYSIS',
+      items: [
+        {
+          id: 'evidence',
+          label: 'Evidence Vault',
+          icon: (props) => <EvidenceIcon {...props} />,
+          count: counts.evidence,
+        },
+        {
+          id: 'techniques',
+          label: 'Advanced Techniques',
+          icon: (props) => <TechniquesIcon {...props} />,
+          count: counts.techniques,
+          statusBadge: counts.techniques > 0 ? `${counts.techniques} DETECTED` : null,
+          accentColor: 'var(--accent-cyan)',
+        },
+        {
+          id: 'timeline',
+          label: 'Forensic Timeline',
+          icon: (props) => <TimelineIcon {...props} />,
+          count: counts.timeline,
+        },
+        {
+          id: 'correlation',
+          label: 'Correlation Graph',
+          icon: (props) => <CorrelationIcon {...props} />,
+          count: counts.correlation,
+        },
+      ],
     },
     {
-      id: 'support',
-      label: 'Cybersecurity Support',
-      icon: (props) => <SupportIcon {...props} />,
-      statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
-      accentColor: 'var(--accent-indigo)',
-    },
-    {
-      id: 'correlation',
-      label: 'Correlation Graph',
-      icon: (props) => <CorrelationIcon {...props} />,
-      count: counts.correlation,
-    },
-    {
-      id: 'techniques',
-      label: 'Advanced Techniques',
-      icon: (props) => <TechniquesIcon {...props} />,
-      count: counts.techniques,
-      statusBadge: counts.techniques > 0 ? `${counts.techniques} DETECTED` : null,
-      accentColor: 'var(--accent-cyan)',
-    },
-    {
-      id: 'timeline',
-      label: 'Forensic Timeline',
-      icon: (props) => <TimelineIcon {...props} />,
-      count: counts.timeline,
-    },
-    {
-      id: 'system',
-      label: 'System Telemetry',
-      icon: (props) => <SystemIcon {...props} />,
-    },
-    {
-      id: 'processes',
-      label: 'Active Processes',
-      icon: (props) => <ProcessesIcon {...props} />,
-      count: counts.processes,
-    },
-    {
-      id: 'network',
-      label: 'Network Sockets',
-      icon: (props) => <NetworkIcon {...props} />,
-      count: counts.network,
-    },
-    {
-      id: 'files',
-      label: 'Files & Binaries',
-      icon: (props) => <FilesIcon {...props} />,
-      count: counts.files,
-    },
-    {
-      id: 'users',
-      label: 'Users & Sessions',
-      icon: (props) => <UsersIcon {...props} />,
-      count: counts.users,
-    },
-    {
-      id: 'windows',
-      label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
-      icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} />,
-    },
-    {
-      id: 'evidence',
-      label: 'Evidence Vault',
-      icon: (props) => <EvidenceIcon {...props} />,
-      count: counts.evidence,
-    },
-    {
-      id: 'reports',
-      label: 'Forensic Reports',
-      icon: (props) => <ReportsIcon {...props} />,
-    },
-    {
-      id: 'execute',
-      label: 'Execution Engine',
-      icon: (props) => <ExecuteIcon {...props} />,
-    },
-    {
-      id: 'script',
-      label: 'JOCKY Script Editor',
-      icon: (props) => <ScriptIcon {...props} />,
-    },
-    {
-      id: 'commands',
-      label: 'Command Search',
-      icon: (props) => <SearchIcon {...props} />,
-      statusBadge: 'DSL',
+      title: 'OUTPUT',
+      items: [
+        {
+          id: 'reports',
+          label: 'Forensic Reports',
+          icon: (props) => <ReportsIcon {...props} />,
+        },
+      ],
     },
   ];
+
+  // Hidden from primary sidebar per SIH judge-facing navigation requirement.
+  // Preserved so all routes, components, and backend functionality remain intact.
+  const hiddenItems = [
+    { id: 'system', label: 'System Telemetry', icon: (props) => <SystemIcon {...props} /> },
+    { id: 'processes', label: 'Active Processes', icon: (props) => <ProcessesIcon {...props} />, count: counts.processes },
+    { id: 'network', label: 'Network Sockets', icon: (props) => <NetworkIcon {...props} />, count: counts.network },
+    { id: 'files', label: 'Files & Binaries', icon: (props) => <FilesIcon {...props} />, count: counts.files },
+    { id: 'users', label: 'Users & Sessions', icon: (props) => <UsersIcon {...props} />, count: counts.users },
+    { id: 'windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
+    { id: 'execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
+    { id: 'commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
+    { id: 'support', label: 'Cybersecurity Support', icon: (props) => <SupportIcon {...props} />, statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF', accentColor: 'var(--accent-indigo)' },
+  ];
+
+  // Complete registry of all modules for safe lookups and backward compatibility
+  const allNavItems = [
+    ...navSections.flatMap((s) => s.items),
+    ...hiddenItems,
+  ];
+
 
   const handleMouseEnter = (e, item) => {
     if (collapsed) {
@@ -519,93 +504,108 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Scrollable Navigation List */}
+        {/* Scrollable Navigation List - Judge-Facing Grouped Sections */}
         <nav className="sidebar-scrollable" role="navigation">
-          {!collapsed && (
-            <div
-              style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                color: 'var(--text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                padding: '0.35rem 0.65rem',
-              }}
-            >
-              Forensic Modules
-            </div>
-          )}
-
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                id={`sidebar-nav-${item.id}`}
-                onClick={() => onSelectTab(item.id)}
-                onMouseEnter={(e) => handleMouseEnter(e, item)}
-                onMouseLeave={handleMouseLeave}
-                className={`sidebar-nav-btn ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
-                title={collapsed ? `${item.label}${item.count != null ? ` (${item.count})` : ''}` : undefined}
-                aria-current={isActive ? 'page' : undefined}
-                style={{
-                  borderLeft: isActive ? (item.id === 'support' ? '3px solid var(--accent-indigo)' : '3px solid var(--accent-cyan)') : 'none',
-                }}
-              >
-                {/* Icon */}
-                <span
+          {navSections.map((section, sectionIdx) => (
+            <div key={section.title} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              {!collapsed ? (
+                <div
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: isActive ? (item.id === 'support' ? 'var(--accent-indigo)' : 'var(--accent-cyan)') : 'inherit',
-                    minWidth: '20px',
-                    transition: 'color 0.16s ease',
+                    fontSize: '0.64rem',
+                    fontWeight: 700,
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    padding: sectionIdx === 0 ? '0.2rem 0.65rem 0.25rem' : '0.75rem 0.65rem 0.25rem',
                   }}
                 >
-                  {item.icon({ size: 18 })}
-                </span>
+                  {section.title}
+                </div>
+              ) : (
+                sectionIdx > 0 && (
+                  <div
+                    style={{
+                      height: '1px',
+                      background: 'var(--border-subtle)',
+                      margin: '0.35rem 0.4rem',
+                    }}
+                  />
+                )
+              )}
 
-                {/* Text Label & Badge (when expanded) */}
-                {!collapsed && (
-                  <>
+              {section.items.map((item) => {
+                const isActive = activeTab === item.id;
+                const accent = item.accentColor || 'var(--accent-cyan)';
+                return (
+                  <button
+                    key={item.id}
+                    id={`sidebar-nav-${item.id}`}
+                    onClick={() => onSelectTab(item.id)}
+                    onMouseEnter={(e) => handleMouseEnter(e, item)}
+                    onMouseLeave={handleMouseLeave}
+                    className={`sidebar-nav-btn ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
+                    title={collapsed ? `${item.label}${item.count != null ? ` (${item.count})` : ''}` : undefined}
+                    aria-current={isActive ? 'page' : undefined}
+                    style={{
+                      borderLeft: isActive ? `3px solid ${accent}` : 'none',
+                    }}
+                  >
+                    {/* Icon */}
                     <span
                       style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: isActive ? accent : 'inherit',
+                        minWidth: '20px',
+                        transition: 'color 0.16s ease',
                       }}
                     >
-                      {item.label}
+                      {item.icon({ size: 18 })}
                     </span>
 
-                    {item.statusBadge && (
-                      <span
-                        style={{
-                          fontSize: '0.65rem',
-                          fontWeight: 700,
-                          padding: '0.1rem 0.4rem',
-                          borderRadius: '4px',
-                          background: item.statusBadge.includes('ON') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                          color: item.statusBadge.includes('ON') ? 'var(--accent-emerald)' : 'var(--accent-amber)',
-                          fontFamily: 'monospace',
-                        }}
-                      >
-                        {item.statusBadge}
-                      </span>
-                    )}
+                    {/* Text Label & Badge (when expanded) */}
+                    {!collapsed && (
+                      <>
+                        <span
+                          style={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            flex: 1,
+                          }}
+                        >
+                          {item.label}
+                        </span>
 
-                    {item.count != null && (
-                      <span className={isActive ? 'sidebar-badge' : 'sidebar-badge-muted'}>
-                        {item.count}
-                      </span>
+                        {item.statusBadge && (
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              padding: '0.1rem 0.4rem',
+                              borderRadius: '4px',
+                              background: item.statusBadge.includes('ON') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                              color: item.statusBadge.includes('ON') ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+                              fontFamily: 'monospace',
+                            }}
+                          >
+                            {item.statusBadge}
+                          </span>
+                        )}
+
+                        {item.count != null && (
+                          <span className={isActive ? 'sidebar-badge' : 'sidebar-badge-muted'}>
+                            {item.count}
+                          </span>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </button>
-            );
-          })}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Bottom Sidebar Status / Investigator Session / Logout */}
