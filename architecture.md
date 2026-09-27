@@ -83,7 +83,10 @@ flowchart TD
 
 | Phase | Focus | Status |
 |---|---|---|
-| **Phase 1 (Current)** | Clean project skeleton, FastAPI health service, React/Vite dashboard shell, architecture specs, and test harness | **Complete** |
-| **Phase 2 (Next)** | JOCKY Lexer, Parser, AST generator, and Authorization Policy Engine | Planned |
-| **Phase 3** | Safe Collectors (`psutil`), Evidence Store, SHA-256 verification, and Chain of Custody | Planned |
-| **Phase 4** | Heuristic Analysis Engine, Report generation, and full React dashboard integration | Planned |
+| **Phase 1** | Architectural blueprint, FastAPI service, React/Vite dashboard, and test harness | **Complete** |
+| **Phase 2** | JOCKY Lexer, Recursive Parser, AST builder, Semantic Validator, and IR Emitter | **Complete** |
+| **Phase 3** | Cross-Platform Safe Collectors (Windows, Linux, macOS) for System, Processes, Network, and Files | **Complete** |
+| **Phase 4** | Cryptographic Evidence Vault, SHA-256 sealing, mathematical tamper detection & custody ledger | **Complete** |
+| **Phase 5** | Forensic Heuristics, MITRE ATT&CK correlation, and chronological timeline synthesis | **Complete** |
+| **Phase 6** | Multi-format reporting (JSON/HTML/MD), RBAC authentication, AI analyst assistant, and CLI suite | **Complete** |
+
