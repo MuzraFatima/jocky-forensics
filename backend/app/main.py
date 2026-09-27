@@ -32,6 +32,7 @@ from backend.app.language import (
 )
 from backend.app.engine import ForensicExecutor, PolicyEngine, execute_jocky_ir
 from backend.app.security import security_router
+from backend.app.agents.routes import router as agent_router
 
 app = FastAPI(
     title="JOCKY Forensic Analysis Framework API",
@@ -68,6 +69,9 @@ app.add_middleware(
 # Mount Security & Incident Response router
 app.include_router(security_router)
 
+# Mount Endpoint Agent router
+app.include_router(agent_router)
+
 policy_engine = PolicyEngine()
 executor = ForensicExecutor(policy_engine=policy_engine)
 
@@ -75,6 +79,8 @@ executor = ForensicExecutor(policy_engine=policy_engine)
 
 class ScriptParseRequest(BaseModel):
     script: str = Field(..., description="Raw JOCKY forensic script source text")
+    device_id: Optional[str] = Field(None, description="Optional target enrolled endpoint device ID")
+    wait_timeout: Optional[int] = Field(30, description="Timeout in seconds to await endpoint execution")
 
 
 class CorrelateRequest(BaseModel):
@@ -377,11 +383,158 @@ def execute_endpoint(request: ScriptParseRequest):
             },
         )
 
-    # Full IR execution
+    # Check if target is a remote enrolled endpoint
+    target_device_id = (request.device_id or "").strip()
+    is_remote = bool(target_device_id and target_device_id.lower() != "local")
+
+    from backend.app.evidence import _default_vault
+
+    if is_remote:
+        import time
+        from backend.app.agents.manager import get_agent_manager
+        from backend.app.agents.models import AgentJob, AllowedCollector, CollectorOperation
+        from backend.app.engine.providers import EndpointEvidenceProvider
+
+        agent_manager = get_agent_manager()
+        dev = agent_manager.get_device(target_device_id)
+        if not dev:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "error_type": "DeviceNotFound",
+                    "message": f"Target endpoint device '{target_device_id}' not found.",
+                },
+            )
+        if not agent_manager.is_device_active(target_device_id):
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "error_type": "DeviceNotActive",
+                    "message": f"Target endpoint device '{target_device_id}' is not active or has been revoked.",
+                },
+            )
+
+        case_id = ir.get("case_id") or "DEFAULT-CASE"
+        exec_id = f"EXEC-{uuid.uuid4().hex[:8].upper()}"
+
+        # Extract required collector operations
+        allowed_ops = []
+        expected_collectors = []
+        for op in ir.get("operations", []):
+            if op.get("type", "").upper() == "COLLECT":
+                col_str = (op.get("target") or "").lower()
+                try:
+                    col_enum = AllowedCollector(col_str)
+                    params = {}
+                    if "path" in op and op["path"]:
+                        params["target_path"] = op["path"]
+                    allowed_ops.append(
+                        CollectorOperation(
+                            collector=col_enum,
+                            params=params,
+                            filters=op.get("filters", []),
+                        )
+                    )
+                    expected_collectors.append(col_str)
+                except ValueError:
+                    pass
+
+        if not allowed_ops:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "error_type": "NoOperations",
+                    "message": "Script contains no valid forensic collection operations for endpoint.",
+                },
+            )
+
+        job_id = f"JOB-{uuid.uuid4().hex[:8].upper()}"
+        timeout_secs = min(max(request.wait_timeout or 30, 5), 120)
+
+        job = AgentJob(
+            job_id=job_id,
+            user_id=dev.user_id,
+            device_id=dev.device_id,
+            case_id=case_id,
+            execution_id=exec_id,
+            allowed_operations=allowed_ops,
+            timeout_seconds=timeout_secs,
+        )
+        agent_manager.enqueue_job(dev.device_id, job)
+
+        # Await completion from endpoint
+        start_wait = time.time()
+        while time.time() - start_wait < timeout_secs:
+            if agent_manager.is_execution_complete(exec_id, expected_collectors):
+                break
+            time.sleep(0.1)
+
+        if not agent_manager.is_execution_complete(exec_id, expected_collectors):
+            return JSONResponse(
+                status_code=408,
+                content={
+                    "success": False,
+                    "error_type": "EndpointTimeout",
+                    "message": f"Timed out waiting for endpoint agent '{dev.device_id}' to upload evidence.",
+                    "execution_id": exec_id,
+                    "job_id": job_id,
+                    "expected_collectors": expected_collectors,
+                },
+            )
+
+        submissions = agent_manager.get_results(exec_id)
+        provider = EndpointEvidenceProvider(
+            evidence=submissions,
+            expected_device_id=dev.device_id,
+            expected_execution_id=exec_id,
+        )
+
+        receipt = execute_jocky_ir(ir, collector_provider=provider)
+        receipt["execution_id"] = exec_id
+        receipt["target_device_id"] = dev.device_id
+        receipt["target_host"] = dev.hostname
+        receipt["device_platform"] = dev.platform
+        receipt["collector_identity"] = "JOCKY-Endpoint-Agent"
+        receipt["errors"] = [receipt["error"]] if receipt.get("error") else []
+
+        evidence_collected_list = []
+        for category, data in receipt.get("collected_data", {}).items():
+            evid_id = receipt.get("evidence_ids", {}).get(category)
+            sha = receipt.get("sha256_hashes", {}).get(category)
+            try:
+                sealed = _default_vault.seal_artifact(
+                    case_id=case_id,
+                    source=category,
+                    data=data,
+                    who=f"JOCKY Endpoint Agent ({dev.device_id})",
+                    why=f"Authorized endpoint acquisition for {case_id}",
+                    execution_id=exec_id,
+                    collector_identity="JOCKY-Endpoint-Agent",
+                    collector_version=dev.agent_version,
+                    target_host=dev.hostname,
+                )
+                evid_id = sealed["evidence_id"]
+                sha = sealed["sha256"]
+                receipt.setdefault("evidence_ids", {})[category] = evid_id
+                receipt.setdefault("sha256_hashes", {})[category] = sha
+            except Exception:
+                pass
+            evidence_collected_list.append({
+                "category": category,
+                "evidence_id": evid_id,
+                "sha256": sha,
+                "data": data,
+            })
+        receipt["evidence_collected"] = evidence_collected_list
+        agent_manager.clear_results(exec_id)
+        return receipt
+
+    # Full Local IR execution
     receipt = execute_jocky_ir(ir)
 
-    # Enrich receipt with execution_id, evidence_collected, errors, and persist to vault
-    from backend.app.evidence import _default_vault
     case_id = receipt.get("case_id") or "DEFAULT-CASE"
     target = receipt.get("target") or "LOCAL-HOST"
     exec_id = ir.get("execution_id") or receipt.get("execution_id") or f"EXEC-{uuid.uuid4().hex[:8].upper()}"
@@ -953,8 +1106,17 @@ def generate_report_endpoint(request: ReportGenerationRequest):
             }
 
         # Downstream analysis
-        correlation = correlate_evidence(evidence)
-        timeline = build_forensic_timeline(evidence)
+        from backend.app.analysis import ForensicContext, analyze_evidence_techniques, build_mitre_analysis
+
+        forensic_ctx = ForensicContext(
+            case_id=request.case_id or "CASE-REPORT-001",
+            target_host=request.target or "LIVE-ENDPOINT",
+        )
+        technique_findings = analyze_evidence_techniques(evidence, forensic_ctx)
+        mitre_analysis = build_mitre_analysis(technique_findings, forensic_ctx)
+
+        correlation = correlate_evidence(evidence, findings=technique_findings)
+        timeline = build_forensic_timeline(evidence, findings=technique_findings)
         detections = evaluate_forensic_rules(evidence)
         vault_audit = _default_vault.verify_vault_integrity(case_id=request.case_id)
 
@@ -970,6 +1132,8 @@ def generate_report_endpoint(request: ReportGenerationRequest):
             timeline=timeline,
             detections=detections,
             vault_audit=vault_audit,
+            technique_findings=technique_findings,
+            mitre_analysis=mitre_analysis,
         )
 
         fmt = (request.format or "HTML").upper()
@@ -1036,6 +1200,138 @@ def download_report_endpoint(format: str = "html", case_id: str = "CASE-LIVE-001
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: Advanced Forensic Technique Registry Endpoints
+# ---------------------------------------------------------------------------
+
+@app.get("/api/forensics/techniques/stats/summary")
+def get_technique_summary_endpoint():
+    """
+    Phase 2: Returns aggregated summary counts of all registered advanced forensic techniques.
+    """
+    from backend.app.analysis.registry import get_technique_registry
+    registry = get_technique_registry()
+    return {
+        "success": True,
+        "summary": registry.get_summary(),
+    }
+
+
+@app.get("/api/forensics/techniques")
+def list_techniques_endpoint(
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    mitre_only: bool = False,
+    demo_only: bool = False,
+):
+    """
+    Phase 2: Returns list of safe advanced forensic techniques that JOCKY can analyze or detect.
+    Supports filtering by category, status, MITRE mapping, or demo availability.
+    """
+    from backend.app.analysis.registry import (
+        AnalysisStatus,
+        TechniqueCategory,
+        get_technique_registry,
+    )
+    registry = get_technique_registry()
+
+    cat_filter = None
+    if category:
+        for c in TechniqueCategory:
+            if c.value.lower() == category.lower() or c.name.lower() == category.lower():
+                cat_filter = c
+                break
+
+    status_filter = None
+    if status:
+        for s in AnalysisStatus:
+            if s.value.lower() == status.lower() or s.name.lower() == status.lower():
+                status_filter = s
+                break
+
+    techniques = registry.list_techniques(
+        category=cat_filter,
+        status=status_filter,
+        mitre_only=mitre_only,
+        demo_only=demo_only,
+    )
+    return {
+        "success": True,
+        "count": len(techniques),
+        "techniques": [t.model_dump() for t in techniques],
+    }
+
+
+@app.get("/api/forensics/techniques/{technique_id}")
+def get_technique_endpoint(technique_id: str):
+    """
+    Phase 2: Retrieves detailed specification for a specific forensic technique by ID or MITRE ID.
+    """
+    from backend.app.analysis.registry import get_technique_registry
+    registry = get_technique_registry()
+    tech = registry.get(technique_id) or registry.get_by_mitre(technique_id)
+    if not tech:
+        return JSONResponse(
+            status_code=404,
+            content={"success": False, "error": f"Technique '{technique_id}' not found in registry."},
+        )
+    return {
+        "success": True,
+        "technique": tech.model_dump(),
+    }
+
+
+class TechniqueAnalysisRequest(BaseModel):
+    evidence: Optional[Dict[str, Any]] = None
+    case_id: Optional[str] = "CASE-ANALYSIS-001"
+    execution_id: Optional[str] = None
+    device_id: Optional[str] = None
+    target_host: Optional[str] = "localhost"
+
+
+@app.post("/api/forensics/analyze/techniques")
+def analyze_techniques_endpoint(request: TechniqueAnalysisRequest):
+    """
+    Phase 3: Analyzes forensic evidence through the Evidence → Indicator → Technique → Finding pipeline.
+    Preserves evidence IDs, timestamps, device ID, case ID, and execution ID.
+    """
+    from backend.app.analysis import ForensicContext, analyze_evidence_techniques
+    from backend.app.collectors.files import collect_files_info
+    from backend.app.collectors.network import collect_network_info
+    from backend.app.collectors.processes import collect_process_info
+    from backend.app.collectors.system import collect_system_info
+
+    evidence = request.evidence
+    if not evidence:
+        evidence = {
+            "system": collect_system_info(),
+            "processes": collect_process_info(),
+            "network": collect_network_info(),
+            "files": collect_files_info(max_files=15),
+        }
+
+    ctx = ForensicContext(
+        case_id=request.case_id or "CASE-ANALYSIS-001",
+        execution_id=request.execution_id,
+        device_id=request.device_id,
+        target_host=request.target_host or "localhost",
+    )
+
+    findings = analyze_evidence_techniques(evidence, ctx)
+    from backend.app.analysis.mitre import build_mitre_analysis
+    mitre_analysis = build_mitre_analysis(findings, ctx)
+    return {
+        "success": True,
+        "case_id": ctx.case_id,
+        "execution_id": ctx.execution_id,
+        "device_id": ctx.device_id,
+        "target_host": ctx.target_host,
+        "findings_count": len(findings),
+        "findings": findings,
+        "mitre_analysis": mitre_analysis,
+    }
 
 
 # -----------------------------------------------------------------------------

@@ -9,6 +9,14 @@ Provides:
 - ForensicRuleEngine & evaluate_forensic_rules: Deterministic heuristic indicators
 """
 
+from .analyzers import (
+    AdvancedAnalysisPipeline,
+    ExecutionAnalyzer,
+    MemoryAnalyzer,
+    NetworkAnalyzer,
+    PersistenceAnalyzer,
+    ProcessAnalyzer,
+)
 from .correlator import (
     ForensicCorrelator,
     correlate_evidence,
@@ -17,9 +25,27 @@ from .correlator import (
     generate_process_entity_id,
     generate_user_entity_id,
 )
+from .registry import (
+    AnalysisStatus,
+    MitreMapping,
+    TechniqueCategory,
+    TechniqueEntry,
+    TechniqueRegistry,
+    get_technique_registry,
+)
+from .mapping import (
+    EvidenceTechniqueMapper,
+    ForensicContext,
+    ObservableIndicator,
+    TechniqueFinding,
+    analyze_evidence_techniques,
+)
 from .rules import (
     ForensicRuleEngine,
     evaluate_forensic_rules,
+)
+from .mitre import (
+    build_mitre_analysis,
 )
 from .timeline import (
     ForensicTimeline,
@@ -37,4 +63,22 @@ __all__ = [
     "build_forensic_timeline",
     "ForensicRuleEngine",
     "evaluate_forensic_rules",
+    "AnalysisStatus",
+    "MitreMapping",
+    "TechniqueCategory",
+    "TechniqueEntry",
+    "TechniqueRegistry",
+    "get_technique_registry",
+    "EvidenceTechniqueMapper",
+    "ForensicContext",
+    "ObservableIndicator",
+    "TechniqueFinding",
+    "analyze_evidence_techniques",
+    "ProcessAnalyzer",
+    "NetworkAnalyzer",
+    "ExecutionAnalyzer",
+    "PersistenceAnalyzer",
+    "MemoryAnalyzer",
+    "AdvancedAnalysisPipeline",
+    "build_mitre_analysis",
 ]

@@ -42,11 +42,15 @@ from backend.app.analysis import (
     build_forensic_timeline,
     correlate_evidence,
     evaluate_forensic_rules,
+    analyze_evidence_techniques,
+    build_mitre_analysis,
+    ForensicContext,
 )
 from backend.app.evidence.store import EvidenceStore
 from backend.app.reporting import ForensicReportBuilder
 
 from .ir_policy import evaluate_ir_policy
+from .providers import CollectorProvider, LocalCollectorProvider
 
 
 # ---------------------------------------------------------------------------
@@ -177,8 +181,13 @@ class IRExecutor:
         receipt = executor.execute_jocky_ir(ir)
     """
 
-    def __init__(self, evidence_store: Optional[EvidenceStore] = None):
+    def __init__(
+        self,
+        evidence_store: Optional[EvidenceStore] = None,
+        collector_provider: Optional[CollectorProvider] = None,
+    ):
         self.evidence_store = evidence_store or EvidenceStore()
+        self.collector_provider = collector_provider or LocalCollectorProvider()
 
     def execute_jocky_ir(self, ir: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -276,7 +285,7 @@ class IRExecutor:
             # ── COLLECT SYSTEM ──────────────────────────────────────────────
             if capability == "COLLECT_SYSTEM":
                 try:
-                    data = collect_system_info()
+                    data = self.collector_provider.collect_system()
                     collected_data["system"] = data
                     record = self.evidence_store.save_evidence(
                         case_id=case_id,
@@ -314,7 +323,7 @@ class IRExecutor:
             # ── COLLECT PROCESSES ────────────────────────────────────────────
             elif capability == "COLLECT_PROCESSES":
                 try:
-                    raw = collect_process_info()
+                    raw = self.collector_provider.collect_processes()
                     all_procs = raw.get("processes", [])
                     filtered_procs = _apply_process_filter(all_procs, op_filters)
 
@@ -365,7 +374,7 @@ class IRExecutor:
             # ── COLLECT NETWORK ──────────────────────────────────────────────
             elif capability == "COLLECT_NETWORK":
                 try:
-                    raw = collect_network_info()
+                    raw = self.collector_provider.collect_network()
                     all_conns = raw.get("connections", [])
                     filtered_conns = _apply_network_filter(all_conns, op_filters)
 
@@ -416,7 +425,7 @@ class IRExecutor:
             elif capability == "COLLECT_FILES":
                 try:
                     target_path = op.get("path")
-                    data = collect_files_info(target_path=target_path)
+                    data = self.collector_provider.collect_files(target_path=target_path)
                     collected_data["files"] = data
                     record = self.evidence_store.save_evidence(
                         case_id=case_id,
@@ -454,7 +463,7 @@ class IRExecutor:
             # ── COLLECT USERS ────────────────────────────────────────────────
             elif capability == "COLLECT_USERS":
                 try:
-                    data = collect_users_info()
+                    data = self.collector_provider.collect_users()
                     collected_data["users"] = data
                     record = self.evidence_store.save_evidence(
                         case_id=case_id,
@@ -494,7 +503,11 @@ class IRExecutor:
                 try:
                     is_reg = capability == "COLLECT_REGISTRY"
                     source_name = "registry" if is_reg else "windows_metadata"
-                    data = collect_registry_info() if is_reg else collect_windows_metadata()
+                    data = (
+                        self.collector_provider.collect_registry()
+                        if is_reg
+                        else self.collector_provider.collect_windows_metadata()
+                    )
                     collected_data[source_name] = data
                     record = self.evidence_store.save_evidence(
                         case_id=case_id,
@@ -592,28 +605,49 @@ class IRExecutor:
                         f"Windows persistence: {autoruns_cnt} autorun registry key(s) verified."
                     )
 
-                # Phase 4 Forensic Correlation
+                # Phase 4/5 Advanced Technique Findings & Mapping
+                technique_findings = []
+                mitre_analysis = None
+                try:
+                    forensic_ctx = ForensicContext(
+                        case_id=case_id,
+                        execution_id=ir.get("execution_id"),
+                        target_host=target,
+                        evidence_ids=evidence_ids,
+                    )
+                    technique_findings = analyze_evidence_techniques(collected_data, forensic_ctx)
+                    if technique_findings:
+                        findings.append(
+                            f"Technique Mapping Analysis: {len(technique_findings)} advanced technique finding(s) mapped."
+                        )
+                    mitre_analysis = build_mitre_analysis(technique_findings, forensic_ctx)
+                except Exception as map_exc:
+                    technique_findings = [{"error": str(map_exc)}]
+                    mitre_analysis = {"error": str(map_exc)}
+
+                # Forensic Correlation (enriched with technique findings)
                 correlation_result = None
                 try:
-                    correlation_result = correlate_evidence(collected_data)
+                    correlation_result = correlate_evidence(collected_data, findings=technique_findings)
                     summary = correlation_result.get("summary", {})
+                    tech_cnt = summary.get("technique_count", 0)
                     findings.append(
                         f"Forensic Correlation Graph: {summary.get('total_entities', 0)} entities "
                         f"({summary.get('process_count', 0)} procs, {summary.get('network_count', 0)} sockets, "
-                        f"{summary.get('file_count', 0)} files, {summary.get('user_count', 0)} users) "
+                        f"{summary.get('file_count', 0)} files, {summary.get('user_count', 0)} users, "
+                        f"{tech_cnt} techniques) "
                         f"with {summary.get('total_relationships', 0)} relationships and "
                         f"{summary.get('correlated_chains_count', 0)} process chains."
                     )
                 except Exception as corr_exc:
                     correlation_result = {"error": str(corr_exc)}
 
-                # Phase 5 Forensic Timeline & Heuristic Analysis
+                # Forensic Timeline & Heuristic Analysis (enriched with analytical findings)
                 timeline_result = None
                 detections_result = None
                 try:
-                    # Enrich with evidence IDs if available
                     data_with_ids = {**collected_data, "evidence_ids": evidence_ids}
-                    timeline_result = build_forensic_timeline(data_with_ids)
+                    timeline_result = build_forensic_timeline(data_with_ids, findings=technique_findings)
                     findings.append(
                         f"Forensic Timeline: {len(timeline_result)} chronological events normalized and ordered."
                     )
@@ -640,6 +674,8 @@ class IRExecutor:
                     "correlation": correlation_result,
                     "timeline": timeline_result,
                     "detections": detections_result,
+                    "technique_findings": technique_findings,
+                    "mitre_analysis": mitre_analysis,
                 }
                 receipts.append(_receipt_entry(
                     index=idx,
@@ -709,6 +745,8 @@ class IRExecutor:
                     detections=analysis_result.get("detections"),
                     evidence_ids=evidence_ids,
                     sha256_hashes=sha256_hashes,
+                    technique_findings=analysis_result.get("technique_findings") if analysis_result else None,
+                    mitre_analysis=analysis_result.get("mitre_analysis") if analysis_result else None,
                 )
 
                 if fmt == "HTML":
@@ -730,6 +768,8 @@ class IRExecutor:
                     "summary": f"Forensic investigation completed for case {case_id} on target {target}.",
                     "evidence_ids": evidence_ids,
                     "sha256_hashes": sha256_hashes,
+                    "technique_findings": analysis_result.get("technique_findings", []) if analysis_result else [],
+                    "mitre_analysis": analysis_result.get("mitre_analysis", {}) if analysis_result else {},
                     "report_data": rep_data,
                     "content": rendered_content,
                     "saved_path": str(saved_path),
@@ -771,6 +811,8 @@ class IRExecutor:
                 "details": integrity_details,
             },
             "analysis": analysis_result,
+            "technique_findings": analysis_result.get("technique_findings", []) if analysis_result else [],
+            "mitre_analysis": analysis_result.get("mitre_analysis", {}) if analysis_result else {},
             "correlation": analysis_result.get("correlation") if analysis_result else None,
             "timeline": analysis_result.get("timeline") if analysis_result else None,
             "detections": analysis_result.get("detections") if analysis_result else None,
@@ -781,3 +823,14 @@ class IRExecutor:
             },
             "error": None,
         }
+
+
+def execute_jocky_ir(
+    ir: Dict[str, Any],
+    evidence_store: Optional[EvidenceStore] = None,
+    collector_provider: Optional[CollectorProvider] = None,
+) -> Dict[str, Any]:
+    """Module-level convenience helper to execute a JOCKY IR dict."""
+    executor = IRExecutor(evidence_store=evidence_store, collector_provider=collector_provider)
+    return executor.execute_jocky_ir(ir)
+

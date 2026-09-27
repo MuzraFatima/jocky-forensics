@@ -5,13 +5,15 @@ Enforces authorization, boundaries, and non-destructive invariants on execution 
 and orchestrates read-only collection readiness.
 
 Phase 2: adds IR-aware policy evaluation and IR execution.
+Phase 4: adds CollectorProvider abstraction for local and endpoint evidence sources.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from .policy import PolicyEngine
 from .executor import ForensicExecutor
 from .ir_policy import evaluate_ir_policy
 from .ir_executor import IRExecutor
+from .providers import CollectorProvider, LocalCollectorProvider, EndpointEvidenceProvider
 
 
 def evaluate_policy(execution_plan: Dict[str, Any]) -> Dict[str, Any]:
@@ -26,9 +28,13 @@ def execute_plan(execution_plan: Dict[str, Any]) -> Dict[str, Any]:
     return executor.execute(execution_plan)
 
 
-def execute_jocky_ir(ir: Dict[str, Any]) -> Dict[str, Any]:
-    """Phase-2 convenience helper: run a JOCKY IR through the IR execution engine."""
-    executor = IRExecutor()
+def execute_jocky_ir(
+    ir: Dict[str, Any],
+    collector_provider: Optional[CollectorProvider] = None,
+    evidence_store: Optional[Any] = None,
+) -> Dict[str, Any]:
+    """Phase-2/4 convenience helper: run a JOCKY IR through the IR execution engine."""
+    executor = IRExecutor(evidence_store=evidence_store, collector_provider=collector_provider)
     return executor.execute_jocky_ir(ir)
 
 
@@ -42,4 +48,8 @@ __all__ = [
     "evaluate_ir_policy",
     "IRExecutor",
     "execute_jocky_ir",
+    # Phase 4 (Endpoint Provider Abstraction)
+    "CollectorProvider",
+    "LocalCollectorProvider",
+    "EndpointEvidenceProvider",
 ]

@@ -80,15 +80,17 @@ class ForensicCorrelator:
         network: Optional[List[Dict[str, Any]]] = None,
         files: Optional[List[Dict[str, Any]]] = None,
         users: Optional[List[Dict[str, Any]]] = None,
+        findings: Optional[List[Any]] = None,
     ) -> Dict[str, Any]:
         """
         Builds the complete correlation graph.
-        Accepts lists of normalized forensic records.
+        Accepts lists of normalized forensic records and optional advanced technique findings.
         """
         proc_list = processes or []
         net_list = network or []
         file_list = files or []
         user_list = users or []
+        findings_list = findings or []
 
         # Index processes by PID
         proc_by_pid: Dict[int, Dict[str, Any]] = {}
@@ -109,6 +111,7 @@ class ForensicCorrelator:
             "network": [],
             "files": [],
             "users": [],
+            "techniques": [],
         }
         relationships: List[Dict[str, Any]] = []
 
@@ -254,7 +257,64 @@ class ForensicCorrelator:
                         "is_admin": u.get("is_admin", False),
                     })
 
-        # 5. Build Process Tree (PPID -> Children)
+        # 5. Advanced Technique Finding Entities & Relationships
+        findings_by_target: Dict[str, List[Dict[str, Any]]] = {}
+        for f in findings_list:
+            f_dict = f.model_dump() if hasattr(f, "model_dump") else (dict(f) if isinstance(f, dict) else {})
+            f_id = f_dict.get("finding_id") or "FINDING-UNKNOWN"
+            tech_id = f_dict.get("technique_id") or f_dict.get("technique") or "TECH-UNKNOWN"
+            target_ent = f_dict.get("target_entity") or ""
+            ev_ids = f_dict.get("evidence_ids") or []
+            confidence = f_dict.get("confidence", "HIGH")
+            status = f_dict.get("status", "DETECTED")
+            mitre_id = f_dict.get("mitre_id")
+            mitre_tactic = f_dict.get("mitre_tactic")
+
+            tech_entity = {
+                "entity_id": f_id,
+                "type": "technique_finding",
+                "entity_class": "ANALYTICAL_INTERPRETATION",
+                "technique_id": tech_id,
+                "technique_name": f_dict.get("technique_name", tech_id),
+                "category": str(f_dict.get("category", "")),
+                "severity": f_dict.get("severity", "MEDIUM"),
+                "confidence": confidence,
+                "status": status,
+                "mitre_id": mitre_id,
+                "mitre_name": f_dict.get("mitre_name"),
+                "mitre_tactic": mitre_tactic,
+                "target_entity": target_ent,
+                "observed_indicator": f_dict.get("observed_indicator"),
+                "explanation": f_dict.get("explanation"),
+                "evidence_ids": ev_ids,
+                "timestamp": f_dict.get("timestamp"),
+                "is_analytical": True,
+            }
+
+            if f_id not in registered_entity_ids:
+                registered_entity_ids.add(f_id)
+                entities["techniques"].append(tech_entity)
+
+            if target_ent:
+                findings_by_target.setdefault(target_ent, []).append(tech_entity)
+                relationships.append({
+                    "source": target_ent,
+                    "type": "EXHIBITS_TECHNIQUE",
+                    "target": f_id,
+                    "confidence": confidence,
+                    "mitre_id": mitre_id,
+                    "is_analytical": True,
+                })
+
+            for ev_id in ev_ids:
+                relationships.append({
+                    "source": f_id,
+                    "type": "BACKED_BY_EVIDENCE",
+                    "target": ev_id,
+                    "is_analytical": True,
+                })
+
+        # 6. Build Process Tree (PPID -> Children)
         children_map: Dict[int, List[int]] = {}
         for p in proc_list:
             pid = p.get("pid")
@@ -293,14 +353,15 @@ class ForensicCorrelator:
 
         process_tree = [build_tree_node(r_pid, set()) for r_pid in root_pids]
 
-        # 6. Build Correlated Forensic Chains
-        # Flat list linking: Process -> Parent -> Executable -> Sockets -> Children
+        # 7. Build Correlated Forensic Chains
+        # Flat list linking: Process -> Parent -> Executable -> Sockets -> Children -> Techniques
         correlated_chains: List[Dict[str, Any]] = []
         for p in proc_list:
             pid = p.get("pid")
             if pid is None:
                 continue
 
+            proc_ent_id = generate_process_entity_id(pid)
             ppid = p.get("ppid")
             parent_info = None
             if ppid is not None and ppid in proc_by_pid:
@@ -335,9 +396,11 @@ class ForensicCorrelator:
                 if c_pid in proc_by_pid
             ]
 
+            matched_techniques = findings_by_target.get(proc_ent_id, [])
+
             correlated_chains.append({
                 "pid": pid,
-                "entity_id": generate_process_entity_id(pid),
+                "entity_id": proc_ent_id,
                 "process_name": p.get("name", "unknown"),
                 "username": p.get("username"),
                 "create_time": p.get("create_time"),
@@ -345,9 +408,12 @@ class ForensicCorrelator:
                 "executable": exe_info,
                 "network_connections": sockets,
                 "children": direct_children,
+                "techniques": matched_techniques,
                 "has_network": len(sockets) > 0,
                 "has_parent": parent_info is not None,
                 "has_children": len(direct_children) > 0,
+                "has_technique": len(matched_techniques) > 0,
+                "mitre_tactics": list(set(t["mitre_tactic"] for t in matched_techniques if t.get("mitre_tactic"))),
             })
 
         return {
@@ -357,12 +423,14 @@ class ForensicCorrelator:
                     + len(entities["network"])
                     + len(entities["files"])
                     + len(entities["users"])
+                    + len(entities.get("techniques", []))
                 ),
                 "total_relationships": len(relationships),
                 "process_count": len(entities["processes"]),
                 "network_count": len(entities["network"]),
                 "file_count": len(entities["files"]),
                 "user_count": len(entities["users"]),
+                "technique_count": len(entities.get("techniques", [])),
                 "correlated_chains_count": len(correlated_chains),
                 "root_process_count": len(process_tree),
             },
@@ -373,12 +441,17 @@ class ForensicCorrelator:
         }
 
 
-def correlate_evidence(evidence_data: Dict[str, Any]) -> Dict[str, Any]:
+def correlate_evidence(
+    evidence_data: Dict[str, Any],
+    findings: Optional[List[Any]] = None,
+) -> Dict[str, Any]:
     """
     Convenience wrapper to correlate raw collection payloads.
-    Accepts a dictionary mapping collector names or containing raw results.
+    Accepts a dictionary mapping collector names or containing raw results,
+    along with optional advanced technique findings.
     """
     correlator = ForensicCorrelator()
+    effective_findings = findings or evidence_data.get("technique_findings") or evidence_data.get("findings")
 
     # Extract process records
     procs = []
@@ -427,4 +500,5 @@ def correlate_evidence(evidence_data: Dict[str, Any]) -> Dict[str, Any]:
         network=net,
         files=files,
         users=users,
+        findings=effective_findings,
     )

@@ -70,5 +70,53 @@
     "password_hash": "pbkdf2_sha256$81bf664b3b7328f4f810078538e31835$82bfc37083ea334e793651e66cd717f7d11fbf27d75482ea0e69a11baac74bd4",
     "role": "Lead Forensic Examiner",
     "username": "sec_agent_731bf9@agency.gov"
+  },
+  {
+    "badge": "SIH26148-C0609F14",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T12:32:20.587243+00:00",
+    "password_hash": "pbkdf2_sha256$2531205129c63cfc47fd66bf34ed8031$b275eb19ec50c33b50a0d773ed4b6e554f20179a9974c71b0944eefadfb5239e",
+    "role": "Incident Responder",
+    "username": "field_examiner_81eddf@agency.gov"
+  },
+  {
+    "badge": "SIH26148-40698D3B",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T12:32:21.064731+00:00",
+    "password_hash": "pbkdf2_sha256$b3116ea210b0f310642c09ff175904ab$1b42c0bfdf5589b1a8eaa82813385d6c53f3fab7438e0ce28d8800f69238c78b",
+    "role": "Lead Forensic Examiner",
+    "username": "duplicate_examiner_d4cdab@agency.gov"
+  },
+  {
+    "badge": "SIH26148-A3D3DADD",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T12:32:21.349148+00:00",
+    "password_hash": "pbkdf2_sha256$3af52c6359b00e1b0c5c1fd7f6df2c5a$2a657fd632536eef9d41acc1ddecc1d128c71688303b3e4753b68a7610b723c3",
+    "role": "Lead Forensic Examiner",
+    "username": "sec_agent_433bd9@agency.gov"
+  },
+  {
+    "badge": "SIH26148-B051F7FE",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T13:54:30.076731+00:00",
+    "password_hash": "pbkdf2_sha256$0311b7483c6cd2fb0ec9315683be7a9a$0a8b5a5e15d9a8fe820277d5bc25492d55d5c38d351c3d18d9250bf241d76e01",
+    "role": "Incident Responder",
+    "username": "field_examiner_f323a4@agency.gov"
+  },
+  {
+    "badge": "SIH26148-961398C4",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T13:54:30.835574+00:00",
+    "password_hash": "pbkdf2_sha256$a8d485b9e2f4de467a2ed89978cb6d91$a4a52e802abc655e3b0e1ae31f68e01c0b32e20aebef04887184d9289890516c",
+    "role": "Lead Forensic Examiner",
+    "username": "duplicate_examiner_b82434@agency.gov"
+  },
+  {
+    "badge": "SIH26148-0FC14F5B",
+    "clearance": "AUTHORIZED_FORENSIC_OPERATOR",
+    "created_at": "2026-09-27T13:54:31.017226+00:00",
+    "password_hash": "pbkdf2_sha256$a7797ae9cece49262ea0d2c920b32c79$756005e8ddbd1a9cfe59d3354756a851e966f6379e0a2d47f8b83f6b1a508b05",
+    "role": "Lead Forensic Examiner",
+    "username": "sec_agent_d05445@agency.gov"
   }
 ]

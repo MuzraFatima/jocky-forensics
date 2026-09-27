@@ -42,10 +42,10 @@ export const apiFetch = async (endpoint, options = {}) => {
     ...(options.headers || {}),
   };
 
-  // Attach session token from localStorage if available and not explicitly provided
+  // Attach session token from storage if available and not explicitly provided
   if (!headers['Authorization'] && typeof window !== 'undefined') {
     try {
-      const stored = localStorage.getItem('jocky_session');
+      const stored = localStorage.getItem('jocky_session') || sessionStorage.getItem('jocky_session');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed?.token) {
@@ -61,6 +61,23 @@ export const apiFetch = async (endpoint, options = {}) => {
     ...options,
     headers,
   });
+};
+
+/**
+ * Returns the effective external server URL for endpoint agent pairing.
+ */
+export const getExternalServerUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    // If running in local Vite dev server (usually :5173 or :3000), backend is at 8000
+    if (window.location.port === '5173' || window.location.port === '3000') {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    return window.location.origin;
+  }
+  return 'http://127.0.0.1:8000';
 };
 
 export const api = {
@@ -90,6 +107,46 @@ export const api = {
     const res = await apiFetch('/api/auth/logout', {
       method: 'POST',
       body: JSON.stringify(tokenData),
+    });
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  },
+
+  // ─── Endpoint Agent API Methods ──────────────────────────────────────────
+  generatePairingCode: async (deviceName = null) => {
+    const payload = deviceName ? { device_name: deviceName } : {};
+    const res = await apiFetch('/api/agents/pairing/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  },
+  getDevices: async () => {
+    const res = await apiFetch('/api/agents/devices', {
+      method: 'GET',
+    });
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  },
+  revokeDevice: async (deviceId) => {
+    const res = await apiFetch(`/api/agents/devices/${encodeURIComponent(deviceId)}/revoke`, {
+      method: 'POST',
+    });
+    const data = await res.json();
+    return { ok: res.ok, status: res.status, data };
+  },
+  executeJocky: async (script, deviceId = null, waitTimeout = 60) => {
+    const payload = {
+      script,
+      wait_timeout: waitTimeout,
+    };
+    if (deviceId) {
+      payload.device_id = deviceId;
+    }
+    const res = await apiFetch('/api/jocky/execute', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     return { ok: res.ok, status: res.status, data };

@@ -8,6 +8,9 @@ import ReportModal from './ReportModal.jsx';
 import LogoutModal from './LogoutModal.jsx';
 import CommandSearch, { SUPPORTED_COMMANDS } from './CommandSearch.jsx';
 import ReportSection from './ReportSection.jsx';
+import EndpointDevices from './EndpointDevices.jsx';
+import AdvancedTechniques from './AdvancedTechniques.jsx';
+import { api } from './api.js';
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
 TARGET "LAB-PC"
@@ -131,10 +134,26 @@ function ProcessTreeNode({ node, depth = 0 }) {
 export default function App() {
   const [scriptText, setScriptText] = useState(CANONICAL_SCRIPT);
   const VALID_TABS = [
-    'overview', 'support', 'correlation', 'timeline', 'system',
+    'overview', 'endpoints', 'support', 'correlation', 'timeline', 'system',
     'processes', 'network', 'files', 'users',
     'windows', 'evidence', 'reports', 'execute', 'script', 'commands'
   ];
+
+  // Endpoint Agent States
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+
+  const fetchDevices = async () => {
+    try {
+      const res = await api.getDevices();
+      if (res.ok && res.data) {
+        const list = Array.isArray(res.data) ? res.data : (res.data.devices || []);
+        setDevices(list);
+      }
+    } catch (err) {
+      console.error('Failed to fetch devices in App:', err);
+    }
+  };
 
   const [scriptToast, setScriptToast] = useState(null);
   const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
@@ -340,6 +359,9 @@ export default function App() {
     if (session) {
       fetchIncidentData();
       fetchAnalystStatus();
+      fetchDevices();
+      const devInterval = setInterval(fetchDevices, 10000);
+      return () => clearInterval(devInterval);
     }
   }, [session, investigationData]);
 
@@ -601,10 +623,23 @@ export default function App() {
     });
 
     try {
+      const requestPayload = {
+        script: normalizedCode,
+        wait_timeout: 60,
+      };
+      if (selectedDeviceId) {
+        requestPayload.device_id = selectedDeviceId;
+      }
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (session?.token) {
+        headers['Authorization'] = `Bearer ${session.token}`;
+      }
+
       const response = await fetch(`${API_BASE}/api/jocky/execute`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script: normalizedCode }),
+        headers,
+        body: JSON.stringify(requestPayload),
       });
 
       const result = await response.json();
@@ -738,6 +773,43 @@ export default function App() {
             </span>
           )}
         </div>
+
+        {/* Endpoint target execution indicator */}
+        {selectedDeviceId && (
+          <div style={{
+            background: 'rgba(56, 189, 248, 0.08)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '6px',
+            padding: '0.55rem 0.85rem',
+            marginBottom: '0.85rem',
+            fontSize: '0.8rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>🛰️</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Target Endpoint:</span>
+              <strong style={{ color: 'var(--accent-cyan)' }}>
+                {(() => {
+                  const d = devices.find((x) => x.device_id === selectedDeviceId);
+                  return d ? `${d.hostname || d.device_id} (${d.platform})` : selectedDeviceId;
+                })()}
+              </strong>
+            </div>
+            <span style={{
+              fontSize: '0.74rem',
+              color: (loading || executeLoading) ? 'var(--accent-amber)' : 'var(--accent-emerald)',
+              fontWeight: 700,
+            }}>
+              {(loading || executeLoading)
+                ? '⏳ Polling endpoint for acquired telemetry...'
+                : '✓ Telemetry acquired & sealed in Evidence Vault'}
+            </span>
+          </div>
+        )}
 
         {/* Stage Progress: SYSTEM → PROCESSES → NETWORK → FILES */}
         <div style={{
@@ -917,8 +989,10 @@ export default function App() {
 
   const TAB_LABELS = {
     overview: 'Overview & Analysis',
+    endpoints: 'Endpoint Device Management',
     support: 'Cybersecurity Support',
     correlation: 'Correlation Graph',
+    techniques: 'Advanced Technique Analysis',
     timeline: 'Forensic Timeline',
     system: 'System Telemetry',
     processes: 'Active Processes',
@@ -954,10 +1028,12 @@ export default function App() {
         analystStatus={analystStatus}
         counts={{
           correlation: correlationData?.summary?.correlated_chains_count ?? null,
+          techniques: (investigationData?.technique_findings ?? investigationData?.analysis?.technique_findings ?? []).length || null,
           timeline: timelineData?.length ?? null,
           processes: processCount || null,
           network: networkCount || null,
           evidence: vaultAudit?.total_artifacts ?? null,
+          onlineEndpoints: devices.filter((d) => !d.is_revoked && d.status !== 'revoked' && d.is_online).length,
         }}
       />
 
@@ -1219,7 +1295,7 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
               <div style={{
                 padding: '0.4rem 0.8rem',
                 borderRadius: '6px',
@@ -1231,6 +1307,42 @@ export default function App() {
                 <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
                   {loading ? 'RUNNING...' : (investigationData?.status || 'READY')}
                 </span>
+              </div>
+
+              {/* Target Selector Dropdown */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '6px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid var(--border-subtle)',
+              }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Target:</span>
+                <select
+                  id="target-device-select"
+                  value={selectedDeviceId || ''}
+                  onChange={(e) => setSelectedDeviceId(e.target.value || null)}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-color)',
+                    color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                    fontWeight: 600,
+                    fontSize: '0.78rem',
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    outline: 'none',
+                  }}
+                >
+                  <option value="">💻 Local Machine</option>
+                  {devices.filter((d) => !d.is_revoked && d.status !== 'revoked').map((d) => (
+                    <option key={d.device_id} value={d.device_id}>
+                      🛰️ {d.hostname || d.device_id} ({d.is_online ? 'ONLINE' : 'OFFLINE'})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <button
@@ -1344,6 +1456,15 @@ export default function App() {
               }}
             />
           </div>
+        )}
+
+        {/* TAB: ENDPOINT DEVICES */}
+        {activeTab === 'endpoints' && (
+          <EndpointDevices
+            selectedDeviceId={selectedDeviceId}
+            onSelectTarget={(id) => setSelectedDeviceId(id)}
+            onNavigateToScript={() => navigateToTab('script')}
+          />
         )}
 
         {/* TAB: COMMAND SEARCH */}
@@ -3482,6 +3603,26 @@ export default function App() {
               </div>
             )}
           </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB: ADVANCED TECHNIQUE ANALYSIS (PHASE 6)                     */}
+        {/* ============================================================== */}
+        {activeTab === 'techniques' && (
+          <AdvancedTechniques
+            investigationData={investigationData}
+            techniqueFindings={
+              investigationData?.technique_findings ??
+              investigationData?.analysis?.technique_findings ??
+              []
+            }
+            mitreAnalysis={
+              investigationData?.mitre_analysis ??
+              investigationData?.analysis?.mitre_analysis ??
+              null
+            }
+            onNavigateTab={navigateToTab}
+          />
         )}
 
         {/* ============================================================== */}

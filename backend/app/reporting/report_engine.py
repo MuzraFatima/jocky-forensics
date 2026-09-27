@@ -69,11 +69,13 @@ class ForensicReportBuilder:
         vault_audit: Optional[Dict[str, Any]] = None,
         chain_of_custody: Optional[List[Dict[str, Any]]] = None,
         collector_info: Optional[List[Dict[str, Any]]] = None,
+        technique_findings: Optional[List[Dict[str, Any]]] = None,
+        mitre_analysis: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Synthesizes raw evidence, correlation graph, timeline, threat rules,
-        vault integrity status, chain of custody, and collector scope into
-        a canonical report data dictionary.
+        vault integrity status, chain of custody, collector scope, advanced technique
+        findings, and MITRE ATT&CK mappings into a canonical report data dictionary.
         """
         now_utc = datetime.datetime.now(datetime.timezone.utc).isoformat()
         collected = collected_data or {}
@@ -82,6 +84,8 @@ class ForensicReportBuilder:
         dets = detections or []
         ev_ids = dict(evidence_ids) if evidence_ids else {}
         hashes = dict(sha256_hashes) if sha256_hashes else {}
+        tf_list = list(technique_findings) if technique_findings else []
+        mitre_dict = dict(mitre_analysis) if mitre_analysis else {}
 
         # 1. Harvest evidence IDs and hashes from vault_audit if not supplied
         if vault_audit and isinstance(vault_audit, dict):
@@ -270,12 +274,15 @@ class ForensicReportBuilder:
                 "total_processes_inspected": proc_count,
                 "total_sockets_inspected": net_count,
                 "total_timeline_events": len(tl),
+                "total_technique_findings": len(tf_list),
                 "vault_status": vault_status,
                 "artifacts_sealed": len(manifest_entries),
             },
             "system_profile": sys_data,
             "integrity_verification": integrity_summary,
             "detections": dets,
+            "technique_findings": tf_list,
+            "mitre_analysis": mitre_dict,
             "correlation": {
                 "summary": corr.get("summary", f"{len(corr.get('chains', []))} correlated process execution chains analyzed."),
                 "chains": corr.get("chains", []),
@@ -364,9 +371,40 @@ class ForensicReportBuilder:
             md.append("No automated heuristic threats or anomalies detected across collected artifacts.")
             md.append("")
 
-        # 4. Process Chains
+        # 4. Advanced Technique Findings & MITRE ATT&CK Mapping
+        tech_findings = report_data.get("technique_findings", [])
+        mitre_data = report_data.get("mitre_analysis", {})
+        md.append("## 4. Advanced Technique Findings & MITRE ATT&CK Mapping")
+        md.append("")
+        if tech_findings:
+            md.append("| Finding ID | Technique | MITRE ATT&CK | Observable Indicator | Severity | Confidence | Evidence IDs |")
+            md.append("| :--- | :--- | :---: | :--- | :---: | :---: | :--- |")
+            for tf in tech_findings:
+                fid = tf.get("finding_id", "N/A")
+                t_obj = tf.get("technique", {})
+                t_name = t_obj.get("name") if isinstance(t_obj, dict) else str(t_obj)
+                t_mitre = (t_obj.get("mitre_id") or "N/A") if isinstance(t_obj, dict) else "N/A"
+                ind = str(tf.get("observed_indicator", "N/A")).replace("|", "-")
+                sev = tf.get("severity", "MEDIUM")
+                conf = tf.get("confidence", "HIGH")
+                eids = ", ".join(tf.get("evidence_ids", [])) or "N/A"
+                md.append(f"| `{fid}` | **{t_name}** | `{t_mitre}` | {ind} | **{sev}** | {conf} | `{eids}` |")
+            md.append("")
+            md.append("### Forensic Explanations & Evidence Vault Traceability")
+            md.append("")
+            for tf in tech_findings:
+                fid = tf.get("finding_id", "N/A")
+                expl = tf.get("explanation", "No explanation provided.")
+                eids = ", ".join(tf.get("evidence_ids", [])) or "N/A"
+                md.append(f"- **`{fid}`**: {expl} *(Traceable to Evidence Vault: `{eids}`)*")
+            md.append("")
+        else:
+            md.append("No advanced forensic technique indicators or anomalies identified.")
+            md.append("")
+
+        # 5. Process Chains
         if chains:
-            md.append("## 4. Correlated Process Execution Lineage")
+            md.append("## 5. Correlated Process Execution Lineage")
             md.append("")
             for idx, ch in enumerate(chains[:5]):
                 md.append(f"### Chain #{idx + 1}: {ch.get('chain_type', 'Execution Tree')}")
@@ -497,6 +535,35 @@ class ForensicReportBuilder:
                 """)
         else:
             det_rows.append("<tr><td colspan='5' class='empty-row'>No automated threat detections or suspicious anomalies identified.</td></tr>")
+
+        # Advanced Technique rows
+        tech_findings = report_data.get("technique_findings", [])
+        tech_rows = []
+        if tech_findings:
+            for tf in tech_findings:
+                fid = html.escape(str(tf.get("finding_id", "FIND-N/A")))
+                t_obj = tf.get("technique", {})
+                t_name = html.escape(str(t_obj.get("name", "") if isinstance(t_obj, dict) else t_obj))
+                t_mitre = html.escape(str(t_obj.get("mitre_id", "N/A") if isinstance(t_obj, dict) else "N/A"))
+                t_tactic = html.escape(str(t_obj.get("mitre_tactic", "") if isinstance(t_obj, dict) else ""))
+                ind = html.escape(str(tf.get("observed_indicator", "")))
+                sev = tf.get("severity", "MEDIUM")
+                conf = html.escape(str(tf.get("confidence", "HIGH")))
+                expl = html.escape(str(tf.get("explanation", "")))
+                eids = html.escape(", ".join(tf.get("evidence_ids", [])) or "N/A")
+                sev_color = "#ef4444" if sev == "HIGH" else "#f59e0b" if sev == "MEDIUM" else "#38bdf8"
+                sev_bg = "rgba(239, 68, 68, 0.12)" if sev == "HIGH" else "rgba(245, 158, 11, 0.12)" if sev == "MEDIUM" else "rgba(56, 189, 248, 0.12)"
+                tech_rows.append(f"""
+                <tr>
+                    <td class="font-mono"><strong>{fid}</strong></td>
+                    <td><strong>{t_name}</strong><br><span class="badge" style="color: var(--accent-cyan); background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); font-size: 0.65rem;">{t_mitre} {f'({t_tactic})' if t_tactic else ''}</span></td>
+                    <td><span class="badge" style="color: {sev_color}; background: {sev_bg}; border: 1px solid {sev_color}50;">{html.escape(str(sev))}</span><br><span style="font-size: 0.7rem; color: var(--text-secondary);">{conf}</span></td>
+                    <td>{ind}<div style="margin-top: 0.25rem; font-size: 0.75rem; color: #cbd5e1;"><em>{expl}</em></div></td>
+                    <td class="font-mono text-sm">{eids}</td>
+                </tr>
+                """)
+        else:
+            tech_rows.append("<tr><td colspan='5' class='empty-row'>No advanced forensic technique indicators identified.</td></tr>")
 
         # Manifest rows
         manifest_rows = []
@@ -863,9 +930,34 @@ class ForensicReportBuilder:
         </div>
     </div>
 
-    <!-- 4. Process Lineage & Ancestry -->
+    <!-- 4. Advanced Forensic Technique Findings & MITRE ATT&CK Mapping -->
+    <div class="card">
+        <h2>4. Advanced Forensic Technique Analysis &amp; MITRE ATT&amp;CK Mapping</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+            Evidence-backed technique findings correlated across telemetry and mapped to MITRE ATT&amp;CK tactics.
+            Traceable back to sealed Evidence Vault artifacts.
+        </p>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Finding ID</th>
+                        <th>Technique &amp; MITRE</th>
+                        <th>Severity / Confidence</th>
+                        <th>Observed Indicator &amp; Technical Explanation</th>
+                        <th>Evidence Vault Artifact Traceability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(tech_rows)}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Process Lineage & Ancestry -->
     {f'''<div class="card">
-        <h2>4. Correlated Process Lineage &amp; Execution Trees</h2>
+        <h2>5. Correlated Process Lineage &amp; Execution Trees</h2>
         {''.join(chain_blocks)}
     </div>''' if chains else ""}
 

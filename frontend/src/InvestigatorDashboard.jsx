@@ -14,10 +14,17 @@ export default function InvestigatorDashboard({
   loading = false,
   onNavigateTab,
   onRunInvestigation,
+  devices = [],
+  selectedDeviceId = null,
+  onSelectTarget = () => {},
+  onOpenPairModal = () => {},
 }) {
   // Safe extractions
   const caseId = investigationData?.case_id || 'N/A';
   const targetHost = investigationData?.target || systemInfo?.hostname || 'N/A';
+  const selectedDevice = devices.find((d) => d.device_id === selectedDeviceId);
+  const activeEndpoints = devices.filter((d) => !d.is_revoked && d.status !== 'revoked');
+  const onlineCount = activeEndpoints.filter((d) => Boolean(d.is_online)).length;
   const executionStatus = loading
     ? 'Running...'
     : investigationData?.status
@@ -181,6 +188,34 @@ export default function InvestigatorDashboard({
       targetTab: 'reports',
       actionLabel: 'Manage Reports',
     },
+    {
+      id: 'endpoints',
+      title: 'ENDPOINT DEVICES',
+      badge: onlineCount > 0 ? `${onlineCount} ONLINE` : null,
+      icon: '🛰️',
+      color: 'var(--accent-cyan)',
+      items: [
+        {
+          label: 'Target',
+          value: selectedDevice ? (selectedDevice.hostname || selectedDevice.device_id) : 'Local Cloud Server',
+          isMono: true,
+        },
+        {
+          label: 'Enrolled Devices',
+          value: `${activeEndpoints.length} Endpoint(s)`,
+        },
+        {
+          label: 'Target Status',
+          value: selectedDevice ? (selectedDevice.is_online ? 'ONLINE' : 'OFFLINE') : 'READY (Local)',
+          isBadge: true,
+          badgeColor: selectedDevice
+            ? (selectedDevice.is_online ? 'var(--accent-emerald)' : 'var(--accent-rose)')
+            : 'var(--accent-emerald)',
+        },
+      ],
+      targetTab: 'endpoints',
+      actionLabel: 'Manage Endpoints',
+    },
   ];
 
   return (
@@ -224,7 +259,53 @@ export default function InvestigatorDashboard({
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Target Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.35)', padding: '0.35rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Target:</span>
+            <select
+              value={selectedDeviceId || ''}
+              onChange={(e) => onSelectTarget && onSelectTarget(e.target.value || null)}
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                fontWeight: 600,
+                fontSize: '0.78rem',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option value="">💻 Local Machine</option>
+              {activeEndpoints.map((d) => (
+                <option key={d.device_id} value={d.device_id}>
+                  🛰️ {d.hostname || d.device_id} ({d.is_online ? 'ONLINE' : 'OFFLINE'})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={() => onNavigateTab && onNavigateTab('endpoints')}
+            style={{
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              color: 'var(--accent-cyan)',
+              borderRadius: '6px',
+              padding: '0.5rem 0.9rem',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <span>🛰️</span>
+            <span>Endpoint Devices</span>
+          </button>
           <button
             onClick={() => onNavigateTab && onNavigateTab('commands')}
             style={{

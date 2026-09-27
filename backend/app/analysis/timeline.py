@@ -44,9 +44,14 @@ class ForensicTimeline:
     def __init__(self):
         pass
 
-    def build_timeline(self, evidence_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def build_timeline(
+        self,
+        evidence_data: Dict[str, Any],
+        findings: Optional[List[Any]] = None,
+    ) -> List[Dict[str, Any]]:
         """
         Builds and sorts the unified timeline of forensic events.
+        Clearly distinguishes raw observed evidence from analytical findings.
         """
         events: List[Dict[str, Any]] = []
 
@@ -58,10 +63,12 @@ class ForensicTimeline:
                 events.append({
                     "timestamp": boot_time,
                     "event_type": "SYSTEM_BOOT",
+                    "event_class": "OBSERVED_EVIDENCE",
                     "source": "system",
                     "entity": f"ENT-SYS-{sys_data.get('hostname', 'HOST')}",
                     "description": f"System boot detected for host {sys_data.get('hostname', 'localhost')}",
                     "evidence_id": evidence_data.get("evidence_ids", {}).get("system", "EVID-SYS"),
+                    "is_analytical": False,
                     "metadata": {
                         "os": sys_data.get("os"),
                         "os_version": sys_data.get("os_version"),
@@ -83,10 +90,12 @@ class ForensicTimeline:
             events.append({
                 "timestamp": create_time,
                 "event_type": "PROCESS_SPAWN",
+                "event_class": "OBSERVED_EVIDENCE",
                 "source": "processes",
                 "entity": ent_id,
                 "description": f"Process '{name}' (PID: {pid}, PPID: {ppid}) executed by {user}",
                 "evidence_id": evidence_data.get("evidence_ids", {}).get("processes", "EVID-PROC"),
+                "is_analytical": False,
                 "metadata": {
                     "pid": pid,
                     "ppid": ppid,
@@ -114,10 +123,12 @@ class ForensicTimeline:
             events.append({
                 "timestamp": conn.get("timestamp") or evidence_data.get("timestamp_utc"),
                 "event_type": "NETWORK_SOCKET",
+                "event_class": "OBSERVED_EVIDENCE",
                 "source": "network",
                 "entity": net_ent_id,
                 "description": f"Network socket {proto} {l_str} -> {r_str} ({status}) mapped to PID {pid}",
                 "evidence_id": evidence_data.get("evidence_ids", {}).get("network", "EVID-NET"),
+                "is_analytical": False,
                 "metadata": {
                     "pid": pid,
                     "protocol": proto,
@@ -148,10 +159,12 @@ class ForensicTimeline:
             events.append({
                 "timestamp": ts,
                 "event_type": "FILE_INSPECTED",
+                "event_class": "OBSERVED_EVIDENCE",
                 "source": "files",
                 "entity": f_ent_id,
                 "description": f"File inspected at '{path}' (SHA-256: {hash_display})",
                 "evidence_id": evidence_data.get("evidence_ids", {}).get("files", "EVID-FILE"),
+                "is_analytical": False,
                 "metadata": {
                     "path": path,
                     "sha256": sha256,
@@ -169,10 +182,12 @@ class ForensicTimeline:
                 events.append({
                     "timestamp": cu.get("login_time") or evidence_data.get("timestamp_utc"),
                     "event_type": "USER_SESSION",
+                    "event_class": "OBSERVED_EVIDENCE",
                     "source": "users",
                     "entity": generate_user_entity_id(uname),
                     "description": f"Security context for user '{uname}' (Admin: {cu.get('is_admin')})",
                     "evidence_id": evidence_data.get("evidence_ids", {}).get("users", "EVID-USER"),
+                    "is_analytical": False,
                     "metadata": cu,
                 })
 
@@ -187,12 +202,54 @@ class ForensicTimeline:
                 events.append({
                     "timestamp": entry.get("timestamp") or evidence_data.get("timestamp_utc"),
                     "event_type": "PERSISTENCE_ENTRY",
+                    "event_class": "OBSERVED_EVIDENCE",
                     "source": "windows_metadata",
                     "entity": f"ENT-REG-{name}",
                     "description": f"Windows autorun key [{hive}]: '{name}' -> '{val}'",
                     "evidence_id": evidence_data.get("evidence_ids", {}).get("windows_metadata", "EVID-REG"),
+                    "is_analytical": False,
                     "metadata": entry,
                 })
+
+        # 7. Advanced Analytical Findings (Analytical Interpretation)
+        effective_findings = findings or evidence_data.get("technique_findings") or evidence_data.get("findings") or []
+        for f in effective_findings:
+            f_dict = f.model_dump() if hasattr(f, "model_dump") else (dict(f) if isinstance(f, dict) else {})
+            f_id = f_dict.get("finding_id", "FINDING-UNKNOWN")
+            tech_id = f_dict.get("technique_id") or f_dict.get("technique") or "TECH-UNKNOWN"
+            tech_name = f_dict.get("technique_name") or tech_id
+            target_ent = f_dict.get("target_entity") or "ENT-UNKNOWN"
+            ev_ids = f_dict.get("evidence_ids") or []
+            obs_ind = f_dict.get("observed_indicator") or ""
+            ts = f_dict.get("timestamp") or evidence_data.get("timestamp_utc")
+            primary_ev_id = ev_ids[0] if ev_ids else evidence_data.get("evidence_ids", {}).get("processes", "EVID-VAULT")
+
+            events.append({
+                "timestamp": ts,
+                "event_type": "TECHNIQUE_DETECTED",
+                "event_class": "ANALYTICAL_INTERPRETATION",
+                "source": "advanced_analysis",
+                "entity": target_ent,
+                "description": f"Advanced Technique: {tech_name} ({tech_id}) - {obs_ind}",
+                "evidence_id": primary_ev_id,
+                "evidence_ids": ev_ids,
+                "is_analytical": True,
+                "metadata": {
+                    "finding_id": f_id,
+                    "case_id": f_dict.get("case_id"),
+                    "device_id": f_dict.get("device_id"),
+                    "technique_id": tech_id,
+                    "technique_name": tech_name,
+                    "mitre_id": f_dict.get("mitre_id"),
+                    "mitre_name": f_dict.get("mitre_name"),
+                    "mitre_tactic": f_dict.get("mitre_tactic"),
+                    "confidence": f_dict.get("confidence", "HIGH"),
+                    "status": f_dict.get("status", "DETECTED"),
+                    "observed_indicator": obs_ind,
+                    "explanation": f_dict.get("explanation"),
+                    "evidence_ids": ev_ids,
+                },
+            })
 
         # Chronological sort with deterministic tie-breaker
         events.sort(key=lambda e: (
@@ -206,6 +263,9 @@ class ForensicTimeline:
         return events
 
 
-def build_forensic_timeline(evidence_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+def build_forensic_timeline(
+    evidence_data: Dict[str, Any],
+    findings: Optional[List[Any]] = None,
+) -> List[Dict[str, Any]]:
     """Convenience helper to build and return timeline events."""
-    return ForensicTimeline().build_timeline(evidence_data)
+    return ForensicTimeline().build_timeline(evidence_data, findings=findings)

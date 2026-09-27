@@ -169,7 +169,27 @@ function SearchIcon({ size = 18 }) {
   );
 }
 
-// Panel Collapse / Expand Icon
+function EndpointIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+      <circle cx="12" cy="10" r="2" />
+    </svg>
+  );
+}
+
+function TechniquesIcon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
+    </svg>
+  );
+}
+
 function PanelToggleIcon({ collapsed = false, size = 18 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -207,6 +227,13 @@ export default function Sidebar({
       icon: (props) => <OverviewIcon {...props} />,
     },
     {
+      id: 'endpoints',
+      label: 'Endpoint Devices',
+      icon: (props) => <EndpointIcon {...props} />,
+      statusBadge: counts.onlineEndpoints > 0 ? `${counts.onlineEndpoints} ONLINE` : null,
+      accentColor: 'var(--accent-cyan)',
+    },
+    {
       id: 'support',
       label: 'Cybersecurity Support',
       icon: (props) => <SupportIcon {...props} />,
@@ -218,6 +245,14 @@ export default function Sidebar({
       label: 'Correlation Graph',
       icon: (props) => <CorrelationIcon {...props} />,
       count: counts.correlation,
+    },
+    {
+      id: 'techniques',
+      label: 'Advanced Techniques',
+      icon: (props) => <TechniquesIcon {...props} />,
+      count: counts.techniques,
+      statusBadge: counts.techniques > 0 ? `${counts.techniques} DETECTED` : null,
+      accentColor: 'var(--accent-cyan)',
     },
     {
       id: 'timeline',
