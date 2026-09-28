@@ -198,7 +198,7 @@ export default function EndpointDevices({
       {/* Target Selector Banner */}
       <div
         style={{
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(12, 17, 29, 0.95) 100%)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
@@ -207,13 +207,12 @@ export default function EndpointDevices({
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
-          boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{ fontSize: '1.4rem' }}>🛰️</span>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               Endpoint Device Management
             </h2>
             <span
@@ -222,9 +221,9 @@ export default function EndpointDevices({
                 fontWeight: 700,
                 padding: '0.2rem 0.6rem',
                 borderRadius: '4px',
-                background: onlineCount > 0 ? 'rgba(92, 128, 43, 0.14)' : 'rgba(34, 36, 38, 0.08)',
-                color: onlineCount > 0 ? 'var(--color-algae)' : 'var(--text-muted)',
-                border: `1px solid ${onlineCount > 0 ? 'rgba(92, 128, 43, 0.35)' : 'var(--border-subtle)'}`,
+                background: onlineCount > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.1)',
+                color: onlineCount > 0 ? 'var(--accent-emerald)' : 'var(--text-muted)',
+                border: `1px solid ${onlineCount > 0 ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle)'}`,
               }}
             >
               {onlineCount} OF {activeEndpoints.length} ONLINE
@@ -246,9 +245,9 @@ export default function EndpointDevices({
               value={selectedDeviceId || ''}
               onChange={(e) => onSelectTarget(e.target.value || null)}
               style={{
-                background: '#FFFFFF',
+                background: 'var(--bg-surface)',
                 border: '1px solid var(--border-color)',
-                color: 'var(--color-lava)',
+                color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
                 fontWeight: 600,
                 fontSize: '0.82rem',
                 padding: '0.45rem 0.8rem',
@@ -293,18 +292,18 @@ export default function EndpointDevices({
           <button
             onClick={handleOpenPairModal}
             style={{
-              background: '#8BD4E8',
-              border: '1px solid #72c7dc',
-              color: '#222426',
+              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              border: 'none',
+              color: '#fff',
               borderRadius: '6px',
               padding: '0.5rem 1.1rem',
               fontSize: '0.82rem',
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
-              boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
+              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.3)',
             }}
           >
             <span>+</span>
@@ -482,15 +481,15 @@ export default function EndpointDevices({
           <button
             onClick={handleOpenPairModal}
             style={{
-              background: '#8BD4E8',
-              border: '1px solid #72c7dc',
-              color: '#222426',
+              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              border: 'none',
+              color: '#fff',
               borderRadius: '6px',
               padding: '0.6rem 1.25rem',
               fontSize: '0.85rem',
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
+              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.3)',
             }}
           >
             + Pair First Endpoint
@@ -553,20 +552,20 @@ export default function EndpointDevices({
                       padding: '0.2rem 0.55rem',
                       borderRadius: '4px',
                       background: isRevoked
-                        ? 'rgba(197, 48, 48, 0.12)'
+                        ? 'rgba(239, 68, 68, 0.15)'
                         : online
-                        ? 'rgba(92, 128, 43, 0.14)'
-                        : 'rgba(245, 158, 11, 0.12)',
+                        ? 'rgba(16, 185, 129, 0.15)'
+                        : 'rgba(245, 158, 11, 0.15)',
                       color: isRevoked
-                        ? '#C53030'
+                        ? 'var(--accent-rose)'
                         : online
-                        ? 'var(--color-algae)'
+                        ? 'var(--accent-emerald)'
                         : 'var(--accent-amber)',
                       border: `1px solid ${
                         isRevoked
-                          ? 'rgba(197, 48, 48, 0.3)'
+                          ? 'rgba(239, 68, 68, 0.3)'
                           : online
-                          ? 'rgba(92, 128, 43, 0.35)'
+                          ? 'rgba(16, 185, 129, 0.3)'
                           : 'rgba(245, 158, 11, 0.3)'
                       }`,
                       display: 'flex',
@@ -585,7 +584,7 @@ export default function EndpointDevices({
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
                     gap: '0.5rem',
-                    background: 'var(--bg-surface)',
+                    background: 'rgba(255, 255, 255, 0.02)',
                     padding: '0.65rem',
                     borderRadius: '6px',
                     border: '1px solid var(--border-subtle)',
@@ -681,8 +680,8 @@ export default function EndpointDevices({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(34, 36, 38, 0.45)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -692,8 +691,8 @@ export default function EndpointDevices({
         >
           <div
             style={{
-              background: '#FFFFFF',
-              border: '1.5px solid var(--border-color)',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               maxWidth: '540px',
               width: '100%',
@@ -701,7 +700,7 @@ export default function EndpointDevices({
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
-              boxShadow: '0 20px 45px rgba(34, 36, 38, 0.15)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
             }}
           >
             {/* Modal Header */}
@@ -755,8 +754,8 @@ export default function EndpointDevices({
                 {/* Big Pairing Code Card */}
                 <div
                   style={{
-                    background: 'var(--bg-surface)',
-                    border: '1.5px solid var(--border-color)',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
                     borderRadius: '8px',
                     padding: '1.2rem',
                     textAlign: 'center',
@@ -775,7 +774,8 @@ export default function EndpointDevices({
                       fontSize: '2rem',
                       fontWeight: 800,
                       letterSpacing: '0.2em',
-                      color: 'var(--color-lava)',
+                      color: 'var(--accent-cyan)',
+                      textShadow: '0 0 12px rgba(56, 189, 248, 0.4)',
                     }}
                   >
                     {pairingData?.pairing_code || '--------'}
@@ -783,9 +783,9 @@ export default function EndpointDevices({
                   <button
                     onClick={handleCopyCode}
                     style={{
-                      background: copyCodeSuccess ? 'rgba(92, 128, 43, 0.2)' : 'rgba(139, 212, 232, 0.25)',
-                      border: `1px solid ${copyCodeSuccess ? 'rgba(92, 128, 43, 0.4)' : 'rgba(139, 212, 232, 0.6)'}`,
-                      color: copyCodeSuccess ? 'var(--color-algae)' : 'var(--color-lava)',
+                      background: copyCodeSuccess ? 'rgba(16, 185, 129, 0.2)' : 'rgba(56, 189, 248, 0.1)',
+                      border: `1px solid ${copyCodeSuccess ? 'rgba(16, 185, 129, 0.4)' : 'rgba(56, 189, 248, 0.3)'}`,
+                      color: copyCodeSuccess ? 'var(--accent-emerald)' : 'var(--accent-cyan)',
                       borderRadius: '4px',
                       padding: '0.3rem 0.8rem',
                       fontSize: '0.75rem',
@@ -799,7 +799,7 @@ export default function EndpointDevices({
 
                 {/* Expiration & Server Metadata */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  <span>Server: <strong style={{ color: 'var(--color-lava)' }}>{serverUrl}</strong></span>
+                  <span>Server: <strong style={{ color: 'var(--text-primary)' }}>{serverUrl}</strong></span>
                   <span>Code expires in: <strong style={{ color: countdown < 60 ? 'var(--accent-rose)' : 'var(--accent-amber)' }}>{formatCountdown(countdown)}</strong></span>
                 </div>
 
@@ -810,13 +810,13 @@ export default function EndpointDevices({
                   </div>
                   <div
                     style={{
-                      background: 'var(--bg-surface)',
+                      background: 'rgba(0, 0, 0, 0.4)',
                       border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       padding: '0.75rem',
                       fontSize: '0.78rem',
                       fontFamily: 'monospace',
-                      color: 'var(--color-lava)',
+                      color: 'var(--accent-emerald)',
                       wordBreak: 'break-all',
                       position: 'relative',
                     }}
@@ -830,13 +830,13 @@ export default function EndpointDevices({
                     onClick={handleCopyCommand}
                     style={{
                       flex: 1,
-                      background: copyCmdSuccess ? 'rgba(92, 128, 43, 0.2)' : 'var(--color-lagoon)',
-                      border: copyCmdSuccess ? '1px solid rgba(92, 128, 43, 0.4)' : '1px solid #72c7dc',
-                      color: copyCmdSuccess ? 'var(--color-algae)' : 'var(--color-lava)',
+                      background: copyCmdSuccess ? 'rgba(16, 185, 129, 0.2)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                      border: copyCmdSuccess ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+                      color: copyCmdSuccess ? 'var(--accent-emerald)' : '#fff',
                       borderRadius: '6px',
                       padding: '0.6rem 1rem',
                       fontSize: '0.82rem',
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: 'pointer',
                     }}
                   >
@@ -874,8 +874,8 @@ export default function EndpointDevices({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(34, 36, 38, 0.45)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -885,8 +885,8 @@ export default function EndpointDevices({
         >
           <div
             style={{
-              background: '#FFFFFF',
-              border: '1.5px solid rgba(197, 48, 48, 0.35)',
+              background: 'var(--bg-card)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
               borderRadius: '12px',
               maxWidth: '460px',
               width: '100%',
@@ -894,7 +894,7 @@ export default function EndpointDevices({
               display: 'flex',
               flexDirection: 'column',
               gap: '1.2rem',
-              boxShadow: '0 20px 45px rgba(34, 36, 38, 0.15)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>

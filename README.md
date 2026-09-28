@@ -39,7 +39,7 @@ The repository contains a multi-stage Docker build that bundles the React dashbo
   - [5. Heuristic Analysis & Timeline Engine](#5-heuristic-analysis--timeline-engine)
   - [6. Multi-Format Forensic Reporting](#6-multi-format-forensic-reporting)
   - [7. Security, RBAC & AI Analyst Assistant](#7-security-rbac--ai-analyst-assistant)
-  - [8. React Web Dashboard & Light Iceland Blue Lagoon Design](#8-react-web-dashboard--light-iceland-blue-lagoon-design)
+  - [8. React Web Dashboard & Dark Cyber Forensic Interface](#8-react-web-dashboard--dark-cyber-forensic-interface)
   - [9. Endpoint Forensic Agent](#9-endpoint-forensic-agent)
 - [CLI Runner (`jocky.py`)](#-cli-runner-jockypy)
 - [REST API Reference](#-rest-api-reference)
@@ -91,7 +91,7 @@ In strict adherence to ethical, lawful, and defensive cybersecurity standards:
 - **Multi-Format Forensic Dossiers**: Auto-generates structured JSON, printable HTML, and Markdown reports featuring executive summaries, anomaly severity, and MITRE ATT&CK tags.
 - **Security & AI Assistance**: Role-Based Access Control (RBAC), password hashing via PBKDF2, analyst collaboration channel, and Gemini-powered AI forensic guidance.
 - **Endpoint Agent & Remote Enrollment**: Cryptographic single-use 8-character pairing codes, heartbeat streaming, deduplicated endpoint device registry, and secure job execution dispatch.
-- **Light Iceland Blue Lagoon UI**: High-contrast, state-of-the-art Nordic color palette (`#8BD4E8` Lagoon Cyan, `#E1E4E6` Silica White, `#5C802B` Algae Green, `#222426` Lava Black) tailored for SIH judging clarity and long operational shifts.
+- **Dark Cyber Forensic UI**: High-contrast, fatigue-free dark forensic console palette (`#06090F` Obsidian Black, `#0C111D` Deep Navy, `#38BDF8` Cyber Cyan, `#10B981` Emerald Green) tailored for SIH judging clarity and long operational shifts.
 - **Simplified Judge-Facing Navigation**: Structured primary navigation for Smart India Hackathon evaluations into Forensic Investigation, Evidence & Analysis, and System & Support.
 - **Unified Master CLI (`jocky.py`)**: Powerful command-line tool supporting standalone compilation, script execution, vault audits, evidence exports, endpoint agent controls, and FastAPI server hosting.
 
@@ -239,13 +239,13 @@ Located in `backend/app/security/`:
 - **Analyst Chat & Queue (`report_queue.py`)**: Real-time communication bridge between field examiners and SOC analysts, featuring an offline report queue with automatic retries.
 - **Immutable Audit Logging (`audit.py`)**: Tamper-resistant chronological recording of logins, script executions, evidence verifications, and report dispatches.
 
-### 8. React Web Dashboard & Light Iceland Blue Lagoon Design
+### 8. React Web Dashboard & Dark Cyber Forensic Interface
 Located in `frontend/`:
-- **Light Iceland Blue Lagoon Design System**:
-  - **Lagoon Cyan (`#8BD4E8`)**: Primary interactive accents, active navigation indicators, key primary buttons, and highlight glow.
-  - **Silica White (`#E1E4E6` / `#FFFFFF` / `#E8ECEF`)**: Crisp operational canvas, clean card surfaces, and readable tables.
-  - **Algae Green (`#5C802B`)**: High-visibility status indicators for cryptographic integrity (`ONLINE`, `VERIFIED`, `SEALED`, `INTACT`).
-  - **Lava Black (`#222426`)**: High-contrast, fatigue-free typography, structural outlines, and headers.
+- **Dark Cyber Forensic Design System**:
+  - **Cyber Cyan (`#38BDF8` / `#0EA5E9`)**: Primary interactive accents, active navigation indicators, key primary buttons, and highlight glow.
+  - **Obsidian & Deep Navy (`#06090F` / `#0C111D` / `rgba(15, 23, 42, 0.75)`)**: Sleek dark operational canvas, semi-transparent card surfaces, and readable forensic tables.
+  - **Emerald Green (`#10B981`)**: High-visibility status indicators for cryptographic integrity (`ONLINE`, `VERIFIED`, `SEALED`, `INTACT`).
+  - **High-Contrast Slate (`#F8FAFC` / `#94A3B8`)**: High-contrast, fatigue-free typography, structural outlines, and headers.
 - **Judge-Facing Streamlined Navigation**:
   - **FORENSIC INVESTIGATION**:
     - **Overview & Analysis**: Real-time investigation health, live telemetry widgets, and instant collection triggers.
@@ -400,7 +400,7 @@ jocky-forensics/
 │   │   ├── cli.py                # Command-line interface logic
 │   │   └── main.py               # FastAPI application entrypoint & static mount
 │   └── requirements.txt          # Python dependencies
-├── frontend/                     # React 18 + Vite investigative dashboard (Iceland Blue Lagoon)
+├── frontend/                     # React 18 + Vite investigative dashboard (Dark Cyber Theme)
 │   ├── src/
 │   │   ├── AdvancedTechniques.jsx    # MITRE ATT&CK advanced technique explorer
 │   │   ├── App.jsx               # Main investigative portal & console
@@ -416,7 +416,7 @@ jocky-forensics/
 │   │   ├── Sidebar.jsx           # Streamlined judge-facing navigation sidebar
 │   │   ├── api.js                # Frontend API client
 │   │   ├── deviceUtils.js        # Deduplicated device identity normalization
-│   │   └── index.css             # Light Iceland Blue Lagoon design styling
+│   │   └── index.css             # Cyber forensic design styling
 │   ├── package.json              # Frontend npm dependencies
 │   ├── vite.config.js            # Vite configuration & proxy settings
 │   └── vercel.json               # Vercel deployment configuration
