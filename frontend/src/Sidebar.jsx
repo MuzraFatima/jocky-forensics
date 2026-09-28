@@ -276,6 +276,18 @@ export default function Sidebar({
       ],
     },
     {
+      title: 'SUPPORT',
+      items: [
+        {
+          id: 'support',
+          label: 'Cybersecurity Support',
+          icon: (props) => <SupportIcon {...props} />,
+          statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
+          accentColor: 'var(--accent-indigo)',
+        },
+      ],
+    },
+    {
       title: 'OUTPUT',
       items: [
         {
@@ -298,7 +310,6 @@ export default function Sidebar({
     { id: 'windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
     { id: 'execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
     { id: 'commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
-    { id: 'support', label: 'Cybersecurity Support', icon: (props) => <SupportIcon {...props} />, statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF', accentColor: 'var(--accent-indigo)' },
   ];
 
   // Complete registry of all modules for safe lookups and backward compatibility
