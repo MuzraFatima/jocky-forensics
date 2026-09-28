@@ -21,8 +21,15 @@ from backend.app.cli import main, build_parser
 
 
 if __name__ == "__main__":
+    # Check if user invoked 'agent'
+    if len(sys.argv) > 1 and sys.argv[1] == "agent":
+        import runpy
+        agent_script = project_root / "jocky-agent.py"
+        sys.argv = [str(agent_script)] + sys.argv[2:]
+        sys.exit(runpy.run_path(str(agent_script), run_name="__main__"))
+
     # Check if user invoked 'serve'
-    if len(sys.argv) > 1 and sys.argv[1] == "serve":
+    elif len(sys.argv) > 1 and sys.argv[1] == "serve":
         import uvicorn
         port = 8000
         if "--port" in sys.argv:

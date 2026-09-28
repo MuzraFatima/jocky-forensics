@@ -272,9 +272,9 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  background: isSel ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.6)',
-                  border: isSel ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                  color: isSel ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                  background: isSel ? 'var(--color-lagoon)' : 'var(--bg-surface)',
+                  border: isSel ? '1px solid #72c7dc' : '1px solid var(--border-subtle)',
+                  color: isSel ? 'var(--color-lava)' : 'var(--text-secondary)',
                   borderRadius: '6px',
                   padding: '0.4rem 0.75rem',
                   fontSize: '0.75rem',
@@ -289,10 +289,10 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                 <span
                   style={{
                     fontSize: '0.68rem',
-                    background: 'rgba(0, 0, 0, 0.3)',
+                    background: isSel ? 'rgba(34, 36, 38, 0.15)' : 'rgba(34, 36, 38, 0.08)',
                     padding: '0.1rem 0.35rem',
                     borderRadius: '4px',
-                    color: isSel ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                    color: isSel ? 'var(--color-lava)' : 'var(--text-muted)',
                   }}
                 >
                   {count}
@@ -429,14 +429,14 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                     style={{
                       flex: 1,
                       background: isInserted
-                        ? 'rgba(16, 185, 129, 0.2)'
-                        : 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(99, 102, 241, 0.2))',
-                      border: isInserted ? '1px solid var(--accent-emerald)' : '1px solid rgba(56, 189, 248, 0.4)',
-                      color: isInserted ? 'var(--accent-emerald)' : 'var(--text-primary)',
+                        ? 'rgba(92, 128, 43, 0.2)'
+                        : 'var(--color-lagoon)',
+                      border: isInserted ? '1px solid var(--color-algae)' : '1px solid #72c7dc',
+                      color: isInserted ? 'var(--color-algae)' : 'var(--color-lava)',
                       borderRadius: '6px',
                       padding: '0.45rem 0.8rem',
                       fontSize: '0.78rem',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',

@@ -112,17 +112,17 @@ export default function ReportModal({
       <div style={{
         width: '100%',
         maxWidth: '560px',
-        background: '#0d1322',
-        border: '1px solid var(--border-color)',
+        background: '#FFFFFF',
+        border: '1px solid rgba(139, 212, 232, 0.6)',
         borderRadius: '14px',
         padding: '2rem',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(14, 165, 233, 0.15)',
+        boxShadow: '0 20px 60px rgba(34, 36, 38, 0.15), 0 0 35px rgba(139, 212, 232, 0.25)',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ fontSize: '1.3rem' }}>📄</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
               {isLogoutWorkflow ? 'End Session: Generate & Send Report?' : 'Generate & Send Report?'}
             </h3>
           </div>
@@ -280,10 +280,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: 'rgba(10, 15, 26, 0.8)',
-                    border: '1px solid var(--border-color)',
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(139, 212, 232, 0.6)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: '#222426',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -304,10 +304,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: 'rgba(10, 15, 26, 0.8)',
-                    border: '1px solid var(--border-color)',
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(139, 212, 232, 0.6)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: '#222426',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -323,8 +323,8 @@ export default function ReportModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid var(--border-subtle)',
+              background: '#F4F7F9',
+              border: '1px solid rgba(139, 212, 232, 0.35)',
               borderRadius: '8px',
               padding: '0.6rem 0.85rem',
               marginBottom: '1.25rem',
@@ -340,13 +340,14 @@ export default function ReportModal({
                 type="button"
                 onClick={handleToggleService}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid var(--border-subtle)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '4px',
                   color: 'var(--text-secondary)',
                   fontSize: '0.68rem',
                   padding: '0.2rem 0.5rem',
                   cursor: 'pointer',
+                  fontWeight: 600,
                 }}
               >
                 Toggle {serviceReachable ? 'Offline' : 'Online'}
@@ -354,7 +355,7 @@ export default function ReportModal({
             </div>
 
             {errorMsg && (
-              <div style={{ color: '#fda4af', fontSize: '0.78rem', marginBottom: '1rem' }}>
+              <div style={{ color: '#C53030', fontSize: '0.78rem', marginBottom: '1rem', fontWeight: 600 }}>
                 ⚠ {errorMsg}
               </div>
             )}
@@ -366,8 +367,8 @@ export default function ReportModal({
                 onClick={onClose}
                 disabled={loading}
                 style={{
-                  background: 'none',
-                  border: '1px solid var(--border-subtle)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   color: 'var(--text-secondary)',
                   padding: '0.55rem 1rem',
@@ -384,14 +385,15 @@ export default function ReportModal({
                 onClick={handleGenerateOnly}
                 disabled={loading}
                 style={{
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(139, 212, 232, 0.6)',
                   borderRadius: '6px',
-                  color: 'var(--accent-cyan)',
+                  color: '#1B6B7D',
                   padding: '0.55rem 1rem',
                   fontSize: '0.82rem',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(34, 36, 38, 0.05)',
                 }}
               >
                 ⬇ Generate Only (Direct Download)
@@ -402,17 +404,18 @@ export default function ReportModal({
                 onClick={handleGenerateAndSend}
                 disabled={loading}
                 style={{
-                  background: loading ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                  border: 'none',
+                  background: loading ? 'rgba(139, 212, 232, 0.5)' : '#8BD4E8',
+                  border: '1px solid #72c7dc',
                   borderRadius: '6px',
-                  color: '#fff',
+                  color: '#222426',
                   padding: '0.55rem 1.25rem',
                   fontSize: '0.85rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: loading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.4rem',
+                  boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
                 }}
               >
                 {loading ? 'Processing Pipeline...' : '📤 Generate & Send'}

@@ -39,15 +39,17 @@ The repository contains a multi-stage Docker build that bundles the React dashbo
   - [5. Heuristic Analysis & Timeline Engine](#5-heuristic-analysis--timeline-engine)
   - [6. Multi-Format Forensic Reporting](#6-multi-format-forensic-reporting)
   - [7. Security, RBAC & AI Analyst Assistant](#7-security-rbac--ai-analyst-assistant)
-  - [8. React Web Dashboard](#8-react-web-dashboard)
+  - [8. React Web Dashboard & Light Iceland Blue Lagoon Design](#8-react-web-dashboard--light-iceland-blue-lagoon-design)
+  - [9. Endpoint Forensic Agent](#9-endpoint-forensic-agent)
 - [CLI Runner (`jocky.py`)](#-cli-runner-jockypy)
 - [REST API Reference](#-rest-api-reference)
 - [Repository Structure](#-repository-structure)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
-  - [Running Backend Tests](#running-backend-tests)
+  - [1. Backend Server Setup](#1-backend-server-setup)
+  - [2. Frontend Dashboard Setup](#2-frontend-dashboard-setup)
+  - [3. Remote Endpoint Agent Setup](#3-remote-endpoint-agent-setup-optional--multi-machine)
+  - [Running Automated Tests](#running-automated-tests)
 - [Deployment Guide](#-deployment-guide)
   - [Option 1: 1-Click Render Deployment (Free)](#option-1-1-click-render-deployment-free)
   - [Option 2: Docker Unified Container](#option-2-docker-unified-container)
@@ -88,8 +90,10 @@ In strict adherence to ethical, lawful, and defensive cybersecurity standards:
 - **Forensic Correlation & Timeline**: Correlates socket listeners with process trees, detects abnormal execution locations (e.g., `/tmp`, `AppData\Local\Temp`), and reconstructs chronological timelines.
 - **Multi-Format Forensic Dossiers**: Auto-generates structured JSON, printable HTML, and Markdown reports featuring executive summaries, anomaly severity, and MITRE ATT&CK tags.
 - **Security & AI Assistance**: Role-Based Access Control (RBAC), password hashing via PBKDF2, analyst collaboration channel, and Gemini-powered AI forensic guidance.
-- **Investigator Web Dashboard**: Modern React 18 interface with an in-browser script editor, visual evidence explorer, live metrics, and incident triage alerts.
-- **Unified Master CLI (`jocky.py`)**: Powerful command-line tool supporting standalone compilation, script execution, vault audits, and evidence bundle exports.
+- **Endpoint Agent & Remote Enrollment**: Cryptographic single-use 8-character pairing codes, heartbeat streaming, deduplicated endpoint device registry, and secure job execution dispatch.
+- **Light Iceland Blue Lagoon UI**: High-contrast, state-of-the-art Nordic color palette (`#8BD4E8` Lagoon Cyan, `#E1E4E6` Silica White, `#5C802B` Algae Green, `#222426` Lava Black) tailored for SIH judging clarity and long operational shifts.
+- **Simplified Judge-Facing Navigation**: Structured primary navigation for Smart India Hackathon evaluations into Forensic Investigation, Evidence & Analysis, and System & Support.
+- **Unified Master CLI (`jocky.py`)**: Powerful command-line tool supporting standalone compilation, script execution, vault audits, evidence exports, endpoint agent controls, and FastAPI server hosting.
 
 ---
 
@@ -235,40 +239,67 @@ Located in `backend/app/security/`:
 - **Analyst Chat & Queue (`report_queue.py`)**: Real-time communication bridge between field examiners and SOC analysts, featuring an offline report queue with automatic retries.
 - **Immutable Audit Logging (`audit.py`)**: Tamper-resistant chronological recording of logins, script executions, evidence verifications, and report dispatches.
 
-### 8. React Web Dashboard
+### 8. React Web Dashboard & Light Iceland Blue Lagoon Design
 Located in `frontend/`:
-- Built with **React 18**, **Vite**, and responsive modern CSS.
-- **Investigation Console**: Interactive JOCKY script editor with pre-loaded templates, AST inspector, and live execution triggers.
-- **Evidence Vault Explorer**: Visual browser for acquired artifacts, displaying real-time SHA-256 verification badges and tampering status.
-- **Incident Alerting**: Banner alerts for critical security incidents with triage guidance.
-- **AI Cyber Support**: Embedded real-time chat with the AI forensic assistant or online SOC analysts.
-- **Report Generation**: Interactive viewer for generated HTML, Markdown, and JSON forensic reports.
+- **Light Iceland Blue Lagoon Design System**:
+  - **Lagoon Cyan (`#8BD4E8`)**: Primary interactive accents, active navigation indicators, key primary buttons, and highlight glow.
+  - **Silica White (`#E1E4E6` / `#FFFFFF` / `#E8ECEF`)**: Crisp operational canvas, clean card surfaces, and readable tables.
+  - **Algae Green (`#5C802B`)**: High-visibility status indicators for cryptographic integrity (`ONLINE`, `VERIFIED`, `SEALED`, `INTACT`).
+  - **Lava Black (`#222426`)**: High-contrast, fatigue-free typography, structural outlines, and headers.
+- **Judge-Facing Streamlined Navigation**:
+  - **FORENSIC INVESTIGATION**:
+    - **Overview & Analysis**: Real-time investigation health, live telemetry widgets, and instant collection triggers.
+    - **Endpoint Devices**: Deduplicated machine registry, target selector, and single-use cryptographic pairing.
+    - **JOCKY Script Editor**: In-browser DSL editor with syntax guidance, compilation, and IR execution pipeline.
+  - **EVIDENCE & ANALYSIS**:
+    - **Evidence Vault**: Cryptographic SHA-256 seal verification, tamper detection, and signed evidence export.
+    - **Advanced Techniques**: MITRE ATT&CK kill-chain mapping and explainable heuristic indicators.
+    - **Forensic Timeline**: Chronological event reconstruction across processes, network, and disk.
+    - **Correlation Graph**: Interactive entity linkage connecting Process Tree ↔ Executables ↔ Network Sockets.
+  - **SYSTEM & SUPPORT**:
+    - **Forensic Reports**: Multi-format dossier generator (HTML, JSON, Markdown).
+    - **Cybersecurity Support**: Real-time SOC escalation and Gemini-assisted advisory channel.
+- **Deduplicated Device Selector**: Eliminates duplicate offline endpoint records; provides seamless switching between `💻 Local Machine` and enrolled remote endpoints.
+
+### 9. Endpoint Forensic Agent
+Located in `agent/` and `jocky-agent.py`:
+- **Lightweight Standalone Agent**: Autonomous daemon that enrolls target machines using single-use 8-character pairing codes.
+- **Cryptographic Zero-Trust Pairing**: Binds device identity directly to the investigator session.
+- **Job Polling & Heartbeat Loop**: Streams periodic heartbeat telemetry to the central dashboard and executes forensic collector jobs locally without triggering EDR false positives.
 
 ---
 
-## ⌨️ CLI Runner (`jocky.py`)
+## ⌨️ CLI Runner (`jocky.py` & `jocky-agent.py`)
 
-JOCKY provides a master executable at the project root for headless environments and automated CI/CD workflows:
+JOCKY provides a master executable at the project root for headless operations, server hosting, and endpoint agent controls:
 
 ```bash
-# 1. Compile & validate a JOCKY DSL script
+# 1. Launch the FastAPI server locally
+python jocky.py serve --port 8000
+
+# 2. Endpoint Agent Management
+python jocky.py agent status                             # Check local enrollment status
+python jocky.py agent pair --server <url> --code <code>   # Enroll with 8-char code
+python jocky.py agent run                                # Start background collector daemon
+python jocky.py agent unpair                             # Clear local credentials
+
+# 3. Compile & validate a JOCKY DSL script
 python jocky.py compile examples/sample.jocky
 
-# 2. Execute a forensic script and generate a report
+# 4. Execute a forensic script and generate a report
 python jocky.py execute examples/sample.jocky --format HTML --output reports/investigation.html
 
-# 3. Perform a cryptographic integrity audit of the entire Evidence Vault
+# 5. Perform a cryptographic integrity audit of the entire Evidence Vault
 python jocky.py audit
 
-# 4. Audit a specific case
+# 6. Audit a specific case
 python jocky.py audit --case LAB-2026-001
 
-# 5. Export a cryptographically sealed evidence bundle with manifest
+# 7. Export a cryptographically sealed evidence bundle with manifest
 python jocky.py export LAB-2026-001 --output exports/LAB-2026-001-bundle.zip
-
-# 6. Launch the FastAPI server locally
-python jocky.py serve --port 8000
 ```
+
+Alternatively, `python jocky-agent.py {pair,start,run,status,unpair}` can be invoked directly on remote endpoint machines.
 
 ---
 
@@ -307,10 +338,23 @@ Interactive Swagger documentation is available at `http://localhost:8000/docs`.
 
 ```
 jocky-forensics/
+├── agent/                        # Lightweight remote endpoint forensic agent
+│   ├── adapter.py                # Telemetry adaptation & serialization
+│   ├── client.py                 # Secure HTTP API client (pairing, heartbeat, jobs)
+│   ├── config.py                 # Agent configuration & token persistence
+│   └── runner.py                 # Background polling, heartbeat & job execution loop
 ├── backend/
 │   ├── app/
-│   │   ├── analysis/             # Forensic correlation, rules & timeline reconstruction
+│   │   ├── agents/               # Endpoint agent fleet management
+│   │   │   ├── manager.py        # Enrollment, pairing verification & job queue
+│   │   │   ├── models.py         # Device, heartbeat, and job telemetry models
+│   │   │   └── routes.py         # REST endpoints for agent registration & control
+│   │   ├── analysis/             # Forensic correlation, MITRE rules & timeline synthesis
+│   │   │   ├── analyzers/        # Specialized technique analyzers (e.g. execution analyzer)
 │   │   │   ├── correlator.py     # Process-to-network socket correlation
+│   │   │   ├── mapping.py        # MITRE ATT&CK technique mapping engine
+│   │   │   ├── mitre.py          # MITRE taxonomy & tactic definitions
+│   │   │   ├── registry.py       # Pluggable analyzer registry
 │   │   │   ├── rules.py          # MITRE ATT&CK-aligned heuristic detection rules
 │   │   │   └── timeline.py       # Chronological event timeline synthesizer
 │   │   ├── collectors/           # Cross-platform safe read-only collectors
@@ -356,41 +400,55 @@ jocky-forensics/
 │   │   ├── cli.py                # Command-line interface logic
 │   │   └── main.py               # FastAPI application entrypoint & static mount
 │   └── requirements.txt          # Python dependencies
-├── frontend/                     # React 18 + Vite investigative dashboard
+├── frontend/                     # React 18 + Vite investigative dashboard (Iceland Blue Lagoon)
 │   ├── src/
+│   │   ├── AdvancedTechniques.jsx    # MITRE ATT&CK advanced technique explorer
 │   │   ├── App.jsx               # Main investigative portal & console
 │   │   ├── CommandSearch.jsx     # Quick command & search palette
 │   │   ├── CriticalIncidentAlert.jsx # Incident notification banner
 │   │   ├── CyberSupport.jsx      # Live analyst & AI support panel
+│   │   ├── EndpointDevices.jsx   # Enrolled endpoint agent fleet management
 │   │   ├── InvestigatorDashboard.jsx # Case overview & metrics widgets
 │   │   ├── Login.jsx             # Secure clearance authentication modal
+│   │   ├── LogoutModal.jsx       # Session termination confirmation
 │   │   ├── ReportModal.jsx       # Multi-format report viewer & exporter
-│   │   ├── Sidebar.jsx           # Dashboard navigation sidebar
+│   │   ├── ReportSection.jsx     # Case reports dossier view
+│   │   ├── Sidebar.jsx           # Streamlined judge-facing navigation sidebar
 │   │   ├── api.js                # Frontend API client
-│   │   └── index.css             # Cyber forensic design styling
+│   │   ├── deviceUtils.js        # Deduplicated device identity normalization
+│   │   └── index.css             # Light Iceland Blue Lagoon design styling
 │   ├── package.json              # Frontend npm dependencies
 │   ├── vite.config.js            # Vite configuration & proxy settings
 │   └── vercel.json               # Vercel deployment configuration
 ├── examples/                     # Sample JOCKY forensic scripts
 │   ├── sample.jocky              # Valid end-to-end workflow script
 │   └── invalid.jocky             # Malformed script for error detection testing
-├── tests/                        # Comprehensive test suite (256 test cases)
+├── tests/                        # Comprehensive test suite (25 test modules)
+│   ├── test_advanced_analyzers.py    # Analyzer registry & technique tests
+│   ├── test_agent_client.py      # Endpoint agent HTTP client tests
+│   ├── test_agent_manager.py     # Agent pairing, heartbeat & queue tests
+│   ├── test_agent_models.py      # Device data contracts & validation
+│   ├── test_agent_routes.py      # Agent REST API endpoint tests
 │   ├── test_backend.py           # FastAPI endpoints & health checks
 │   ├── test_collectors.py        # Read-only telemetry collectors
 │   ├── test_correlator.py        # Process-to-network socket correlation
 │   ├── test_cross_platform.py    # Windows, Linux, and macOS dispatcher parity
 │   ├── test_dsl_phase1.py        # Lexer, parser, AST, IR & validator tests
+│   ├── test_endpoint_execution_vault.py # Agent execution & vaulting integration
 │   ├── test_engine.py            # Execution engine & task scheduling
 │   ├── test_evidence.py          # Evidence storage & retrieval
 │   ├── test_hardening.py         # Sandbox enforcement & resource limits
 │   ├── test_parser.py            # Grammar and syntax error reporting
+│   ├── test_phase5_integration.py # End-to-end multi-machine integration
 │   ├── test_reporting.py         # HTML/JSON/Markdown report synthesis
 │   ├── test_security_workflow.py # RBAC, chat, AI fallback & audit logs
+│   ├── test_technique_mapping.py # MITRE ATT&CK heuristics verification
 │   ├── test_timeline.py          # Event timeline reconstruction
 │   └── test_vault.py             # SHA-256 sealing, tampering detection & export
 ├── architecture.md               # Architectural blueprint & specification
 ├── Dockerfile                    # Multi-stage production container build
-├── jocky.py                      # Master executable CLI script
+├── jocky-agent.py                # Standalone endpoint agent CLI executable
+├── jocky.py                      # Master unified CLI script
 ├── render.yaml                   # Infrastructure-as-code for Render deployment
 └── README.md                     # Project documentation & guidelines
 ```
@@ -402,10 +460,10 @@ jocky-forensics/
 ### Prerequisites
 
 - **Python**: 3.10, 3.11, or 3.12
-- **Node.js**: 18.x or later (for building the frontend)
+- **Node.js**: 18.x or later (for the React dashboard)
 - **Git**
 
-### Backend Setup
+### 1. Backend Server Setup
 
 1. **Clone the repository**:
    ```bash
@@ -436,9 +494,9 @@ jocky-forensics/
    python jocky.py serve --port 8000
    ```
    - API Root: `http://127.0.0.1:8000/api`
-   - Interactive Docs: `http://127.0.0.1:8000/docs`
+   - Interactive Swagger Docs: `http://127.0.0.1:8000/docs`
 
-### Frontend Setup
+### 2. Frontend Dashboard Setup
 
 1. **Navigate to the frontend directory**:
    ```bash
@@ -450,17 +508,46 @@ jocky-forensics/
    npm install
    ```
 
-3. **Start the Vite dev server**:
+3. **Start the Vite development server**:
    ```bash
    npm run dev
    ```
    - Dashboard: `http://localhost:5173` (proxies `/api` requests to backend at port 8000)
+   - Credentials (Default Test Analyst): `analyst` / `analyst123`
 
 ---
 
-### Running Backend Tests
+### 3. Remote Endpoint Agent Setup (Optional / Multi-Machine)
 
-The project includes an automated test suite containing **256 unit and integration test cases** covering every subsystem:
+To collect live telemetry and execute forensic scripts on remote workstations across your network:
+
+1. **Pair the Endpoint Agent with the Server**:
+   ```bash
+   # Via master CLI:
+   python jocky.py agent pair --server http://127.0.0.1:8000 --token <PAIRING_TOKEN> --name "FIELD-LAPTOP-01"
+
+   # Or via standalone agent executable:
+   python jocky-agent.py pair --server http://127.0.0.1:8000 --token <PAIRING_TOKEN> --name "FIELD-LAPTOP-01"
+   ```
+
+2. **Run the Agent Daemon**:
+   ```bash
+   # Runs background heartbeat and awaits dispatched collection jobs
+   python jocky.py agent run
+   ```
+
+3. **Verify Agent Status**:
+   ```bash
+   python jocky.py agent status
+   ```
+
+Once paired, the device appears in the **Target Device Selector** at the top of the dashboard and under **Endpoint Devices** for central command.
+
+---
+
+### Running Automated Tests
+
+The project includes an extensive test suite covering the DSL compiler, collectors, analyzers, vault integrity, RBAC, and remote agent workflows:
 
 ```bash
 # Run all tests from the repository root
@@ -471,7 +558,9 @@ Test coverage includes:
 - JOCKY DSL Lexer, Parser, AST, Validator, and IR Generation
 - Cross-platform safe telemetry collectors (Windows, Linux, macOS)
 - Cryptographic SHA-256 artifact sealing and mathematical tamper detection
-- Process-to-socket correlation and heuristic anomaly detection
+- MITRE ATT&CK technique analyzers & process-to-socket correlation
+- Remote endpoint agent pairing, heartbeat polling, and job execution
+- Deduplicated device identity normalization
 - Multi-format report generation (JSON, HTML, Markdown)
 - RBAC authentication, session revocation, AI assistant querying, and audit logging
 

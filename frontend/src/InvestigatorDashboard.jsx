@@ -224,7 +224,7 @@ export default function InvestigatorDashboard({
       {/* Top Banner / Quick Controls */}
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
@@ -233,12 +233,13 @@ export default function InvestigatorDashboard({
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
+          boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{ fontSize: '1.4rem' }}>🛰️</span>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
               Forensic Investigator Overview
             </h1>
             <span
@@ -247,9 +248,9 @@ export default function InvestigatorDashboard({
                 fontWeight: 700,
                 padding: '0.2rem 0.6rem',
                 borderRadius: '4px',
-                background: 'rgba(16, 185, 129, 0.12)',
-                color: 'var(--accent-emerald)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: 'rgba(92, 128, 43, 0.14)',
+                color: 'var(--color-algae)',
+                border: '1px solid rgba(92, 128, 43, 0.35)',
               }}
             >
               ● LIVE CONSOLE
@@ -262,15 +263,15 @@ export default function InvestigatorDashboard({
 
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
           {/* Target Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.35)', padding: '0.35rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Target:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-surface)', padding: '0.35rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-lava)' }}>Target:</span>
             <select
               value={selectedDeviceId || ''}
               onChange={(e) => onSelectTarget && onSelectTarget(e.target.value || null)}
               style={{
-                background: 'var(--bg-surface)',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
-                color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                color: 'var(--color-lava)',
                 fontWeight: 600,
                 fontSize: '0.78rem',
                 padding: '0.25rem 0.5rem',
@@ -291,9 +292,9 @@ export default function InvestigatorDashboard({
           <button
             onClick={() => onNavigateTab && onNavigateTab('endpoints')}
             style={{
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              color: 'var(--accent-cyan)',
+              background: 'rgba(139, 212, 232, 0.25)',
+              border: '1px solid rgba(139, 212, 232, 0.6)',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.5rem 0.9rem',
               fontSize: '0.8rem',
@@ -310,9 +311,9 @@ export default function InvestigatorDashboard({
           <button
             onClick={() => onNavigateTab && onNavigateTab('commands')}
             style={{
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              color: 'var(--accent-cyan)',
+              background: 'rgba(139, 212, 232, 0.25)',
+              border: '1px solid rgba(139, 212, 232, 0.6)',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.5rem 0.9rem',
               fontSize: '0.8rem',
@@ -330,9 +331,9 @@ export default function InvestigatorDashboard({
           <button
             onClick={() => onNavigateTab && onNavigateTab('script')}
             style={{
-              background: 'var(--bg-surface)',
+              background: '#FFFFFF',
               border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.5rem 0.9rem',
               fontSize: '0.8rem',
@@ -351,15 +352,15 @@ export default function InvestigatorDashboard({
             onClick={() => onRunInvestigation && onRunInvestigation()}
             disabled={loading}
             style={{
-              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-              border: 'none',
-              color: '#fff',
+              background: 'var(--color-lagoon)',
+              border: '1px solid #72c7dc',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.5rem 1.1rem',
               fontSize: '0.8rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.3)',
+              boxShadow: '0 2px 8px rgba(139, 212, 232, 0.45)',
             }}
           >
             {loading ? 'Collecting Evidence...' : '▶ Run Investigation'}
@@ -433,7 +434,7 @@ export default function InvestigatorDashboard({
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '0.45rem 0.6rem',
-                    background: 'rgba(255, 255, 255, 0.02)',
+                    background: 'var(--bg-surface)',
                     borderRadius: '6px',
                     border: '1px solid var(--border-subtle)',
                   }}
@@ -448,9 +449,9 @@ export default function InvestigatorDashboard({
                         fontWeight: 700,
                         padding: '0.15rem 0.5rem',
                         borderRadius: '4px',
-                        background: 'rgba(0, 0, 0, 0.3)',
-                        color: item.badgeColor || 'var(--text-primary)',
-                        border: `1px solid ${item.badgeColor || 'var(--border-subtle)'}`,
+                        background: item.badgeColor === 'var(--accent-rose)' ? 'rgba(197, 48, 48, 0.12)' : 'rgba(92, 128, 43, 0.14)',
+                        color: item.badgeColor === 'var(--accent-rose)' ? '#C53030' : 'var(--color-algae)',
+                        border: `1px solid ${item.badgeColor === 'var(--accent-rose)' ? 'rgba(197, 48, 48, 0.3)' : 'rgba(92, 128, 43, 0.35)'}`,
                       }}
                     >
                       {item.value}

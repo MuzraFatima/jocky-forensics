@@ -44,20 +44,21 @@ export default function ReportSection({
       {/* Action Header Card */}
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
           gap: '1.25rem',
+          boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
               <span style={{ fontSize: '1.4rem' }}>📄</span>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
                 Forensic Investigation Report Engine
               </h2>
               <span
@@ -66,16 +67,16 @@ export default function ReportSection({
                   fontWeight: 700,
                   padding: '0.2rem 0.55rem',
                   borderRadius: '4px',
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  color: 'var(--accent-cyan)',
-                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  background: 'rgba(139, 212, 232, 0.25)',
+                  color: 'var(--color-lava)',
+                  border: '1px solid rgba(139, 212, 232, 0.6)',
                 }}
               >
                 Official Attestation
               </span>
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-              Generate structured, tamper-evident forensic reports for Case <span className="font-mono" style={{ color: 'var(--accent-cyan)' }}>{caseId}</span>.
+              Generate structured, tamper-evident forensic reports for Case <span className="font-mono" style={{ color: 'var(--color-lava)', fontWeight: 700 }}>{caseId}</span>.
             </p>
           </div>
 
@@ -84,9 +85,9 @@ export default function ReportSection({
             <button
               onClick={() => handleDownload(reportFormat)}
               style={{
-                background: 'rgba(16, 185, 129, 0.15)',
-                border: '1px solid var(--accent-emerald)',
-                color: 'var(--accent-emerald)',
+                background: 'rgba(92, 128, 43, 0.15)',
+                border: '1px solid var(--color-algae)',
+                color: 'var(--color-algae)',
                 borderRadius: '6px',
                 padding: '0.5rem 1rem',
                 fontSize: '0.82rem',
@@ -116,11 +117,11 @@ export default function ReportSection({
               placeholder="e.g. JOCKY Lead Forensic Examiner"
               style={{
                 width: '100%',
-                background: '#04070d',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 padding: '0.55rem 0.85rem',
-                color: 'var(--text-primary)',
+                color: 'var(--color-lava)',
                 fontSize: '0.85rem',
               }}
             />
@@ -133,12 +134,13 @@ export default function ReportSection({
             <div
               className="font-mono"
               style={{
-                background: 'rgba(0, 0, 0, 0.3)',
-                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 padding: '0.55rem 0.85rem',
-                color: 'var(--accent-cyan)',
+                color: 'var(--color-lava)',
                 fontSize: '0.82rem',
+                fontWeight: 600,
               }}
             >
               {caseId} • {investigationData?.target || 'LAB-PC'}
@@ -152,17 +154,18 @@ export default function ReportSection({
             onClick={() => handleGenerate('HTML')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'HTML' ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'rgba(14, 165, 233, 0.15)',
-              border: '1px solid var(--accent-cyan)',
-              color: '#fff',
+              background: reportFormat === 'HTML' ? 'var(--color-lagoon)' : 'var(--bg-surface)',
+              border: reportFormat === 'HTML' ? '1px solid #72c7dc' : '1px solid var(--border-color)',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: reportLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              boxShadow: reportFormat === 'HTML' ? '0 2px 8px rgba(139, 212, 232, 0.45)' : 'none',
             }}
           >
             <span>🌐</span>
@@ -173,17 +176,18 @@ export default function ReportSection({
             onClick={() => handleGenerate('JSON')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'JSON' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99, 102, 241, 0.15)',
-              border: '1px solid var(--accent-indigo)',
-              color: '#fff',
+              background: reportFormat === 'JSON' ? 'var(--color-lagoon)' : 'var(--bg-surface)',
+              border: reportFormat === 'JSON' ? '1px solid #72c7dc' : '1px solid var(--border-color)',
+              color: 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: reportLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              boxShadow: reportFormat === 'JSON' ? '0 2px 8px rgba(139, 212, 232, 0.45)' : 'none',
             }}
           >
             <span>{'{ }'}</span>
@@ -194,13 +198,13 @@ export default function ReportSection({
             onClick={() => handleGenerate('MARKDOWN')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'MARKDOWN' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid var(--accent-emerald)',
-              color: '#fff',
+              background: reportFormat === 'MARKDOWN' ? 'rgba(92, 128, 43, 0.2)' : 'var(--bg-surface)',
+              border: reportFormat === 'MARKDOWN' ? '1px solid var(--color-algae)' : '1px solid var(--border-color)',
+              color: reportFormat === 'MARKDOWN' ? 'var(--color-algae)' : 'var(--color-lava)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
-              fontWeight: 700,
+              fontWeight: 800,
               cursor: reportLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -308,14 +312,15 @@ export default function ReportSection({
               <button
                 onClick={() => handleDownload(reportFormat)}
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                  border: 'none',
-                  color: '#fff',
+                  background: 'var(--color-lagoon)',
+                  border: '1px solid #72c7dc',
+                  color: 'var(--color-lava)',
                   borderRadius: '6px',
                   padding: '0.4rem 0.9rem',
                   fontSize: '0.78rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(139, 212, 232, 0.45)',
                 }}
               >
                 Download Report
@@ -331,9 +336,9 @@ export default function ReportSection({
               padding: '3rem',
               textAlign: 'center',
               color: 'var(--text-muted)',
-              background: 'rgba(10, 15, 26, 0.5)',
+              background: 'var(--bg-surface)',
               borderRadius: '8px',
-              border: '1px dashed var(--border-subtle)',
+              border: '1px dashed var(--border-color)',
             }}
           >
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📋</div>
@@ -345,7 +350,7 @@ export default function ReportSection({
             </div>
           </div>
         ) : activePreviewFormat === 'RENDERED' && reportFormat === 'HTML' ? (
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: '8px', overflow: 'hidden', minHeight: '450px' }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', minHeight: '450px' }}>
             <iframe
               title="HTML Report Preview"
               srcDoc={reportResult.content || ''}
@@ -363,11 +368,11 @@ export default function ReportSection({
               className="font-mono"
               style={{
                 margin: 0,
-                background: '#04070d',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
                 borderRadius: '8px',
                 padding: '1.25rem',
-                color: reportFormat === 'JSON' ? '#38bdf8' : '#e2e8f0',
+                color: 'var(--color-lava)',
                 fontSize: '0.8rem',
                 lineHeight: 1.5,
                 maxHeight: '520px',

@@ -1274,12 +1274,12 @@ export default function App() {
 
         {/* Executive Case & Action Bar */}
         <section style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(12, 17, 29, 0.8) 100%)',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
           marginBottom: '1.5rem',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+          boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -1287,10 +1287,10 @@ export default function App() {
                 Current Active Investigation
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-lava)', letterSpacing: '-0.02em' }}>
                   {investigationData?.case_id || 'LAB-2026-001'}
                 </h2>
-                <span style={{ fontSize: '0.9rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.9rem', color: 'var(--color-lava)', fontWeight: 600 }}>
                   Target: {investigationData?.target || 'LAB-PC'}
                 </span>
               </div>
@@ -1300,12 +1300,12 @@ export default function App() {
               <div style={{
                 padding: '0.4rem 0.8rem',
                 borderRadius: '6px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 fontSize: '0.78rem',
               }}>
                 <span style={{ color: 'var(--text-muted)' }}>Status: </span>
-                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
+                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? 'var(--color-algae)' : 'var(--accent-amber)' }}>
                   {loading ? 'RUNNING...' : (investigationData?.status || 'READY')}
                 </span>
               </div>
@@ -1317,18 +1317,18 @@ export default function App() {
                 gap: '0.45rem',
                 padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
               }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Target:</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-lava)' }}>Target:</span>
                 <select
                   id="target-device-select"
                   value={selectedDeviceId || ''}
                   onChange={(e) => setSelectedDeviceId(e.target.value || null)}
                   style={{
-                    background: 'var(--bg-surface)',
+                    background: '#FFFFFF',
                     border: '1px solid var(--border-color)',
-                    color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                    color: 'var(--color-lava)',
                     fontWeight: 600,
                     fontSize: '0.78rem',
                     padding: '0.2rem 0.5rem',
@@ -1351,17 +1351,17 @@ export default function App() {
                 onClick={() => handleExecuteScript()}
                 disabled={loading || executeLoading}
                 style={{
-                  background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                  color: '#fff',
-                  border: 'none',
+                  background: (loading || executeLoading) ? 'rgba(139, 212, 232, 0.5)' : '#8BD4E8',
+                  color: '#222426',
+                  border: '1px solid #72c7dc',
                   borderRadius: '6px',
                   padding: '0.55rem 1.25rem',
                   fontSize: '0.85rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+                  boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
                   cursor: (loading || executeLoading) ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -2371,7 +2371,7 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Vault Action Header */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -2380,11 +2380,12 @@ export default function App() {
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '1rem',
+              boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
             }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <span style={{ fontSize: '1.4rem' }}>🛡️</span>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
                     Evidence Vault &amp; Chain of Custody
                   </h2>
                   <span style={{
@@ -2392,9 +2393,9 @@ export default function App() {
                     fontWeight: 700,
                     padding: '0.2rem 0.55rem',
                     borderRadius: '4px',
-                    background: vaultAudit?.vault_status === 'COMPROMISED' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                    color: vaultAudit?.vault_status === 'COMPROMISED' ? 'var(--accent-rose)' : 'var(--accent-emerald)',
-                    border: `1px solid ${vaultAudit?.vault_status === 'COMPROMISED' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+                    background: vaultAudit?.vault_status === 'COMPROMISED' ? 'rgba(197, 48, 48, 0.12)' : 'rgba(92, 128, 43, 0.14)',
+                    color: vaultAudit?.vault_status === 'COMPROMISED' ? '#C53030' : 'var(--color-algae)',
+                    border: `1px solid ${vaultAudit?.vault_status === 'COMPROMISED' ? 'rgba(197, 48, 48, 0.3)' : 'rgba(92, 128, 43, 0.35)'}`,
                   }}>
                     {vaultAudit?.vault_status === 'COMPROMISED' ? '⚠ VAULT COMPROMISED' : '✓ VAULT INTACT'}
                   </span>
@@ -2958,9 +2959,9 @@ export default function App() {
                     onClick={handleCompile}
                     disabled={compiling}
                     style={{
-                      background: compiling ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                      color: '#fff',
-                      border: 'none',
+                      background: compiling ? 'rgba(139, 212, 232, 0.3)' : 'var(--bg-surface)',
+                      color: 'var(--color-lava)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       padding: '0.5rem 1.1rem',
                       fontSize: '0.85rem',
@@ -2975,15 +2976,15 @@ export default function App() {
                     onClick={() => handleExecuteScript(scriptText)}
                     disabled={loading || executeLoading}
                     style={{
-                      background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                      color: '#fff',
-                      border: 'none',
+                      background: (loading || executeLoading) ? 'rgba(139, 212, 232, 0.5)' : '#8BD4E8',
+                      color: '#222426',
+                      border: '1px solid #72c7dc',
                       borderRadius: '6px',
                       padding: '0.5rem 1.25rem',
                       fontSize: '0.85rem',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: (loading || executeLoading) ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+                      boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
                     }}
                   >
                     {(loading || executeLoading) ? 'Executing...' : '▶ Analyze and Execute Script'}
@@ -3229,16 +3230,16 @@ export default function App() {
                 disabled={executeLoading}
                 style={{
                   background: executeLoading
-                    ? 'rgba(99,102,241,0.3)'
-                    : 'linear-gradient(135deg, #6366f1, #0ea5e9)',
-                  color: '#fff',
-                  border: 'none',
+                    ? 'rgba(139, 212, 232, 0.4)'
+                    : 'var(--color-lagoon)',
+                  color: 'var(--color-lava)',
+                  border: '1px solid #72c7dc',
                   borderRadius: '7px',
                   padding: '0.6rem 1.4rem',
                   fontSize: '0.88rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: executeLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 18px rgba(99,102,241,0.35)',
+                  boxShadow: '0 2px 10px rgba(139, 212, 232, 0.4)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
@@ -3633,7 +3634,7 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -3643,19 +3644,21 @@ export default function App() {
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '1rem',
+              boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
             }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <span style={{ fontSize: '1.4rem' }}>🕸️</span>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
                     Forensic Correlation Graph
                   </h2>
                   <span style={{
                     fontSize: '0.7rem',
                     padding: '0.2rem 0.6rem',
                     borderRadius: '4px',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    color: 'var(--accent-cyan)',
+                    background: 'rgba(139, 212, 232, 0.25)',
+                    color: 'var(--color-lava)',
+                    border: '1px solid rgba(139, 212, 232, 0.6)',
                     fontWeight: 700,
                   }}>
                     PHASE 4
@@ -3671,18 +3674,18 @@ export default function App() {
                 onClick={() => handleAnalyzeEvidenceCorrelate()}
                 disabled={correlationLoading}
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
-                  color: '#fff',
-                  border: 'none',
+                  background: correlationLoading ? 'rgba(139, 212, 232, 0.5)' : '#8BD4E8',
+                  color: '#222426',
+                  border: '1px solid #72c7dc',
                   borderRadius: '6px',
                   padding: '0.6rem 1.2rem',
                   fontSize: '0.85rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   cursor: correlationLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+                  boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
                 }}
               >
                 {correlationLoading ? 'Re-Correlating...' : '🔄 Run Live Correlation'}
@@ -3771,9 +3774,9 @@ export default function App() {
                       width: '100%',
                       padding: '0.6rem 1rem',
                       borderRadius: '8px',
-                      background: 'rgba(15, 23, 42, 0.6)',
+                      background: '#FFFFFF',
                       border: '1px solid var(--border-color)',
-                      color: 'var(--text-primary)',
+                      color: 'var(--color-lava)',
                       fontSize: '0.85rem',
                       outline: 'none',
                     }}
@@ -3854,7 +3857,7 @@ export default function App() {
                         {/* Tri-Fold Columns */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                           {/* Col 1: Parent Process */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               ↳ Parent Process (PPID)
                             </div>
@@ -3886,7 +3889,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Binary Executable */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               📁 Binary Executable (EXECUTED_FROM)
                             </div>
@@ -3926,7 +3929,7 @@ export default function App() {
                           </div>
 
                           {/* Col 3: Active Sockets */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--bg-surface)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               🌐 Network Sockets (OPENED_SOCKET)
                             </div>
@@ -4060,7 +4063,7 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -4070,19 +4073,21 @@ export default function App() {
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '1rem',
+              boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
             }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <span style={{ fontSize: '1.4rem' }}>⏱️</span>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
                     Forensic Timeline &amp; Automated Analysis
                   </h2>
                   <span style={{
                     fontSize: '0.7rem',
                     padding: '0.2rem 0.6rem',
                     borderRadius: '4px',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    color: 'var(--accent-emerald)',
+                    background: 'rgba(92, 128, 43, 0.14)',
+                    color: 'var(--color-algae)',
+                    border: '1px solid rgba(92, 128, 43, 0.35)',
                     fontWeight: 700,
                   }}>
                     PHASE 5
@@ -4097,18 +4102,18 @@ export default function App() {
                 onClick={handleFetchTimeline}
                 disabled={timelineLoading}
                 style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: '#fff',
-                  border: 'none',
+                  background: timelineLoading ? 'rgba(139, 212, 232, 0.5)' : '#8BD4E8',
+                  color: '#222426',
+                  border: '1px solid #72c7dc',
                   borderRadius: '6px',
                   padding: '0.6rem 1.2rem',
                   fontSize: '0.85rem',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   cursor: timelineLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                  boxShadow: '0 4px 14px rgba(139, 212, 232, 0.4)',
                 }}
               >
                 {timelineLoading ? 'Scanning...' : '🔄 Re-Scan Timeline & Analysis'}
@@ -4194,10 +4199,10 @@ export default function App() {
                       <div
                         key={idx}
                         style={{
-                          background: 'rgba(15, 23, 42, 0.6)',
+                          background: 'var(--bg-surface)',
                           borderLeft: `4px solid ${borderColor}`,
                           borderRadius: '6px',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          border: '1px solid var(--border-color)',
                           padding: '1rem',
                         }}
                       >
@@ -4313,9 +4318,9 @@ export default function App() {
                     width: '100%',
                     padding: '0.6rem 1rem',
                     borderRadius: '8px',
-                    background: 'rgba(15, 23, 42, 0.6)',
+                    background: '#FFFFFF',
                     border: '1px solid var(--border-color)',
-                    color: 'var(--text-primary)',
+                    color: 'var(--color-lava)',
                     fontSize: '0.85rem',
                     outline: 'none',
                   }}
@@ -4352,7 +4357,7 @@ export default function App() {
                           alignItems: 'flex-start',
                           gap: '1rem',
                           padding: '0.75rem',
-                          background: 'rgba(15, 23, 42, 0.5)',
+                          background: 'var(--bg-surface)',
                           borderRadius: '8px',
                           border: '1px solid var(--border-color)',
                         }}
@@ -4474,8 +4479,8 @@ export default function App() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(34, 36, 38, 0.45)',
+          backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -4487,10 +4492,10 @@ export default function App() {
             maxWidth: '920px',
             maxHeight: '88vh',
             overflowY: 'auto',
-            background: 'var(--bg-card)',
+            background: '#FFFFFF',
             borderRadius: '12px',
-            border: '1px solid var(--border-color)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
+            border: '1.5px solid var(--border-color)',
+            boxShadow: '0 20px 45px rgba(34, 36, 38, 0.15)',
             padding: '1.5rem',
           }}>
             <CommandSearch

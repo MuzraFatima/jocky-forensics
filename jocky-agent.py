@@ -184,8 +184,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_pair.add_argument("--code", required=True, help="Single-use 8-character pairing code from the dashboard")
     p_pair.add_argument("--name", default=None, help="Optional friendly display name for this endpoint")
 
-    # 2. start
-    p_start = subparsers.add_parser("start", help="Start the background polling agent daemon")
+    # 2. start / run
+    p_start = subparsers.add_parser("start", aliases=["run"], help="Start the background polling agent daemon")
     p_start.add_argument("--interval", type=float, default=2.0, help="Job polling interval in seconds (default: 2.0)")
     p_start.add_argument("--heartbeat", type=float, default=15.0, help="Heartbeat interval in seconds (default: 15.0)")
     p_start.add_argument("--once", action="store_true", help="Run a single polling iteration and exit")
@@ -211,7 +211,7 @@ def main() -> int:
 
     if args.command == "pair":
         return cmd_pair(args)
-    elif args.command == "start":
+    elif args.command in ("start", "run"):
         return cmd_start(args)
     elif args.command == "status":
         return cmd_status(args)

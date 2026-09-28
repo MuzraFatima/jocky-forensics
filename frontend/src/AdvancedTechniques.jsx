@@ -104,7 +104,7 @@ export default function AdvancedTechniques({
       {/* ── Header Banner & Scope ── */}
       <div
         style={{
-          background: 'var(--bg-card)',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #E8ECEF 100%)',
           borderRadius: '10px',
           border: '1px solid var(--border-color)',
           padding: '1.5rem',
@@ -113,11 +113,12 @@ export default function AdvancedTechniques({
           alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '1rem',
+          boxShadow: '0 2px 10px rgba(34, 36, 38, 0.04)',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-lava)', margin: 0 }}>
               Advanced Technique Analysis &amp; MITRE ATT&amp;CK Mapping
             </h2>
             <span
@@ -126,9 +127,9 @@ export default function AdvancedTechniques({
                 fontWeight: 700,
                 padding: '0.15rem 0.5rem',
                 borderRadius: '4px',
-                background: 'rgba(56, 189, 248, 0.12)',
-                color: 'var(--accent-cyan)',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
+                background: 'rgba(139, 212, 232, 0.25)',
+                color: 'var(--color-lava)',
+                border: '1px solid rgba(139, 212, 232, 0.6)',
                 textTransform: 'uppercase',
               }}
             >
@@ -147,13 +148,13 @@ export default function AdvancedTechniques({
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
+            background: 'rgba(92, 128, 43, 0.14)',
+            border: '1px solid rgba(92, 128, 43, 0.35)',
             padding: '0.5rem 0.85rem',
             borderRadius: '6px',
             fontSize: '0.75rem',
-            color: 'var(--accent-emerald)',
-            fontWeight: 600,
+            color: 'var(--color-algae)',
+            fontWeight: 700,
           }}
         >
           <span>🔒</span> Evidence Vault Sealed &amp; Traceable
@@ -382,12 +383,13 @@ export default function AdvancedTechniques({
               style={{
                 padding: '0.6rem 1.25rem',
                 borderRadius: '6px',
-                background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                border: 'none',
-                color: '#fff',
-                fontWeight: 700,
+                background: 'var(--color-lagoon)',
+                border: '1px solid #72c7dc',
+                color: 'var(--color-lava)',
+                fontWeight: 800,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(139, 212, 232, 0.45)',
               }}
             >
               Open Script Editor &amp; Run Investigation
@@ -533,7 +535,7 @@ export default function AdvancedTechniques({
                     <span>→</span>
                     <span style={{ color: '#ec4899' }}>MITRE ATT&amp;CK</span>
                     <span>→</span>
-                    <span style={{ color: '#fff' }}>Forensic Report</span>
+                    <span style={{ color: 'var(--color-lava)', fontWeight: 700 }}>Forensic Report</span>
                   </div>
 
                   {/* Evidence IDs */}
