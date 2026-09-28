@@ -276,6 +276,18 @@ export default function Sidebar({
       ],
     },
     {
+      title: 'SUPPORT',
+      items: [
+        {
+          id: 'support',
+          label: 'Cybersecurity Support',
+          icon: (props) => <SupportIcon {...props} />,
+          statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
+          accentColor: 'var(--accent-indigo)',
+        },
+      ],
+    },
+    {
       title: 'OUTPUT',
       items: [
         {
@@ -298,7 +310,6 @@ export default function Sidebar({
     { id: 'windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
     { id: 'execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
     { id: 'commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
-    { id: 'support', label: 'Cybersecurity Support', icon: (props) => <SupportIcon {...props} />, statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF', accentColor: 'var(--accent-indigo)' },
   ];
 
   // Complete registry of all modules for safe lookups and backward compatibility
@@ -373,14 +384,14 @@ export default function Sidebar({
                 height: '36px',
                 minWidth: '36px',
                 borderRadius: '9px',
-                background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                background: 'linear-gradient(135deg, #8BD4E8, #5C802B)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 800,
                 fontSize: '18px',
-                color: '#fff',
-                boxShadow: '0 0 16px rgba(14, 165, 233, 0.4)',
+                color: 'var(--color-lava, #222426)',
+                boxShadow: '0 0 16px rgba(139, 212, 232, 0.4)',
               }}
             >
               J
@@ -394,7 +405,7 @@ export default function Sidebar({
                       fontSize: '0.98rem',
                       fontWeight: 800,
                       letterSpacing: '-0.02em',
-                      color: '#fff',
+                      color: 'var(--text-primary)',
                     }}
                   >
                     JOCKY
@@ -403,9 +414,9 @@ export default function Sidebar({
                     style={{
                       fontSize: '0.6rem',
                       fontWeight: 700,
-                      color: 'var(--accent-cyan)',
-                      background: 'rgba(56, 189, 248, 0.1)',
-                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      color: 'var(--color-lava, #222426)',
+                      background: 'rgba(139, 212, 232, 0.35)',
+                      border: '1px solid rgba(139, 212, 232, 0.6)',
                       padding: '0.1rem 0.35rem',
                       borderRadius: '4px',
                       letterSpacing: '0.04em',
@@ -613,7 +624,7 @@ export default function Sidebar({
           style={{
             padding: collapsed ? '0.75rem 0.4rem' : '0.85rem 1rem',
             borderTop: '1px solid var(--border-color)',
-            background: 'rgba(6, 9, 15, 0.6)',
+            background: 'var(--bg-surface)',
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -630,26 +641,26 @@ export default function Sidebar({
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.35rem 0.5rem',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid var(--border-subtle)',
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                 }}>
                   <div style={{
                     width: '24px',
                     height: '24px',
                     borderRadius: '50%',
-                    background: 'rgba(56, 189, 248, 0.15)',
+                    background: 'rgba(139, 212, 232, 0.35)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.7rem',
-                    color: 'var(--accent-cyan)',
+                    color: 'var(--color-lava, #222426)',
                     fontWeight: 700,
                   }}>
                     👤
                   </div>
                   <div style={{ overflow: 'hidden', flex: 1 }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {session.username?.split('@')[0] || 'Investigator'}
                     </div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>

@@ -1,19 +1,45 @@
+/* ==========================================================================
+   JOCKY Forensics — Light Iceland Blue Lagoon Color Palette
+   Reference Tokens:
+     - Lagoon Cyan:   #8BD4E8 (primary accents, active nav, primary buttons, highlights)
+     - Silica White:  #E1E4E6 (light surfaces, panels, inputs, secondary backgrounds)
+     - Algae Green:   #5C802B (ONLINE, VERIFIED, SEALED, COMPLETED, READ-ONLY, success)
+     - Lava Black:    #222426 (primary text, headings, high-contrast elements, icons)
+   ========================================================================== */
+
 :root {
-  --bg-primary: #06090f;
-  --bg-surface: #0c111d;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.7);
-  --border-color: rgba(56, 189, 248, 0.12);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-accent: #0ea5e9;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-cyan: #38bdf8;
-  --accent-emerald: #10b981;
-  --accent-indigo: #6366f1;
-  --accent-amber: #f59e0b;
-  --accent-rose: #f43f5e;
+  /* Brand Reference Tokens */
+  --color-lagoon: #8BD4E8;
+  --color-silica: #E1E4E6;
+  --color-algae: #5C802B;
+  --color-lava: #222426;
+
+  /* Theme Surfaces (Light Silica / Near-White) */
+  --bg-primary: #F0F4F6;
+  --bg-surface: #E1E4E6;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #EBF4F7;
+  --bg-panel: #FFFFFF;
+  --bg-input: #FFFFFF;
+
+  /* Borders (Subtle Lagoon Cyan & Lava tints) */
+  --border-color: rgba(139, 212, 232, 0.45);
+  --border-subtle: rgba(34, 36, 38, 0.08);
+  --border-accent: #8BD4E8;
+  --border-cyan: rgba(139, 212, 232, 0.6);
+
+  /* Typography / Text (Lava Black primary, muted slate secondaries) */
+  --text-primary: #222426;
+  --text-secondary: #4A5568;
+  --text-muted: #6A7B8C;
+  --text-inverse: #FFFFFF;
+
+  /* Accents & Forensic Status */
+  --accent-cyan: #8BD4E8;
+  --accent-emerald: #5C802B;
+  --accent-indigo: #2D6A7E;
+  --accent-amber: #B45309;
+  --accent-rose: #C53030;
 }
 
 * {
@@ -31,8 +57,8 @@ body {
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
   background-image: 
-    radial-gradient(circle at 10% 15%, rgba(14, 165, 233, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 90% 85%, rgba(99, 102, 241, 0.06) 0%, transparent 45%);
+    radial-gradient(circle at 10% 15%, rgba(139, 212, 232, 0.2) 0%, transparent 45%),
+    radial-gradient(circle at 90% 85%, rgba(92, 128, 43, 0.08) 0%, transparent 45%);
 }
 
 code, pre, .font-mono {
@@ -45,14 +71,14 @@ code, pre, .font-mono {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 26, 0.5);
+  background: var(--bg-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.2);
+  background: rgba(139, 212, 232, 0.6);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.4);
+  background: var(--accent-cyan);
 }
 
 /* Table styling */
@@ -60,7 +86,7 @@ code, pre, .font-mono {
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: rgba(10, 15, 26, 0.6);
+  background: #FFFFFF;
 }
 
 table {
@@ -71,9 +97,9 @@ table {
 }
 
 th {
-  background: rgba(15, 23, 42, 0.9);
-  color: var(--text-secondary);
-  font-weight: 600;
+  background: #E1E4E6;
+  color: var(--text-primary);
+  font-weight: 700;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border-color);
   text-transform: uppercase;
@@ -90,7 +116,7 @@ td {
 }
 
 tr:hover td {
-  background: rgba(56, 189, 248, 0.03);
+  background: rgba(139, 212, 232, 0.08);
 }
 
 /* Button & Input Base */
@@ -100,15 +126,28 @@ button {
   transition: all 0.2s ease;
 }
 
-input, textarea {
+input, select, textarea {
   font-family: inherit;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus, textarea:focus {
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+input:focus, select:focus, textarea:focus {
   border-color: var(--accent-cyan) !important;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 0 0 3px rgba(139, 212, 232, 0.3) !important;
+}
+
+select option {
+  background-color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 /* Smooth pulse animation */
@@ -122,7 +161,7 @@ input:focus, textarea:focus {
 }
 
 /* ==========================================================================
-   ChatGPT-Style Left Sidebar & Layout
+   Left Sidebar — Light Iceland Blue Lagoon Theme
    ========================================================================== */
 
 .sidebar-container {
@@ -133,7 +172,7 @@ input:focus, textarea:focus {
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background: #080d19;
+  background: var(--bg-surface); /* Silica White #E1E4E6 */
   border-right: 1px solid var(--border-color);
   transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1), transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
@@ -158,9 +197,9 @@ input:focus, textarea:focus {
   border-radius: 8px;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary); /* Lava Black */
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
   transition: all 0.16s ease;
@@ -169,7 +208,7 @@ input:focus, textarea:focus {
 }
 
 .sidebar-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(139, 212, 232, 0.22);
   color: var(--text-primary);
 }
 
@@ -179,11 +218,17 @@ input:focus, textarea:focus {
 }
 
 .sidebar-nav-btn.active {
-  background: linear-gradient(90deg, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0.04) 100%);
-  border-color: rgba(56, 189, 248, 0.28);
-  color: var(--accent-cyan);
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 var(--accent-cyan);
+  background: var(--accent-cyan) !important; /* Lagoon Cyan #8BD4E8 */
+  border-color: var(--accent-cyan) !important;
+  color: var(--color-lava) !important; /* Lava Black text */
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(139, 212, 232, 0.4);
+}
+
+.sidebar-nav-btn.active span,
+.sidebar-nav-btn.active svg {
+  color: var(--color-lava) !important;
+  stroke: var(--color-lava) !important;
 }
 
 .sidebar-nav-btn.collapsed {
@@ -197,9 +242,9 @@ input:focus, textarea:focus {
   font-weight: 700;
   padding: 0.12rem 0.45rem;
   border-radius: 9999px;
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--accent-cyan);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(139, 212, 232, 0.35);
+  color: var(--color-lava);
+  border: 1px solid rgba(139, 212, 232, 0.6);
   font-family: 'JetBrains Mono', monospace;
 }
 
@@ -209,22 +254,22 @@ input:focus, textarea:focus {
   font-weight: 600;
   padding: 0.12rem 0.45rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(34, 36, 38, 0.08);
   color: var(--text-muted);
 }
 
 .sidebar-tooltip {
   position: fixed;
   z-index: 10000;
-  background: #0c1322;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: #FFFFFF;
+  border: 1px solid var(--accent-cyan);
   border-radius: 6px;
   padding: 0.4rem 0.75rem;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.8rem;
   font-weight: 600;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 4px 16px rgba(34, 36, 38, 0.12), 0 0 10px rgba(139, 212, 232, 0.3);
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -240,9 +285,117 @@ input:focus, textarea:focus {
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 14, 0.7);
+  background: rgba(34, 36, 38, 0.45);
   backdrop-filter: blur(4px);
   z-index: 99;
+}
+
+/* ==========================================================================
+   Central Light Theme Component Overrides
+   ========================================================================== */
+
+/* Top Header */
+header {
+  background-color: rgba(225, 228, 230, 0.95) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+header h1 {
+  color: var(--color-lava) !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+/* Primary buttons: Lagoon Cyan #8BD4E8 with Lava Black text */
+button[style*="#0ea5e9"],
+button[style*="linear-gradient(135deg, #0ea5e9"],
+button[style*="linear-gradient(90deg, #0ea5e9"],
+button[style*="linear-gradient(135deg, #6366f1, #8b5cf6)"],
+button[style*="linear-gradient(135deg, #10b981 0%, #059669 100%)"],
+.btn-primary {
+  background: var(--accent-cyan) !important;
+  color: var(--color-lava) !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(139, 212, 232, 0.7) !important;
+  box-shadow: 0 2px 8px rgba(139, 212, 232, 0.35) !important;
+}
+
+button[style*="#0ea5e9"]:hover,
+button[style*="linear-gradient(135deg, #0ea5e9"]:hover,
+button[style*="linear-gradient(90deg, #0ea5e9"]:hover,
+button[style*="linear-gradient(135deg, #6366f1, #8b5cf6)"]:hover,
+button[style*="linear-gradient(135deg, #10b981 0%, #059669 100%)"]:hover,
+.btn-primary:hover {
+  background: #75cce2 !important;
+  box-shadow: 0 4px 14px rgba(139, 212, 232, 0.5) !important;
+}
+
+/* Banner Headers & Surfaces with Legacy Dark Inlines */
+[style*="linear-gradient(180deg, rgba(15, 23, 42"],
+[style*="linear-gradient(180deg, rgba(15, 23, 42, 0.9)"] {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F4F6 100%) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+div[style*="rgba(15, 23, 42, 0.6)"],
+div[style*="rgba(15, 23, 42, 0.5)"],
+div[style*="rgba(15, 23, 42, 0.7)"],
+div[style*="rgba(15, 23, 42, 0.8)"],
+div[style*="rgba(15, 23, 42, 0.85)"],
+div[style*="rgba(15, 23, 42, 0.9)"] {
+  background: #FFFFFF !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+}
+
+div[style*="rgba(12, 17, 29, 0.94)"] {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 20px 50px rgba(34, 36, 38, 0.08), 0 0 25px rgba(139, 212, 232, 0.25) !important;
+}
+
+/* Modals & Dialog Overlays */
+div[style*="rgba(0, 0, 0, 0.75)"],
+div[style*="rgba(0, 0, 0, 0.6)"] {
+  background-color: rgba(34, 36, 38, 0.45) !important;
+  backdrop-filter: blur(4px);
+}
+
+div[style*="rgba(12, 17, 29, 0.95)"],
+div[style*="rgba(10, 15, 26, 0.95)"],
+div[style*="background: 'rgba(10, 15, 26"] {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 20px 45px rgba(34, 36, 38, 0.15) !important;
+}
+
+/* JOCKY Script Editor Textarea Light Palette */
+textarea[style*="#04070d"] {
+  background: #FFFFFF !important;
+  color: var(--color-lava) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Positive Status Badges: Algae Green #5C802B */
+span[style*="#10b981"],
+span[style*="var(--accent-emerald)"],
+span[style*="color: 'var(--accent-emerald)'"] {
+  color: var(--color-algae) !important;
+}
+
+span[style*="rgba(16, 185, 129"],
+div[style*="rgba(16, 185, 129"] {
+  background: rgba(92, 128, 43, 0.14) !important;
+  color: var(--color-algae) !important;
+  border-color: rgba(92, 128, 43, 0.35) !important;
+}
+
+span[style*="backgroundColor: 'var(--accent-emerald)'"] {
+  background-color: var(--color-algae) !important;
 }
 
 /* Responsive Breakpoints */
@@ -254,7 +407,7 @@ input:focus, textarea:focus {
 
   .sidebar-container.mobile-open {
     transform: translateX(0);
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 0 50px rgba(34, 36, 38, 0.25);
   }
 
   .main-content-layout {
@@ -262,4 +415,3 @@ input:focus, textarea:focus {
     width: 100% !important;
   }
 }
-

@@ -1054,7 +1054,7 @@ export default function App() {
         <header style={{
           borderBottom: '1px solid var(--border-color)',
           backdropFilter: 'blur(16px)',
-          backgroundColor: 'rgba(6, 9, 15, 0.85)',
+          backgroundColor: 'rgba(225, 228, 230, 0.95)',
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -1071,10 +1071,10 @@ export default function App() {
               title={isMobile ? 'Toggle Navigation Menu' : (sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar')}
               aria-label="Toggle Navigation Menu"
               style={{
-                background: 'rgba(255, 255, 255, 0.04)',
+                background: 'rgba(34, 36, 38, 0.05)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '8px',
-                color: 'var(--accent-cyan)',
+                color: 'var(--color-lava, #222426)',
                 width: '36px',
                 height: '36px',
                 display: 'flex',
@@ -1090,15 +1090,15 @@ export default function App() {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+                <h1 style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                   JOCKY FORENSICS
                 </h1>
                 <span style={{
                   fontSize: '0.65rem',
                   fontWeight: 700,
-                  color: 'var(--accent-cyan)',
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  color: 'var(--color-lava, #222426)',
+                  background: 'rgba(139, 212, 232, 0.35)',
+                  border: '1px solid rgba(139, 212, 232, 0.6)',
                   padding: '0.15rem 0.4rem',
                   borderRadius: '4px',
                   letterSpacing: '0.05em',
@@ -1106,7 +1106,7 @@ export default function App() {
                   SIH26148 PROTOTYPE
                 </span>
                 <span style={{ color: 'var(--border-accent)', fontSize: '0.75rem' }}>•</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
                   {activeTabLabel}
                 </span>
               </div>
