@@ -52,15 +52,24 @@ else:
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
+        "https://jocky-forensic.netlify.app",
+        "https://jocky-forensics.netlify.app",
     ]
+
+# Ensure live production frontend is always allowed even if custom CORS_ORIGINS is passed without it
+for prod_origin in ["https://jocky-forensic.netlify.app", "https://jocky-forensics.netlify.app"]:
+    if prod_origin not in allowed_origins and "*" not in allowed_origins:
+        allowed_origins.append(prod_origin)
 
 # If allowed_origins contains "*", browsers disallow credentials=True
 allow_all = "*" in allowed_origins or cors_origins_env.strip() == "*"
 
+cors_origin_regex = os.getenv("CORS_ORIGIN_REGEX", r"https://.*\.netlify\.app")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"] if allow_all else allowed_origins,
-    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX", None),
+    allow_origin_regex=cors_origin_regex if not allow_all else None,
     allow_credentials=True if not allow_all else False,
     allow_methods=["*"],
     allow_headers=["*"],
