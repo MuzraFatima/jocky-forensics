@@ -2,6 +2,10 @@
 
 A domain-specific programming language and execution framework for authorized computer and network forensic analysis without triggering endpoint security solutions.
 
+## 🚀 Live Demo
+
+[👉 Live Demo – JOCKY Forensics](https://jocky-forensic.netlify.app)
+
 [![Tests](https://img.shields.io/badge/Tests-359%20Passing-success?style=flat-square&logo=pytest)](tests/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?style=flat-square&logo=react)](https://react.dev)
