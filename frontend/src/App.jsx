@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from './config.js';
 import Sidebar from './Sidebar.jsx';
 import Login from './Login.jsx';
@@ -12,6 +13,108 @@ import EndpointDevices from './EndpointDevices.jsx';
 import AdvancedTechniques from './AdvancedTechniques.jsx';
 import { api } from './api.js';
 import { getUniqueTargetDevices } from './deviceUtils.js';
+
+export const ID_TO_PATH = {
+  overview: '/dashboard',
+  endpoints: '/dashboard/endpoints',
+  script: '/dashboard/jocky',
+  evidence: '/dashboard/evidence',
+  techniques: '/dashboard/techniques',
+  timeline: '/dashboard/timeline',
+  correlation: '/dashboard/correlation',
+  reports: '/dashboard/reports',
+  support: '/dashboard/cybersecurity',
+  system: '/dashboard/system',
+  processes: '/dashboard/processes',
+  network: '/dashboard/network',
+  files: '/dashboard/files',
+  users: '/dashboard/users',
+  windows: '/dashboard/windows',
+  execute: '/dashboard/execute',
+  commands: '/dashboard/commands',
+};
+
+export const ROUTE_LABELS = {
+  '/dashboard': 'Overview & Analysis',
+  '/dashboard/': 'Overview & Analysis',
+  '/dashboard/endpoints': 'Endpoint Device Management',
+  '/dashboard/jocky': 'JOCKY Script Editor',
+  '/dashboard/evidence': 'Evidence Vault',
+  '/dashboard/techniques': 'Advanced Technique Analysis',
+  '/dashboard/timeline': 'Forensic Timeline',
+  '/dashboard/correlation': 'Correlation Graph',
+  '/dashboard/reports': 'Forensic Reports',
+  '/dashboard/cybersecurity': 'Cybersecurity Support',
+  '/dashboard/system': 'System Telemetry',
+  '/dashboard/processes': 'Active Processes',
+  '/dashboard/network': 'Network Sockets',
+  '/dashboard/files': 'Files & Binaries',
+  '/dashboard/users': 'Users & Sessions',
+  '/dashboard/windows': 'Windows Persistence',
+  '/dashboard/execute': 'Execution Engine',
+  '/dashboard/commands': 'Command Search',
+};
+
+function DashboardNotFound() {
+  const navigate = useNavigate();
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      borderRadius: '10px',
+      border: '1px solid var(--border-color)',
+      padding: '3.5rem 2rem',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '1rem',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+      marginTop: '1.5rem',
+    }}>
+      <div style={{
+        width: '56px',
+        height: '56px',
+        borderRadius: '12px',
+        background: 'rgba(244, 63, 94, 0.1)',
+        border: '1px solid rgba(244, 63, 94, 0.25)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.75rem',
+        color: 'var(--accent-rose)',
+      }}>
+        404
+      </div>
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
+        Page Not Found
+      </h2>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '440px', margin: 0 }}>
+        The requested forensic route does not exist or has been moved.
+      </p>
+      <button
+        onClick={() => navigate('/dashboard')}
+        style={{
+          background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '0.6rem 1.4rem',
+          fontSize: '0.85rem',
+          fontWeight: 700,
+          cursor: 'pointer',
+          marginTop: '0.5rem',
+          boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}
+      >
+        <span>←</span> Back to Dashboard
+      </button>
+    </div>
+  );
+}
 
 const CANONICAL_SCRIPT = `CASE "LAB-2026-001"
 TARGET "LAB-PC"
@@ -134,11 +237,8 @@ function ProcessTreeNode({ node, depth = 0 }) {
 
 export default function App() {
   const [scriptText, setScriptText] = useState(CANONICAL_SCRIPT);
-  const VALID_TABS = [
-    'overview', 'endpoints', 'support', 'correlation', 'timeline', 'system',
-    'processes', 'network', 'files', 'users',
-    'windows', 'evidence', 'reports', 'execute', 'script', 'commands'
-  ];
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Endpoint Agent States
   const [devices, setDevices] = useState([]);
@@ -158,17 +258,6 @@ export default function App() {
 
   const [scriptToast, setScriptToast] = useState(null);
   const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
-
-  const getInitialTab = () => {
-    try {
-      const hash = window.location.hash.replace('#', '').trim();
-      return VALID_TABS.includes(hash) ? hash : 'overview';
-    } catch {
-      return 'overview';
-    }
-  };
-
-  const [activeTab, setActiveTab] = useState(getInitialTab);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem('jocky_sidebar_collapsed') === 'true';
@@ -258,6 +347,7 @@ export default function App() {
     try {
       sessionStorage.setItem('jocky_session', JSON.stringify(newSession));
     } catch (e) {}
+    navigate('/dashboard');
   };
 
   const handleInsertCommand = (syntax) => {
@@ -268,7 +358,7 @@ export default function App() {
     });
     setScriptToast(`Inserted: ${syntax.split('\n')[0]}`);
     setTimeout(() => setScriptToast(null), 2500);
-    setActiveTab('script');
+    navigate('/dashboard/jocky');
   };
 
   const handleClearScript = () => {
@@ -304,6 +394,7 @@ export default function App() {
     try {
       sessionStorage.removeItem('jocky_session');
     } catch (e) {}
+    navigate('/login');
   };
 
   const handleLogoutAfterReport = async () => {
@@ -328,6 +419,7 @@ export default function App() {
     try {
       sessionStorage.removeItem('jocky_session');
     } catch (e) {}
+    navigate('/login');
   };
 
   const fetchIncidentData = async () => {
@@ -366,11 +458,9 @@ export default function App() {
     }
   }, [session, investigationData]);
 
-  const navigateToTab = (tabId) => {
-    setActiveTab(tabId);
-    try {
-      window.location.hash = tabId;
-    } catch (e) {}
+  const navigateToTab = (tabOrPath) => {
+    const targetPath = ID_TO_PATH[tabOrPath] || (tabOrPath.startsWith('/') ? tabOrPath : `/dashboard/${tabOrPath}`);
+    navigate(targetPath);
     if (isMobile) {
       setMobileOpen(false);
     }
@@ -385,17 +475,6 @@ export default function App() {
       return next;
     });
   };
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '').trim();
-      if (VALID_TABS.includes(hash)) {
-        setActiveTab(hash);
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -706,13 +785,13 @@ export default function App() {
 
 
   useEffect(() => {
-    if (activeTab === 'correlation' && !correlationData && !correlationLoading) {
+    if (location.pathname === '/dashboard/correlation' && !correlationData && !correlationLoading) {
       handleFetchCorrelation();
     }
-    if (activeTab === 'timeline' && !timelineData && !timelineLoading) {
+    if (location.pathname === '/dashboard/timeline' && !timelineData && !timelineLoading) {
       handleFetchTimeline();
     }
-  }, [activeTab]);
+  }, [location.pathname, correlationData, correlationLoading, timelineData, timelineLoading]);
 
   const handleCompile = async () => {
     setCompiling(true);
@@ -988,57 +1067,65 @@ export default function App() {
   const listenCount = networkList.filter((c) => c.status === 'LISTEN').length;
   const establishedCount = networkList.filter((c) => c.status === 'ESTABLISHED').length;
 
-  const TAB_LABELS = {
-    overview: 'Overview & Analysis',
-    endpoints: 'Endpoint Device Management',
-    support: 'Cybersecurity Support',
-    correlation: 'Correlation Graph',
-    techniques: 'Advanced Technique Analysis',
-    timeline: 'Forensic Timeline',
-    system: 'System Telemetry',
-    processes: 'Active Processes',
-    network: 'Network Sockets',
-    files: 'Files & Binaries',
-    users: 'Users & Sessions',
-    windows: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence',
-    evidence: 'Evidence Vault',
-    reports: 'Forensic Reports',
-    execute: 'Execution Engine',
-    script: 'JOCKY Script Editor',
-    commands: 'Command Search',
-  };
-  const activeTabLabel = TAB_LABELS[activeTab] || 'Overview & Analysis';
-
-  if (!session) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
-  }
+  const cleanPath = location.pathname.replace(/\/+$/, '') || '/dashboard';
+  const activeTabLabel = ROUTE_LABELS[cleanPath] || (cleanPath.startsWith('/dashboard') ? 'Dashboard' : 'Overview & Analysis');
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-primary)' }}>
-      {/* ChatGPT-style Left Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        onSelectTab={navigateToTab}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={handleToggleSidebar}
-        mobileOpen={mobileOpen}
-        onCloseMobile={() => setMobileOpen(false)}
-        platformInfo={platformInfo}
-        session={session}
-        onOpenLogout={() => setIsLogoutModalOpen(true)}
-        analystStatus={analystStatus}
-        counts={{
-          correlation: correlationData?.summary?.correlated_chains_count ?? null,
-          techniques: (investigationData?.technique_findings ?? investigationData?.analysis?.technique_findings ?? []).length || null,
-          timeline: timelineData?.length ?? null,
-          processes: processCount || null,
-          network: networkCount || null,
-          evidence: vaultAudit?.total_artifacts ?? null,
-          onlineEndpoints: getUniqueTargetDevices(devices).filter((d) => Boolean(d.is_online)).length,
-        }}
+    <Routes>
+      {/* Authentication Route */}
+      <Route
+        path="/login"
+        element={
+          session ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login onLoginSuccess={handleLoginSuccess} />
+          )
+        }
       />
 
-      {/* Main Content Layout Container */}
+      {/* Root redirect */}
+      <Route
+        path="/"
+        element={
+          session ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Authenticated Dashboard Routes */}
+      <Route
+        path="/dashboard/*"
+        element={
+          !session ? (
+            <Navigate to="/login" replace />
+          ) : (
+            <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-primary)' }}>
+              {/* ChatGPT-style Left Sidebar */}
+              <Sidebar
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={handleToggleSidebar}
+                mobileOpen={mobileOpen}
+                onCloseMobile={() => setMobileOpen(false)}
+                platformInfo={platformInfo}
+                session={session}
+                onOpenLogout={() => setIsLogoutModalOpen(true)}
+                analystStatus={analystStatus}
+                counts={{
+                  correlation: correlationData?.summary?.correlated_chains_count ?? null,
+                  techniques: (investigationData?.technique_findings ?? investigationData?.analysis?.technique_findings ?? []).length || null,
+                  timeline: timelineData?.length ?? null,
+                  processes: processCount || null,
+                  network: networkCount || null,
+                  evidence: vaultAudit?.total_artifacts ?? null,
+                  onlineEndpoints: getUniqueTargetDevices(devices).filter((d) => Boolean(d.is_online)).length,
+                }}
+              />
+
+              {/* Main Content Layout Container */}
       <div
         className="main-content-layout"
         style={{
@@ -1422,62 +1509,73 @@ export default function App() {
           </div>
         </section>
 
-
-
-        {/* TAB: CYBERSECURITY SUPPORT */}
-        {activeTab === 'support' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <CriticalIncidentAlert
-              incident={currentIncident}
-              onViewIncident={() => {
-                navigateToTab('timeline');
-              }}
-              onPreserveEvidence={async () => {
-                try {
-                  await handleVerifyVault();
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-              onContactSecurity={() => {
-                navigateToTab('support');
-              }}
-              onGenerateReport={() => {
-                setIsLogoutWorkflow(false);
-                setIsReportModalOpen(true);
-              }}
-            />
-            <CyberSupport
-              session={session}
-              activeCaseId={investigationData?.case_id || 'LAB-2026-001'}
-              currentIncident={currentIncident}
-              onOpenReportModal={() => {
-                setIsLogoutWorkflow(false);
-                setIsReportModalOpen(true);
-              }}
-            />
-          </div>
-        )}
-
-        {/* TAB: ENDPOINT DEVICES */}
-        {activeTab === 'endpoints' && (
-          <EndpointDevices
-            selectedDeviceId={selectedDeviceId}
-            onSelectTarget={(id) => setSelectedDeviceId(id)}
-            onNavigateToScript={() => navigateToTab('script')}
+        <Routes>
+          {/* TAB: CYBERSECURITY SUPPORT */}
+          <Route
+            path="cybersecurity"
+            element={
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <CriticalIncidentAlert
+                  incident={currentIncident}
+                  onViewIncident={() => {
+                    navigateToTab('timeline');
+                  }}
+                  onPreserveEvidence={async () => {
+                    try {
+                      await handleVerifyVault();
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  onContactSecurity={() => {
+                    navigateToTab('support');
+                  }}
+                  onGenerateReport={() => {
+                    setIsLogoutWorkflow(false);
+                    setIsReportModalOpen(true);
+                  }}
+                />
+                <CyberSupport
+                  session={session}
+                  activeCaseId={investigationData?.case_id || 'LAB-2026-001'}
+                  currentIncident={currentIncident}
+                  onOpenReportModal={() => {
+                    setIsLogoutWorkflow(false);
+                    setIsReportModalOpen(true);
+                  }}
+                />
+              </div>
+            }
           />
-        )}
+          <Route path="support" element={<Navigate to="/dashboard/cybersecurity" replace />} />
 
-        {/* TAB: COMMAND SEARCH */}
-        {activeTab === 'commands' && (
-          <CommandSearch
-            onInsertCommand={(cmdSyntax) => handleInsertCommand(cmdSyntax)}
+          {/* TAB: ENDPOINT DEVICES */}
+          <Route
+            path="endpoints"
+            element={
+              <EndpointDevices
+                selectedDeviceId={selectedDeviceId}
+                onSelectTarget={(id) => setSelectedDeviceId(id)}
+                onNavigateToScript={() => navigateToTab('script')}
+              />
+            }
           />
-        )}
 
-        {/* TAB 1: OVERVIEW & ANALYSIS */}
-        {activeTab === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          {/* TAB: COMMAND SEARCH */}
+          <Route
+            path="commands"
+            element={
+              <CommandSearch
+                onInsertCommand={(cmdSyntax) => handleInsertCommand(cmdSyntax)}
+              />
+            }
+          />
+
+          {/* TAB 1: OVERVIEW & ANALYSIS */}
+          <Route
+            path=""
+            element={
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
             {/* Forensic Indicators & Heuristic Analysis */}
             <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -1557,11 +1655,15 @@ export default function App() {
               </div>
             </div>
           </div>
-        )}
+            }
+          />
+          <Route path="overview" element={<Navigate to="/dashboard" replace />} />
 
-        {/* TAB 2: SYSTEM TELEMETRY */}
-        {activeTab === 'system' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
+          {/* TAB 2: SYSTEM TELEMETRY */}
+          <Route
+            path="system"
+            element={
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-cyan)', marginBottom: '1.2rem' }}>
                 Host Environment
@@ -1650,11 +1752,14 @@ export default function App() {
               </div>
             </div>
           </div>
-        )}
+            }
+          />
 
-        {/* TAB 3: PROCESSES */}
-        {activeTab === 'processes' && (
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
+          {/* TAB 3: PROCESSES */}
+          <Route
+            path="processes"
+            element={
+              <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <div>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -1723,11 +1828,14 @@ export default function App() {
               </table>
             </div>
           </div>
-        )}
+            }
+          />
 
-        {/* TAB 4: NETWORK */}
-        {activeTab === 'network' && (
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
+          {/* TAB 4: NETWORK */}
+          <Route
+            path="network"
+            element={
+              <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
               <div>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -1825,10 +1933,13 @@ export default function App() {
               </table>
             </div>
           </div>
-        )}
+            }
+          />
 
-        {/* TAB: FILES & BINARIES (Phase 3) */}
-        {activeTab === 'files' && (() => {
+          {/* TAB: FILES & BINARIES (Phase 3) */}
+          <Route
+            path="files"
+            element={(() => {
           const filesObj = filesData || executeData?.collected_data?.files || investigationData?.collected_data?.files;
           const filesList = filesObj?.files || [];
           const procBinaries = filesObj?.process_binaries || [];
@@ -2021,9 +2132,12 @@ export default function App() {
             </div>
           );
         })()}
+      />
 
-        {/* TAB: USERS & SESSIONS (Phase 3) */}
-        {activeTab === 'users' && (() => {
+      {/* TAB: USERS & SESSIONS (Phase 3) */}
+      <Route
+        path="users"
+        element={(() => {
           const usersObj = usersData || executeData?.collected_data?.users || investigationData?.collected_data?.users;
           const cu = usersObj?.current_user || {};
           const sessions = usersObj?.active_sessions || [];
@@ -2178,9 +2292,12 @@ export default function App() {
             </div>
           );
         })()}
+      />
 
-        {/* TAB: WINDOWS PERSISTENCE & SERVICES (Phase 3) */}
-        {activeTab === 'windows' && (() => {
+      {/* TAB: WINDOWS PERSISTENCE & SERVICES (Phase 3) */}
+      <Route
+        path="windows"
+        element={(() => {
           const winObj = windowsData || executeData?.collected_data?.windows_metadata || executeData?.collected_data?.registry || investigationData?.collected_data?.windows_metadata;
           const autoruns = winObj?.autoruns || [];
           const services = winObj?.services || [];
@@ -2365,9 +2482,12 @@ export default function App() {
             </div>
           );
         })()}
+      />
 
-        {/* TAB 5: EVIDENCE VAULT & CHAIN OF CUSTODY (PHASE 6 & 9) */}
-        {activeTab === 'evidence' && (
+      {/* TAB 5: EVIDENCE VAULT & CHAIN OF CUSTODY (PHASE 6 & 9) */}
+      <Route
+        path="evidence"
+        element={
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Vault Action Header */}
             <div style={{
@@ -2698,25 +2818,31 @@ export default function App() {
               </div>
             )}
           </div>
-        )}
-
-        {/* TAB: FORENSIC REPORT ENGINE */}
-        {activeTab === 'reports' && (
-          <ReportSection
-            investigationData={investigationData}
-            reportResult={reportResult}
-            reportLoading={reportLoading}
-            reportFormat={reportFormat}
-            setReportFormat={setReportFormat}
-            reportExaminer={reportExaminer}
-            setReportExaminer={setReportExaminer}
-            onGenerateReport={(fmt) => handleGenerateReport(fmt)}
-            onDownloadReport={(fmt) => handleDownloadReport(fmt)}
+            }
           />
-        )}
 
-        {/* TAB 6: SCRIPT EDITOR & POLICY AUDIT */}
-        {activeTab === 'script' && (
+          {/* TAB: FORENSIC REPORT ENGINE */}
+          <Route
+            path="reports"
+            element={
+              <ReportSection
+                investigationData={investigationData}
+                reportResult={reportResult}
+                reportLoading={reportLoading}
+                reportFormat={reportFormat}
+                setReportFormat={setReportFormat}
+                reportExaminer={reportExaminer}
+                setReportExaminer={setReportExaminer}
+                onGenerateReport={(fmt) => handleGenerateReport(fmt)}
+                onDownloadReport={(fmt) => handleDownloadReport(fmt)}
+              />
+            }
+          />
+
+          {/* TAB 6: SCRIPT EDITOR & POLICY AUDIT */}
+          <Route
+            path="jocky"
+            element={
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {/* Top row: editor + execution plan */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
@@ -3196,10 +3322,14 @@ export default function App() {
               </div>
             )}
           </div>
-        )}
+            }
+          />
+          <Route path="script" element={<Navigate to="/dashboard/jocky" replace />} />
 
-        {/* TAB 7: EXECUTION ENGINE (Phase 2) */}
-        {activeTab === 'execute' && (
+          {/* TAB 7: EXECUTION ENGINE (Phase 2) */}
+          <Route
+            path="execute"
+            element={
           <div>
             {/* Action bar */}
             <div style={{
@@ -3604,32 +3734,38 @@ export default function App() {
               </div>
             )}
           </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* TAB: ADVANCED TECHNIQUE ANALYSIS (PHASE 6)                     */}
-        {/* ============================================================== */}
-        {activeTab === 'techniques' && (
-          <AdvancedTechniques
-            investigationData={investigationData}
-            techniqueFindings={
-              investigationData?.technique_findings ??
-              investigationData?.analysis?.technique_findings ??
-              []
             }
-            mitreAnalysis={
-              investigationData?.mitre_analysis ??
-              investigationData?.analysis?.mitre_analysis ??
-              null
-            }
-            onNavigateTab={navigateToTab}
           />
-        )}
 
-        {/* ============================================================== */}
-        {/* TAB: CORRELATION GRAPH (PHASE 4)                               */}
-        {/* ============================================================== */}
-        {activeTab === 'correlation' && (
+          {/* ============================================================== */}
+          {/* TAB: ADVANCED TECHNIQUE ANALYSIS (PHASE 6)                     */}
+          {/* ============================================================== */}
+          <Route
+            path="techniques"
+            element={
+              <AdvancedTechniques
+                investigationData={investigationData}
+                techniqueFindings={
+                  investigationData?.technique_findings ??
+                  investigationData?.analysis?.technique_findings ??
+                  []
+                }
+                mitreAnalysis={
+                  investigationData?.mitre_analysis ??
+                  investigationData?.analysis?.mitre_analysis ??
+                  null
+                }
+                onNavigateTab={navigateToTab}
+              />
+            }
+          />
+
+          {/* ============================================================== */}
+          {/* TAB: CORRELATION GRAPH (PHASE 4)                               */}
+          {/* ============================================================== */}
+          <Route
+            path="correlation"
+            element={
           <div>
             {/* Header Action Bar */}
             <div style={{
@@ -4051,12 +4187,15 @@ export default function App() {
               </div>
             )}
           </div>
-        )}
+            }
+          />
 
-        {/* ============================================================== */}
-        {/* TAB: FORENSIC TIMELINE & ANALYSIS (PHASE 5)                   */}
-        {/* ============================================================== */}
-        {activeTab === 'timeline' && (
+          {/* ============================================================== */}
+          {/* TAB: FORENSIC TIMELINE & ANALYSIS (PHASE 5)                   */}
+          {/* ============================================================== */}
+          <Route
+            path="timeline"
+            element={
           <div>
             {/* Header Action Bar */}
             <div style={{
@@ -4425,7 +4564,12 @@ export default function App() {
               </div>
             </div>
           </div>
-        )}
+            }
+          />
+
+          {/* Catch-all 404 inside dashboard */}
+          <Route path="*" element={<DashboardNotFound />} />
+        </Routes>
 
       </main>
 
@@ -4503,6 +4647,12 @@ export default function App() {
           </div>
         </div>
       )}
-    </div>
+        </div>
+      )
+    }
+  />
+  {/* Catch-all route */}
+  <Route path="*" element={<Navigate to={session ? "/dashboard" : "/login"} replace />} />
+</Routes>
   );
 }

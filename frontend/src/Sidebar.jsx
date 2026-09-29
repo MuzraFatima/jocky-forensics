@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Icons designed for JOCKY Forensics Navigation
 function OverviewIcon({ size = 18 }) {
@@ -220,6 +221,10 @@ export default function Sidebar({
   const [hoveredTab, setHoveredTab] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname.replace(/\/+$/, '') || '/';
+
   // Visible Judge-Facing Navigation Sections (Simplified for SIH Judges)
   const navSections = [
     {
@@ -227,11 +232,13 @@ export default function Sidebar({
       items: [
         {
           id: 'overview',
+          path: '/dashboard',
           label: 'Overview & Analysis',
           icon: (props) => <OverviewIcon {...props} />,
         },
         {
           id: 'endpoints',
+          path: '/dashboard/endpoints',
           label: 'Endpoint Devices',
           icon: (props) => <EndpointIcon {...props} />,
           statusBadge: counts.onlineEndpoints > 0 ? `${counts.onlineEndpoints} ONLINE` : null,
@@ -239,6 +246,7 @@ export default function Sidebar({
         },
         {
           id: 'script',
+          path: '/dashboard/jocky',
           label: 'JOCKY Script Editor',
           icon: (props) => <ScriptIcon {...props} />,
         },
@@ -249,12 +257,14 @@ export default function Sidebar({
       items: [
         {
           id: 'evidence',
+          path: '/dashboard/evidence',
           label: 'Evidence Vault',
           icon: (props) => <EvidenceIcon {...props} />,
           count: counts.evidence,
         },
         {
           id: 'techniques',
+          path: '/dashboard/techniques',
           label: 'Advanced Techniques',
           icon: (props) => <TechniquesIcon {...props} />,
           count: counts.techniques,
@@ -263,12 +273,14 @@ export default function Sidebar({
         },
         {
           id: 'timeline',
+          path: '/dashboard/timeline',
           label: 'Forensic Timeline',
           icon: (props) => <TimelineIcon {...props} />,
           count: counts.timeline,
         },
         {
           id: 'correlation',
+          path: '/dashboard/correlation',
           label: 'Correlation Graph',
           icon: (props) => <CorrelationIcon {...props} />,
           count: counts.correlation,
@@ -280,6 +292,7 @@ export default function Sidebar({
       items: [
         {
           id: 'support',
+          path: '/dashboard/cybersecurity',
           label: 'Cybersecurity Support',
           icon: (props) => <SupportIcon {...props} />,
           statusBadge: analystStatus === 'ONLINE' ? '● ON' : '○ OFF',
@@ -292,6 +305,7 @@ export default function Sidebar({
       items: [
         {
           id: 'reports',
+          path: '/dashboard/reports',
           label: 'Forensic Reports',
           icon: (props) => <ReportsIcon {...props} />,
         },
@@ -302,14 +316,14 @@ export default function Sidebar({
   // Hidden from primary sidebar per SIH judge-facing navigation requirement.
   // Preserved so all routes, components, and backend functionality remain intact.
   const hiddenItems = [
-    { id: 'system', label: 'System Telemetry', icon: (props) => <SystemIcon {...props} /> },
-    { id: 'processes', label: 'Active Processes', icon: (props) => <ProcessesIcon {...props} />, count: counts.processes },
-    { id: 'network', label: 'Network Sockets', icon: (props) => <NetworkIcon {...props} />, count: counts.network },
-    { id: 'files', label: 'Files & Binaries', icon: (props) => <FilesIcon {...props} />, count: counts.files },
-    { id: 'users', label: 'Users & Sessions', icon: (props) => <UsersIcon {...props} />, count: counts.users },
-    { id: 'windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
-    { id: 'execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
-    { id: 'commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
+    { id: 'system', path: '/dashboard/system', label: 'System Telemetry', icon: (props) => <SystemIcon {...props} /> },
+    { id: 'processes', path: '/dashboard/processes', label: 'Active Processes', icon: (props) => <ProcessesIcon {...props} />, count: counts.processes },
+    { id: 'network', path: '/dashboard/network', label: 'Network Sockets', icon: (props) => <NetworkIcon {...props} />, count: counts.network },
+    { id: 'files', path: '/dashboard/files', label: 'Files & Binaries', icon: (props) => <FilesIcon {...props} />, count: counts.files },
+    { id: 'users', path: '/dashboard/users', label: 'Users & Sessions', icon: (props) => <UsersIcon {...props} />, count: counts.users },
+    { id: 'windows', path: '/dashboard/windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
+    { id: 'execute', path: '/dashboard/execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
+    { id: 'commands', path: '/dashboard/commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
   ];
 
   // Complete registry of all modules for safe lookups and backward compatibility
@@ -317,6 +331,18 @@ export default function Sidebar({
     ...navSections.flatMap((s) => s.items),
     ...hiddenItems,
   ];
+
+  const handleItemClick = (item) => {
+    navigate(item.path);
+    if (onSelectTab) onSelectTab(item.id);
+    if (onCloseMobile) onCloseMobile();
+  };
+
+  const handleLogoClick = () => {
+    navigate('/dashboard');
+    if (onSelectTab) onSelectTab('overview');
+    if (onCloseMobile) onCloseMobile();
+  };
 
 
   const handleMouseEnter = (e, item) => {
@@ -367,7 +393,7 @@ export default function Sidebar({
         >
           {/* Logo Badge & Title */}
           <div
-            onClick={() => onSelectTab('overview')}
+            onClick={handleLogoClick}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -545,13 +571,15 @@ export default function Sidebar({
               )}
 
               {section.items.map((item) => {
-                const isActive = activeTab === item.id;
+                const isActive = item.path === '/dashboard'
+                  ? (currentPath === '/dashboard')
+                  : (currentPath === item.path || currentPath.startsWith(item.path + '/'));
                 const accent = item.accentColor || 'var(--accent-cyan)';
                 return (
                   <button
                     key={item.id}
                     id={`sidebar-nav-${item.id}`}
-                    onClick={() => onSelectTab(item.id)}
+                    onClick={() => handleItemClick(item)}
                     onMouseEnter={(e) => handleMouseEnter(e, item)}
                     onMouseLeave={handleMouseLeave}
                     className={`sidebar-nav-btn ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}

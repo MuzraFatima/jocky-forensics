@@ -6,11 +6,11 @@
     "platform": "Windows 11 Pro",
     "agent_version": "1.0.0",
     "created_at": "2026-09-27T11:16:42.917289Z",
-    "last_seen": "2026-09-27T16:09:59.192558Z",
+    "last_seen": "2026-09-29T03:13:44.526307Z",
     "status": "active",
     "is_revoked": false,
     "revoked_at": null,
-    "token_hash": "pbkdf2_sha256$ae3b826103326440c97061aab8f0565f$db311efd568e044a7f36fb1de0b3994c4cd072cc8bb17533e8479c122b7e5636"
+    "token_hash": "pbkdf2_sha256$54bc70229bd215c6eafc2a024d815789$115d6a6b30dcd6c30fae48713a0be6460196216c12a17d1262d7359d427bf666"
   },
   {
     "device_id": "DEV-250048791473",
@@ -32,11 +32,11 @@
     "platform": "Win11",
     "agent_version": "1.0.0",
     "created_at": "2026-09-27T11:16:43.821381Z",
-    "last_seen": "2026-09-27T16:10:00.194143Z",
+    "last_seen": "2026-09-29T03:13:45.430789Z",
     "status": "active",
     "is_revoked": false,
     "revoked_at": null,
-    "token_hash": "pbkdf2_sha256$fe230f68cf4cf8e434ae0530ec63d6df$1b037f35106caabeb884ea74f25b3dbcad9a094b98de2e1365a8fbd5b7fdaf28"
+    "token_hash": "pbkdf2_sha256$7a0f1763965168ceb1d1c305316ac7f0$28a8fd4d82eb068fa7b1402de3de7f9c633cd12a25d59a1f2834d13d2bcb2034"
   },
   {
     "device_id": "DEV-A05C4A67C642",
@@ -45,11 +45,11 @@
     "platform": "Linux",
     "agent_version": "1.0.0",
     "created_at": "2026-09-27T11:16:43.952646Z",
-    "last_seen": "2026-09-27T16:10:00.314569Z",
+    "last_seen": "2026-09-29T03:13:45.528085Z",
     "status": "active",
     "is_revoked": false,
     "revoked_at": null,
-    "token_hash": "pbkdf2_sha256$782eb3841406460e08454f4ad57f27b6$f8b5d95a4e05ea5651d2aebfa608f39048179aa533f65af6872c4a3499cf54d1"
+    "token_hash": "pbkdf2_sha256$f9d5d636e88bce4aa969c8c4afca8223$63b3c1a5da9aea5e782b7099ed06dd442dea2fd1cf6a8da7c6f5eafe2d433806"
   },
   {
     "device_id": "DEV-3EF220C8D912",
@@ -58,11 +58,11 @@
     "platform": "Win11",
     "agent_version": "1.0.0",
     "created_at": "2026-09-27T11:16:44.406536Z",
-    "last_seen": "2026-09-27T16:10:00.691782Z",
+    "last_seen": "2026-09-29T03:13:45.978664Z",
     "status": "active",
     "is_revoked": false,
     "revoked_at": null,
-    "token_hash": "pbkdf2_sha256$94f1688590ce91fb770e153a925b4e5a$3cb9bc9ffa0cc9c9be7835e2a9911263ea1bca7e5a0603c207ad9c10bbf46bb1"
+    "token_hash": "pbkdf2_sha256$2e9b125a0eae4a9007ada77a9a1216c3$1f367b36ac457279f1849178e5ef6dc531626395b6ed7891c38f52dbd3784b60"
   },
   {
     "device_id": "DEV-BF9E354BBD42",
@@ -84,11 +84,11 @@
     "platform": "macOS",
     "agent_version": "1.0.0",
     "created_at": "2026-09-27T11:16:44.944642Z",
-    "last_seen": "2026-09-27T16:10:01.388886Z",
+    "last_seen": "2026-09-29T03:13:46.514557Z",
     "status": "active",
     "is_revoked": false,
     "revoked_at": null,
-    "token_hash": "pbkdf2_sha256$52f223565dbc01650453924ac119bb7a$3cf96a6ca0f5b5d170949c5216670e35773cfc2f3a0193507fcecd896b87f6bf"
+    "token_hash": "pbkdf2_sha256$48a2cb4fea83439a953a74ba2a0161a3$2a9307f788b85782b0dbc64857d67f9fc3c3deb1ce5dbf060c204daf92abbfa6"
   },
   {
     "device_id": "DEV-2B688CB440D6",
@@ -2467,6 +2467,32 @@
     "status": "revoked",
     "is_revoked": true,
     "revoked_at": "2026-09-27T16:10:53.149304Z",
+    "token_hash": null
+  },
+  {
+    "device_id": "DEV-7BDDC76A19E8",
+    "user_id": "investigator@jocky.local",
+    "hostname": "HEARTBEAT-UPDATED",
+    "platform": "Linux Ubuntu 24.04",
+    "agent_version": "1.0.1",
+    "created_at": "2026-09-29T03:13:44.686359Z",
+    "last_seen": "2026-09-29T03:13:45.130807Z",
+    "status": "active",
+    "is_revoked": false,
+    "revoked_at": null,
+    "token_hash": "pbkdf2_sha256$171417b84631a230978ab0a04c432e8c$ad38ccb14c9a5e7a62cb688307d253eb874e97d9d7b39feea2ad33895fdd395a"
+  },
+  {
+    "device_id": "DEV-3309D6C3E76A",
+    "user_id": "investigator@jocky.local",
+    "hostname": "INVESTIGATOR-PC",
+    "platform": "Windows 11",
+    "agent_version": "1.0.0",
+    "created_at": "2026-09-29T03:13:46.422639Z",
+    "last_seen": "2026-09-29T03:13:46.422639Z",
+    "status": "revoked",
+    "is_revoked": true,
+    "revoked_at": "2026-09-29T03:13:46.626690Z",
     "token_hash": null
   }
 ]
