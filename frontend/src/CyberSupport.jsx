@@ -208,7 +208,7 @@ export default function CyberSupport({
       <div style={{
         padding: '1.1rem 1.5rem',
         borderBottom: '1px solid var(--border-color)',
-        background: 'rgba(10, 15, 26, 0.7)',
+        background: '#FFFFFF',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -217,7 +217,7 @@ export default function CyberSupport({
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#222426', letterSpacing: '-0.02em' }}>
               Cybersecurity Support
             </h2>
             <span style={{
@@ -388,14 +388,14 @@ export default function CyberSupport({
                 padding: '0.75rem 1rem',
                 borderRadius: isUser ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                 background: isUser
-                  ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.25))'
-                  : (isAI ? 'rgba(245, 158, 11, 0.1)' : 'rgba(15, 23, 42, 0.85)'),
-                border: `1px solid ${isUser ? 'rgba(56, 189, 248, 0.35)' : (isAI ? 'rgba(245, 158, 11, 0.3)' : 'var(--border-color)')}`,
-                color: '#fff',
+                  ? 'var(--accent-cyan-soft)'
+                  : (isAI ? '#FEF3C7' : '#FFFFFF'),
+                border: `1px solid ${isUser ? '#BAE6FD' : (isAI ? '#FDE68A' : 'var(--border-color)')}`,
+                color: isAI ? '#92400e' : '#222426',
                 fontSize: '0.84rem',
                 lineHeight: 1.45,
                 whiteSpace: 'pre-wrap',
-                boxShadow: isUser ? '0 4px 15px rgba(14, 165, 233, 0.1)' : 'none',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
               }}>
                 {msg.text}
               </div>
@@ -408,8 +408,8 @@ export default function CyberSupport({
       {/* Suggested Quick Prompts */}
       <div style={{
         padding: '0.5rem 1.5rem',
-        borderTop: '1px solid var(--border-subtle)',
-        background: 'rgba(6, 9, 15, 0.4)',
+        borderTop: '1px solid var(--border-color)',
+        background: 'var(--bg-primary)',
         display: 'flex',
         gap: '0.5rem',
         overflowX: 'auto',
@@ -493,7 +493,7 @@ export default function CyberSupport({
         style={{
           padding: '1rem 1.5rem',
           borderTop: '1px solid var(--border-color)',
-          background: 'rgba(10, 15, 26, 0.9)',
+          background: '#FFFFFF',
           display: 'flex',
           gap: '0.75rem',
           alignItems: 'center',
@@ -512,11 +512,11 @@ export default function CyberSupport({
           style={{
             flex: 1,
             padding: '0.65rem 1rem',
-            background: 'rgba(6, 9, 15, 0.8)',
+            background: '#FFFFFF',
             border: '1px solid var(--border-color)',
             borderRadius: '8px',
             fontSize: '0.85rem',
-            color: '#fff',
+            color: '#222426',
           }}
         />
 
@@ -524,8 +524,8 @@ export default function CyberSupport({
           type="submit"
           disabled={sending || !inputText.trim()}
           style={{
-            background: sending || !inputText.trim() ? 'rgba(56, 189, 248, 0.2)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-            color: '#fff',
+            background: sending || !inputText.trim() ? 'var(--accent-cyan-soft)' : '#8BD4E8',
+            color: '#222426',
             border: 'none',
             borderRadius: '8px',
             padding: '0.65rem 1.25rem',
@@ -535,6 +535,7 @@ export default function CyberSupport({
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
           }}
         >
           {sending ? 'Sending...' : 'Send ▶'}

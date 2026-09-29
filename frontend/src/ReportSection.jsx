@@ -44,10 +44,11 @@ export default function ReportSection({
       {/* Action Header Card */}
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+          background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.5rem',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
           display: 'flex',
           flexDirection: 'column',
           gap: '1.25rem',
@@ -116,7 +117,7 @@ export default function ReportSection({
               placeholder="e.g. JOCKY Lead Forensic Examiner"
               style={{
                 width: '100%',
-                background: '#04070d',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 padding: '0.55rem 0.85rem',
@@ -133,8 +134,8 @@ export default function ReportSection({
             <div
               className="font-mono"
               style={{
-                background: 'rgba(0, 0, 0, 0.3)',
-                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 padding: '0.55rem 0.85rem',
                 color: 'var(--accent-cyan)',
@@ -147,14 +148,14 @@ export default function ReportSection({
         </div>
 
         {/* Required Format Buttons: Generate HTML, Generate JSON, Generate Markdown */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)' }}>
           <button
             onClick={() => handleGenerate('HTML')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'HTML' ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'rgba(14, 165, 233, 0.15)',
-              border: '1px solid var(--accent-cyan)',
-              color: '#fff',
+              background: reportFormat === 'HTML' ? '#8BD4E8' : 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              color: reportFormat === 'HTML' ? '#222426' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -173,9 +174,9 @@ export default function ReportSection({
             onClick={() => handleGenerate('JSON')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'JSON' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(99, 102, 241, 0.15)',
-              border: '1px solid var(--accent-indigo)',
-              color: '#fff',
+              background: reportFormat === 'JSON' ? '#8BD4E8' : 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              color: reportFormat === 'JSON' ? '#222426' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -194,9 +195,9 @@ export default function ReportSection({
             onClick={() => handleGenerate('MARKDOWN')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'MARKDOWN' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid var(--accent-emerald)',
-              color: '#fff',
+              background: reportFormat === 'MARKDOWN' ? '#8BD4E8' : 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              color: reportFormat === 'MARKDOWN' ? '#222426' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -272,7 +273,7 @@ export default function ReportSection({
 
           {reportResult && (
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <div style={{ display: 'flex', background: 'rgba(0,0,0,0.4)', borderRadius: '6px', padding: '0.15rem' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.15rem' }}>
                 <button
                   onClick={() => setActivePreviewFormat('RENDERED')}
                   style={{

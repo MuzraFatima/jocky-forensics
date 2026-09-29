@@ -33,12 +33,12 @@ export default function CriticalIncidentAlert({
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%)',
-      border: '1px solid rgba(244, 63, 94, 0.45)',
+      background: '#FFF1F2',
+      border: '1px solid #FECDD3',
       borderRadius: '12px',
       padding: collapsed ? '0.75rem 1.25rem' : '1.25rem 1.5rem',
       marginBottom: '1.5rem',
-      boxShadow: '0 8px 30px rgba(244, 63, 94, 0.15)',
+      boxShadow: '0 4px 15px rgba(244, 63, 94, 0.08)',
       position: 'relative',
       overflow: 'hidden',
     }}>
@@ -58,16 +58,16 @@ export default function CriticalIncidentAlert({
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#9F1239', letterSpacing: '-0.01em' }}>
                 🚨 Potential Critical Security Incident Detected
               </h3>
 
               <span style={{
                 fontSize: '0.68rem',
                 fontWeight: 800,
-                color: '#fff',
-                background: 'rgba(244, 63, 94, 0.3)',
-                border: '1px solid rgba(244, 63, 94, 0.6)',
+                color: '#9F1239',
+                background: '#FFE4E6',
+                border: '1px solid #FECDD3',
                 padding: '0.15rem 0.5rem',
                 borderRadius: '4px',
                 letterSpacing: '0.05em',
@@ -127,28 +127,28 @@ export default function CriticalIncidentAlert({
             gap: '0.75rem',
             marginBottom: '1rem',
           }}>
-            <div style={{ background: 'rgba(10, 15, 26, 0.6)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Case &amp; Target</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', marginTop: '0.2rem' }}>
-                {incident.case_id} &bull; <span style={{ color: 'var(--accent-cyan)' }}>{incident.target}</span>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#222426', marginTop: '0.2rem' }}>
+                {incident.case_id} &bull; <span style={{ color: '#0284c7' }}>{incident.target}</span>
               </div>
             </div>
 
-            <div style={{ background: 'rgba(10, 15, 26, 0.6)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Detection Reason</div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#fca5a5', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#E11D48', marginTop: '0.2rem' }}>
                 {incident.detection_name || incident.rule_id}
               </div>
             </div>
 
-            <div style={{ background: 'rgba(10, 15, 26, 0.6)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Evidence Indicators</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-cyan)', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284c7', marginTop: '0.2rem' }}>
                 {incident.related_evidence_count} Findings ({incident.high_severity_count} High)
               </div>
             </div>
 
-            <div style={{ background: 'rgba(10, 15, 26, 0.6)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Cryptographic Integrity</div>
               <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent-emerald)', marginTop: '0.2rem' }}>
                 {incident.evidence_integrity_status || 'VERIFIED (SHA-256)'}
@@ -159,11 +159,12 @@ export default function CriticalIncidentAlert({
           {/* Description Detail */}
           <div style={{
             fontSize: '0.8rem',
-            color: 'var(--text-primary)',
-            background: 'rgba(15, 23, 42, 0.7)',
+            color: '#222426',
+            background: '#FFFFFF',
             padding: '0.75rem 1rem',
             borderRadius: '6px',
-            borderLeft: '3px solid var(--accent-rose)',
+            border: '1px solid #FECDD3',
+            borderLeft: '4px solid var(--accent-rose)',
             marginBottom: '1.1rem',
             lineHeight: 1.45,
           }}>
@@ -173,8 +174,8 @@ export default function CriticalIncidentAlert({
           {/* Preservation Success Notice */}
           {preservedNotice && (
             <div style={{
-              background: 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid rgba(16, 185, 129, 0.35)',
+              background: 'var(--accent-emerald-soft)',
+              border: '1px solid #BBF7D0',
               borderRadius: '6px',
               padding: '0.5rem 0.75rem',
               color: 'var(--accent-emerald)',
@@ -192,10 +193,10 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onViewIncident}
               style={{
-                background: 'rgba(56, 189, 248, 0.15)',
-                border: '1px solid rgba(56, 189, 248, 0.35)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color)',
                 borderRadius: '6px',
-                color: 'var(--accent-cyan)',
+                color: '#222426',
                 padding: '0.5rem 1rem',
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -210,8 +211,8 @@ export default function CriticalIncidentAlert({
               onClick={handlePreserveClick}
               disabled={verifying}
               style={{
-                background: 'rgba(16, 185, 129, 0.15)',
-                border: '1px solid rgba(16, 185, 129, 0.35)',
+                background: 'var(--accent-emerald-soft)',
+                border: '1px solid #BBF7D0',
                 borderRadius: '6px',
                 color: 'var(--accent-emerald)',
                 padding: '0.5rem 1rem',
@@ -227,10 +228,10 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onContactSecurity}
               style={{
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(14, 165, 233, 0.3))',
-                border: '1px solid rgba(99, 102, 241, 0.5)',
+                background: '#8BD4E8',
+                border: 'none',
                 borderRadius: '6px',
-                color: '#fff',
+                color: '#222426',
                 padding: '0.5rem 1rem',
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -244,7 +245,7 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onGenerateReport}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 color: 'var(--text-secondary)',

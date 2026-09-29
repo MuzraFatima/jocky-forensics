@@ -224,10 +224,11 @@ export default function InvestigatorDashboard({
       {/* Top Banner / Quick Controls */}
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+          background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',

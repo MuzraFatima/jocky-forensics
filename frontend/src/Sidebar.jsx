@@ -409,15 +409,15 @@ export default function Sidebar({
                 width: '36px',
                 height: '36px',
                 minWidth: '36px',
-                borderRadius: '9px',
-                background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                borderRadius: '8px',
+                background: '#8BD4E8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 800,
                 fontSize: '18px',
-                color: '#fff',
-                boxShadow: '0 0 16px rgba(14, 165, 233, 0.4)',
+                color: '#FFFFFF',
+                boxShadow: '0 2px 8px rgba(139, 212, 232, 0.45)',
               }}
             >
               J
@@ -428,40 +428,26 @@ export default function Sidebar({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span
                     style={{
-                      fontSize: '0.98rem',
+                      fontSize: '1.05rem',
                       fontWeight: 800,
                       letterSpacing: '-0.02em',
-                      color: '#fff',
+                      color: '#222426',
                     }}
                   >
                     JOCKY
                   </span>
-                  <span
-                    style={{
-                      fontSize: '0.6rem',
-                      fontWeight: 700,
-                      color: 'var(--accent-cyan)',
-                      background: 'rgba(56, 189, 248, 0.1)',
-                      border: '1px solid rgba(56, 189, 248, 0.25)',
-                      padding: '0.1rem 0.35rem',
-                      borderRadius: '4px',
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    SIH26148
-                  </span>
                 </div>
                 <div
                   style={{
-                    fontSize: '0.68rem',
-                    color: 'var(--text-muted)',
-                    letterSpacing: '0.04em',
+                    fontSize: '0.65rem',
+                    color: '#667078',
+                    letterSpacing: '0.06em',
                     textTransform: 'uppercase',
-                    fontWeight: 600,
-                    marginTop: '0.1rem',
+                    fontWeight: 700,
+                    marginTop: '0.05rem',
                   }}
                 >
-                  Forensics Suite
+                  FORENSIC SUITE
                 </div>
               </div>
             )}
@@ -474,10 +460,10 @@ export default function Sidebar({
               title="Collapse sidebar"
               aria-label="Collapse sidebar"
               style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid var(--border-subtle)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color)',
                 borderRadius: '6px',
-                color: 'var(--text-secondary)',
+                color: 'var(--text-muted)',
                 width: '28px',
                 height: '28px',
                 display: 'flex',
@@ -488,12 +474,12 @@ export default function Sidebar({
                 flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#fff';
-                e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.borderColor = 'var(--accent-cyan-bg)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--text-secondary)';
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
               }}
             >
               <PanelToggleIcon collapsed={false} size={16} />
@@ -516,24 +502,16 @@ export default function Sidebar({
               title="Expand sidebar"
               aria-label="Expand sidebar"
               style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid var(--border-subtle)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color)',
                 borderRadius: '6px',
-                color: 'var(--text-secondary)',
+                color: 'var(--text-muted)',
                 width: '32px',
                 height: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#fff';
-                e.currentTarget.style.borderColor = 'var(--accent-cyan)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--text-secondary)';
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
               }}
             >
               <PanelToggleIcon collapsed={true} size={16} />
@@ -574,7 +552,6 @@ export default function Sidebar({
                 const isActive = item.path === '/dashboard'
                   ? (currentPath === '/dashboard')
                   : (currentPath === item.path || currentPath.startsWith(item.path + '/'));
-                const accent = item.accentColor || 'var(--accent-cyan)';
                 return (
                   <button
                     key={item.id}
@@ -586,7 +563,9 @@ export default function Sidebar({
                     title={collapsed ? `${item.label}${item.count != null ? ` (${item.count})` : ''}` : undefined}
                     aria-current={isActive ? 'page' : undefined}
                     style={{
-                      borderLeft: isActive ? `3px solid ${accent}` : 'none',
+                      borderLeft: isActive ? '3px solid #8BD4E8' : '3px solid transparent',
+                      background: isActive ? '#CFEFF5' : 'transparent',
+                      color: '#222426',
                     }}
                   >
                     {/* Icon */}
@@ -595,7 +574,7 @@ export default function Sidebar({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: isActive ? accent : 'inherit',
+                        color: isActive ? '#0284c7' : '#667078',
                         minWidth: '20px',
                         transition: 'color 0.16s ease',
                       }}
@@ -612,6 +591,8 @@ export default function Sidebar({
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             flex: 1,
+                            fontWeight: isActive ? 700 : 500,
+                            color: '#222426',
                           }}
                         >
                           {item.label}
@@ -622,10 +603,10 @@ export default function Sidebar({
                             style={{
                               fontSize: '0.65rem',
                               fontWeight: 700,
-                              padding: '0.1rem 0.4rem',
+                              padding: '0.1rem 0.45rem',
                               borderRadius: '4px',
-                              background: item.statusBadge.includes('ON') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                              color: item.statusBadge.includes('ON') ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+                              background: item.statusBadge.includes('ON') ? '#E8F1DE' : '#FEF3C7',
+                              color: item.statusBadge.includes('ON') ? '#5C802B' : '#D97706',
                               fontFamily: 'monospace',
                             }}
                           >
@@ -634,7 +615,18 @@ export default function Sidebar({
                         )}
 
                         {item.count != null && (
-                          <span className={isActive ? 'sidebar-badge' : 'sidebar-badge-muted'}>
+                          <span
+                            style={{
+                              marginLeft: 'auto',
+                              fontSize: '0.68rem',
+                              fontWeight: 700,
+                              padding: '0.12rem 0.45rem',
+                              borderRadius: '9999px',
+                              background: '#CFEFF5',
+                              color: '#0284c7',
+                              fontFamily: 'JetBrains Mono, monospace',
+                            }}
+                          >
                             {item.count}
                           </span>
                         )}
@@ -652,7 +644,7 @@ export default function Sidebar({
           style={{
             padding: collapsed ? '0.75rem 0.4rem' : '0.85rem 1rem',
             borderTop: '1px solid var(--border-color)',
-            background: 'rgba(6, 9, 15, 0.6)',
+            background: '#FFFFFF',
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -667,49 +659,50 @@ export default function Sidebar({
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.35rem 0.5rem',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '6px',
+                  gap: '0.6rem',
+                  padding: '0.5rem 0.65rem',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
                 }}>
                   <div style={{
-                    width: '24px',
-                    height: '24px',
+                    width: '28px',
+                    height: '28px',
                     borderRadius: '50%',
-                    background: 'rgba(56, 189, 248, 0.15)',
+                    background: '#CFEFF5',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.7rem',
-                    color: 'var(--accent-cyan)',
+                    fontSize: '0.75rem',
+                    color: '#0284c7',
                     fontWeight: 700,
+                    flexShrink: 0,
                   }}>
                     👤
                   </div>
                   <div style={{ overflow: 'hidden', flex: 1 }}>
-                    <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {session.username?.split('@')[0] || 'Investigator'}
+                    <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#222426', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {session.username?.split('@')[0] || 'investigator'}
                     </div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                      {session.role || 'Forensic Examiner'}
+                    <div style={{ fontSize: '0.65rem', color: '#667078' }}>
+                      {session.role || 'Lead Forensic Examiner'}
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Status & Logout Button Row */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.7rem' }}>
                   <span
                     style={{
                       width: '6px',
                       height: '6px',
                       borderRadius: '50%',
-                      backgroundColor: 'var(--accent-emerald)',
+                      backgroundColor: '#5C802B',
                     }}
                   />
-                  <span style={{ fontWeight: 600, color: 'var(--accent-emerald)' }}>READ-ONLY</span>
+                  <span style={{ fontWeight: 700, color: '#5C802B' }}>READ-ONLY</span>
                 </div>
 
                 {onOpenLogout && (
@@ -718,23 +711,23 @@ export default function Sidebar({
                     onClick={onOpenLogout}
                     title="End Investigation Session"
                     style={{
-                      background: 'rgba(244, 63, 94, 0.08)',
-                      border: '1px solid rgba(244, 63, 94, 0.25)',
+                      background: '#FFFFFF',
+                      border: '1px solid #FECDD3',
                       borderRadius: '4px',
-                      color: '#fda4af',
+                      color: '#E11D48',
                       fontSize: '0.7rem',
                       fontWeight: 600,
-                      padding: '0.2rem 0.55rem',
+                      padding: '0.25rem 0.65rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.3rem',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)';
+                      e.currentTarget.style.background = '#FFF1F2';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(244, 63, 94, 0.08)';
+                      e.currentTarget.style.background = '#FFFFFF';
                     }}
                   >
                     <span>⎋</span> Logout

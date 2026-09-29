@@ -12,7 +12,7 @@ export default function LogoutModal({
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(4, 7, 14, 0.85)',
+      background: 'rgba(34, 36, 38, 0.4)',
       backdropFilter: 'blur(8px)',
       zIndex: 2000,
       display: 'flex',
@@ -23,11 +23,11 @@ export default function LogoutModal({
       <div style={{
         width: '100%',
         maxWidth: '480px',
-        background: '#0d1322',
+        background: '#FFFFFF',
         border: '1px solid var(--border-color)',
         borderRadius: '14px',
         padding: '2rem',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(244, 63, 94, 0.15)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -35,18 +35,18 @@ export default function LogoutModal({
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: 'rgba(244, 63, 94, 0.15)',
-            border: '1px solid rgba(244, 63, 94, 0.35)',
+            background: '#FFF1F2',
+            border: '1px solid #FECDD3',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '1.2rem',
-            color: 'var(--accent-rose)',
+            color: '#E11D48',
           }}>
             ⎋
           </div>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#222426', letterSpacing: '-0.01em' }}>
               End Investigation Session?
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -58,13 +58,13 @@ export default function LogoutModal({
         {/* Informational Body */}
         <p style={{
           fontSize: '0.82rem',
-          color: 'var(--text-secondary)',
+          color: '#222426',
           lineHeight: 1.5,
           marginBottom: '1.5rem',
-          background: 'rgba(255, 255, 255, 0.02)',
+          background: 'var(--bg-primary)',
           padding: '0.85rem 1rem',
           borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
+          border: '1px solid var(--border-color)',
         }}>
           Closing your session will revoke active authorization tokens. You can optionally seal and dispatch the current case evidence report to the centralized security incident queue before exiting.
         </p>
@@ -79,8 +79,8 @@ export default function LogoutModal({
               padding: '0.75rem 1.25rem',
               borderRadius: '8px',
               border: 'none',
-              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-              color: '#fff',
+              background: '#8BD4E8',
+              color: '#222426',
               fontSize: '0.85rem',
               fontWeight: 700,
               cursor: 'pointer',
@@ -88,7 +88,7 @@ export default function LogoutModal({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5rem',
-              boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
             }}
           >
             📄 Generate &amp; Send Report (Recommended)
@@ -101,9 +101,9 @@ export default function LogoutModal({
             style={{
               padding: '0.7rem 1.25rem',
               borderRadius: '8px',
-              border: '1px solid rgba(244, 63, 94, 0.4)',
-              background: 'rgba(244, 63, 94, 0.08)',
-              color: '#fda4af',
+              border: '1px solid #FECDD3',
+              background: '#FFF1F2',
+              color: '#E11D48',
               fontSize: '0.82rem',
               fontWeight: 600,
               cursor: 'pointer',
@@ -123,8 +123,8 @@ export default function LogoutModal({
             style={{
               padding: '0.65rem 1.25rem',
               borderRadius: '8px',
-              border: '1px solid var(--border-subtle)',
-              background: 'transparent',
+              border: '1px solid var(--border-color)',
+              background: '#FFFFFF',
               color: 'var(--text-secondary)',
               fontSize: '0.82rem',
               fontWeight: 600,

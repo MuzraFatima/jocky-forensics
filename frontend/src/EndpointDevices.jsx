@@ -198,10 +198,11 @@ export default function EndpointDevices({
       {/* Target Selector Banner */}
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(12, 17, 29, 0.95) 100%)',
+          background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -292,10 +293,10 @@ export default function EndpointDevices({
           <button
             onClick={handleOpenPairModal}
             style={{
-              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              background: '#8BD4E8',
               border: 'none',
-              color: '#fff',
-              borderRadius: '6px',
+              color: '#222426',
+              borderRadius: '8px',
               padding: '0.5rem 1.1rem',
               fontSize: '0.82rem',
               fontWeight: 700,
@@ -303,7 +304,7 @@ export default function EndpointDevices({
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
-              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.3)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
             }}
           >
             <span>+</span>
@@ -754,8 +755,8 @@ export default function EndpointDevices({
                 {/* Big Pairing Code Card */}
                 <div
                   style={{
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    background: 'var(--bg-primary)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     padding: '1.2rem',
                     textAlign: 'center',

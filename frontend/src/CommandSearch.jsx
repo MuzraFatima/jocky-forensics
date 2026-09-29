@@ -224,7 +224,7 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
             onChange={(e) => setQuery(e.target.value)}
             style={{
               width: '100%',
-              background: '#04070d',
+              background: '#FFFFFF',
               border: '1px solid var(--border-color)',
               borderRadius: '8px',
               padding: '0.65rem 1rem 0.65rem 2.4rem',
@@ -272,9 +272,9 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  background: isSel ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.6)',
-                  border: isSel ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                  color: isSel ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                  background: isSel ? 'var(--accent-cyan-soft)' : '#FFFFFF',
+                  border: isSel ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                  color: isSel ? '#0284c7' : 'var(--text-secondary)',
                   borderRadius: '6px',
                   padding: '0.4rem 0.75rem',
                   fontSize: '0.75rem',
@@ -408,10 +408,10 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                     style={{
                       margin: 0,
                       padding: '0.55rem 0.75rem',
-                      background: '#04070d',
-                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
-                      color: 'var(--accent-cyan)',
+                      color: 'var(--text-primary)',
                       fontSize: '0.76rem',
                       lineHeight: 1.4,
                       overflowX: 'auto',

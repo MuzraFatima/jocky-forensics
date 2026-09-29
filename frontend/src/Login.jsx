@@ -116,19 +116,18 @@ export default function Login({ onLoginSuccess }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.12) 0%, rgba(6, 9, 15, 0.98) 60%)',
+      background: 'var(--bg-primary, #F6F8F9)',
       padding: '1.5rem',
       fontFamily: 'inherit',
     }}>
       <div style={{
         width: '100%',
         maxWidth: '480px',
-        background: 'rgba(12, 17, 29, 0.94)',
-        border: '1px solid var(--border-color, #1e293b)',
+        background: '#FFFFFF',
+        border: '1px solid var(--border-color, #D8DEE2)',
         borderRadius: '14px',
         padding: '2.25rem 2rem',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(14, 165, 233, 0.12)',
-        backdropFilter: 'blur(20px)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
       }}>
         {/* Header Branding */}
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -136,14 +135,14 @@ export default function Login({ onLoginSuccess }) {
             width: '46px',
             height: '46px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+            background: 'var(--accent-cyan-bg, #8BD4E8)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 800,
             fontSize: '22px',
-            color: '#fff',
-            boxShadow: '0 0 24px rgba(14, 165, 233, 0.5)',
+            color: '#222426',
+            boxShadow: '0 2px 8px rgba(139, 212, 232, 0.4)',
             marginBottom: '0.75rem',
           }}>
             J
@@ -153,7 +152,7 @@ export default function Login({ onLoginSuccess }) {
             fontSize: '1.35rem',
             fontWeight: 800,
             letterSpacing: '-0.02em',
-            color: '#fff',
+            color: '#222426',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -163,9 +162,9 @@ export default function Login({ onLoginSuccess }) {
             <span style={{
               fontSize: '0.62rem',
               fontWeight: 700,
-              color: 'var(--accent-cyan, #38bdf8)',
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
+              color: '#0284c7',
+              background: 'var(--accent-cyan-soft, #CFEFF5)',
+              border: '1px solid #BAE6FD',
               padding: '0.15rem 0.4rem',
               borderRadius: '4px',
             }}>
@@ -173,7 +172,7 @@ export default function Login({ onLoginSuccess }) {
             </span>
           </h1>
 
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #94a3b8)', marginTop: '0.35rem' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #667078)', marginTop: '0.35rem' }}>
             Authorized Read-Only Digital Forensics &amp; Incident Investigation
           </p>
         </div>
@@ -182,10 +181,10 @@ export default function Login({ onLoginSuccess }) {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          background: 'rgba(10, 15, 26, 0.8)',
+          background: 'var(--bg-primary, #F6F8F9)',
           padding: '0.25rem',
           borderRadius: '8px',
-          border: '1px solid rgba(56, 189, 248, 0.15)',
+          border: '1px solid var(--border-color, #D8DEE2)',
           marginBottom: '1.25rem',
         }}>
           <button
@@ -195,11 +194,12 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.55rem 0.5rem',
               borderRadius: '6px',
               border: 'none',
-              background: mode === 'login' ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(99, 102, 241, 0.3))' : 'transparent',
-              color: mode === 'login' ? '#fff' : 'var(--text-muted, #94a3b8)',
+              background: mode === 'login' ? '#FFFFFF' : 'transparent',
+              color: mode === 'login' ? '#222426' : 'var(--text-muted, #667078)',
               fontWeight: mode === 'login' ? 700 : 500,
               fontSize: '0.82rem',
               cursor: 'pointer',
+              boxShadow: mode === 'login' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none',
               transition: 'all 0.2s',
             }}
           >
@@ -212,11 +212,12 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.55rem 0.5rem',
               borderRadius: '6px',
               border: 'none',
-              background: mode === 'register' ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(99, 102, 241, 0.3))' : 'transparent',
-              color: mode === 'register' ? '#fff' : 'var(--text-muted, #94a3b8)',
+              background: mode === 'register' ? '#FFFFFF' : 'transparent',
+              color: mode === 'register' ? '#222426' : 'var(--text-muted, #667078)',
               fontWeight: mode === 'register' ? 700 : 500,
               fontSize: '0.82rem',
               cursor: 'pointer',
+              boxShadow: mode === 'register' ? '0 1px 3px rgba(0, 0, 0, 0.05)' : 'none',
               transition: 'all 0.2s',
             }}
           >
@@ -227,16 +228,16 @@ export default function Login({ onLoginSuccess }) {
         {/* Demo Fill Banner (Login Mode Only) */}
         {mode === 'login' && (
           <div style={{
-            background: 'rgba(56, 189, 248, 0.06)',
-            border: '1px solid rgba(56, 189, 248, 0.2)',
+            background: 'var(--accent-cyan-soft, #CFEFF5)',
+            border: '1px solid #BAE6FD',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
             fontSize: '0.74rem',
-            color: 'var(--text-secondary, #94a3b8)',
+            color: '#222426',
             lineHeight: 1.45,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-cyan, #38bdf8)', fontWeight: 700, marginBottom: '0.2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0284c7', fontWeight: 700, marginBottom: '0.2rem' }}>
               <span>🔒</span> QUICK DEMO CREDENTIALS
             </div>
             Pre-configured accounts for SIH evaluation:
@@ -245,14 +246,15 @@ export default function Login({ onLoginSuccess }) {
                 type="button"
                 onClick={() => handleFillDemo('investigator')}
                 style={{
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  background: '#FFFFFF',
+                  border: '1px solid #BAE6FD',
                   borderRadius: '4px',
-                  color: 'var(--accent-cyan, #38bdf8)',
+                  color: '#0284c7',
                   fontSize: '0.7rem',
-                  padding: '0.2rem 0.5rem',
+                  padding: '0.25rem 0.55rem',
                   fontWeight: 600,
                   cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                 }}
               >
                 Fill Investigator Demo
@@ -261,14 +263,15 @@ export default function Login({ onLoginSuccess }) {
                 type="button"
                 onClick={() => handleFillDemo('admin')}
                 style={{
-                  background: 'rgba(99, 102, 241, 0.15)',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color, #D8DEE2)',
                   borderRadius: '4px',
-                  color: '#818cf8',
+                  color: '#4f46e5',
                   fontSize: '0.7rem',
-                  padding: '0.2rem 0.5rem',
+                  padding: '0.25rem 0.55rem',
                   fontWeight: 600,
                   cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                 }}
               >
                 Fill Admin Demo
@@ -280,12 +283,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Error Notification Banner */}
         {errorMsg && (
           <div style={{
-            background: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
+            background: '#FFF1F2',
+            border: '1px solid #FECDD3',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
-            color: '#fda4af',
+            color: '#E11D48',
             fontSize: '0.8rem',
             display: 'flex',
             alignItems: 'center',
@@ -299,12 +302,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Success Notification Banner */}
         {successMsg && (
           <div style={{
-            background: 'rgba(16, 185, 129, 0.12)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'var(--accent-emerald-soft, #E8F1DE)',
+            border: '1px solid #BBF7D0',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
-            color: '#6ee7b7',
+            color: 'var(--accent-emerald, #5C802B)',
             fontSize: '0.8rem',
             display: 'flex',
             alignItems: 'center',
@@ -318,7 +321,7 @@ export default function Login({ onLoginSuccess }) {
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
               {mode === 'register' ? 'Email / Investigator Username' : 'Investigator Username / Email'}
             </label>
             <input
@@ -330,18 +333,18 @@ export default function Login({ onLoginSuccess }) {
               style={{
                 width: '100%',
                 padding: '0.65rem 0.85rem',
-                background: 'rgba(10, 15, 26, 0.8)',
-                border: '1px solid var(--border-color, #1e293b)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color, #D8DEE2)',
                 borderRadius: '6px',
                 fontSize: '0.85rem',
-                color: '#fff',
+                color: '#222426',
               }}
             />
           </div>
 
           {mode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
                 Investigator Role &amp; Clearance
               </label>
               <select
@@ -350,11 +353,11 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 0.85rem',
-                  background: 'rgba(10, 15, 26, 0.8)',
-                  border: '1px solid var(--border-color, #1e293b)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color, #D8DEE2)',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#fff',
+                  color: '#222426',
                 }}
               >
                 <option value="Lead Forensic Examiner">Lead Forensic Examiner</option>
@@ -366,7 +369,7 @@ export default function Login({ onLoginSuccess }) {
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
               {mode === 'register' ? 'Create Password (min 6 characters)' : 'Access Password'}
             </label>
             <div style={{ position: 'relative' }}>
@@ -379,11 +382,11 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 2.5rem 0.65rem 0.85rem',
-                  background: 'rgba(10, 15, 26, 0.8)',
-                  border: '1px solid var(--border-color, #1e293b)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color, #D8DEE2)',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#fff',
+                  color: '#222426',
                 }}
               />
               <button
@@ -396,7 +399,7 @@ export default function Login({ onLoginSuccess }) {
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
-                  color: 'var(--text-muted, #94a3b8)',
+                  color: 'var(--text-muted, #667078)',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
                   padding: '0.2rem',
@@ -409,7 +412,7 @@ export default function Login({ onLoginSuccess }) {
 
           {mode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
                 Confirm Password
               </label>
               <input
@@ -421,18 +424,18 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 0.85rem',
-                  background: 'rgba(10, 15, 26, 0.8)',
-                  border: '1px solid var(--border-color, #1e293b)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color, #D8DEE2)',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#fff',
+                  color: '#222426',
                 }}
               />
             </div>
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
               Target Case Designation
             </label>
             <input
@@ -443,11 +446,11 @@ export default function Login({ onLoginSuccess }) {
               style={{
                 width: '100%',
                 padding: '0.65rem 0.85rem',
-                background: 'rgba(10, 15, 26, 0.8)',
-                border: '1px solid var(--border-color, #1e293b)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color, #D8DEE2)',
                 borderRadius: '6px',
                 fontSize: '0.85rem',
-                color: '#fff',
+                color: '#222426',
                 fontFamily: 'monospace',
               }}
             />
@@ -461,12 +464,12 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.75rem 1rem',
               borderRadius: '8px',
               border: 'none',
-              background: loading ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-              color: '#fff',
+              background: loading ? 'var(--accent-cyan-soft, #CFEFF5)' : 'var(--accent-cyan-bg, #8BD4E8)',
+              color: '#222426',
               fontWeight: 700,
               fontSize: '0.9rem',
               cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 18px rgba(14, 165, 233, 0.35)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -482,7 +485,7 @@ export default function Login({ onLoginSuccess }) {
         </form>
 
         {/* Bottom Switch Link */}
-        <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-secondary, #94a3b8)' }}>
+        <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-secondary, #667078)' }}>
           {mode === 'login' ? (
             <span>
               Need a custom account?{' '}
@@ -492,7 +495,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--accent-cyan, #38bdf8)',
+                  color: '#0284c7',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -511,7 +514,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'var(--accent-cyan, #38bdf8)',
+                  color: '#0284c7',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -528,10 +531,10 @@ export default function Login({ onLoginSuccess }) {
         <div style={{
           marginTop: '1.5rem',
           paddingTop: '0.9rem',
-          borderTop: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+          borderTop: '1px solid var(--border-color, #D8DEE2)',
           textAlign: 'center',
           fontSize: '0.7rem',
-          color: 'var(--text-muted, #94a3b8)',
+          color: 'var(--text-muted, #667078)',
         }}>
           Protected by SHA-256 Chain-of-Custody &bull; PBKDF2 Password Hashing &bull; Read-Only Telemetry Guards
         </div>

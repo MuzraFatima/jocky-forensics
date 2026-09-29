@@ -101,7 +101,7 @@ export default function ReportModal({
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(4, 7, 14, 0.8)',
+      background: 'rgba(34, 36, 38, 0.4)',
       backdropFilter: 'blur(8px)',
       zIndex: 2000,
       display: 'flex',
@@ -112,17 +112,17 @@ export default function ReportModal({
       <div style={{
         width: '100%',
         maxWidth: '560px',
-        background: '#0d1322',
+        background: '#FFFFFF',
         border: '1px solid var(--border-color)',
         borderRadius: '14px',
         padding: '2rem',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(14, 165, 233, 0.15)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ fontSize: '1.3rem' }}>📄</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#222426' }}>
               {isLogoutWorkflow ? 'End Session: Generate & Send Report?' : 'Generate & Send Report?'}
             </h3>
           </div>
@@ -138,12 +138,12 @@ export default function ReportModal({
 
         {/* Warning & Scope Description */}
         <div style={{
-          background: 'rgba(56, 189, 248, 0.05)',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
+          background: 'var(--accent-cyan-soft)',
+          border: '1px solid #BAE6FD',
           borderRadius: '8px',
           padding: '0.85rem 1rem',
           fontSize: '0.78rem',
-          color: 'var(--text-secondary)',
+          color: '#222426',
           lineHeight: 1.45,
           marginBottom: '1.25rem',
         }}>
@@ -280,10 +280,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: 'rgba(10, 15, 26, 0.8)',
+                    background: '#FFFFFF',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: '#222426',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -304,10 +304,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: 'rgba(10, 15, 26, 0.8)',
+                    background: '#FFFFFF',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: '#222426',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -323,8 +323,8 @@ export default function ReportModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '8px',
               padding: '0.6rem 0.85rem',
               marginBottom: '1.25rem',
@@ -340,8 +340,8 @@ export default function ReportModal({
                 type="button"
                 onClick={handleToggleService}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid var(--border-subtle)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '4px',
                   color: 'var(--text-secondary)',
                   fontSize: '0.68rem',
@@ -354,7 +354,7 @@ export default function ReportModal({
             </div>
 
             {errorMsg && (
-              <div style={{ color: '#fda4af', fontSize: '0.78rem', marginBottom: '1rem' }}>
+              <div style={{ color: '#E11D48', fontSize: '0.78rem', marginBottom: '1rem' }}>
                 ⚠ {errorMsg}
               </div>
             )}
@@ -366,8 +366,8 @@ export default function ReportModal({
                 onClick={onClose}
                 disabled={loading}
                 style={{
-                  background: 'none',
-                  border: '1px solid var(--border-subtle)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   color: 'var(--text-secondary)',
                   padding: '0.55rem 1rem',
@@ -384,10 +384,10 @@ export default function ReportModal({
                 onClick={handleGenerateOnly}
                 disabled={loading}
                 style={{
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
-                  color: 'var(--accent-cyan)',
+                  color: '#222426',
                   padding: '0.55rem 1rem',
                   fontSize: '0.82rem',
                   fontWeight: 600,
@@ -402,10 +402,10 @@ export default function ReportModal({
                 onClick={handleGenerateAndSend}
                 disabled={loading}
                 style={{
-                  background: loading ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                  background: loading ? 'var(--accent-cyan-soft)' : '#8BD4E8',
                   border: 'none',
-                  borderRadius: '6px',
-                  color: '#fff',
+                  borderRadius: '8px',
+                  color: '#222426',
                   padding: '0.55rem 1.25rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
@@ -413,6 +413,7 @@ export default function ReportModal({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.4rem',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 }}
               >
                 {loading ? 'Processing Pipeline...' : '📤 Generate & Send'}

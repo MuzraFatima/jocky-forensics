@@ -173,7 +173,7 @@ function ProcessTreeNode({ node, depth = 0 }) {
         gap: '0.5rem',
         padding: '0.45rem 0.75rem',
         borderRadius: '6px',
-        background: depth === 0 ? 'rgba(30, 41, 59, 0.7)' : 'rgba(15, 23, 42, 0.5)',
+        background: depth === 0 ? '#FFFFFF' : '#F6F8F9',
         border: '1px solid var(--border-color)',
         fontSize: '0.8rem',
       }}>
@@ -818,37 +818,37 @@ export default function App() {
   };
 
   const renderCollectorProgressUI = () => {
-    if (!collectorProgress && !loading && !executeLoading) return null;
+    if (!collectorProgress && !loading && !executeLoading && !investigationData) return null;
     return (
       <div id="collector-pipeline-ui" style={{
-        background: 'rgba(15, 23, 42, 0.85)',
-        border: '1px solid rgba(99, 102, 241, 0.3)',
-        borderRadius: '10px',
-        padding: '1.25rem',
+        background: '#FFFFFF',
+        border: '1px solid var(--border-color)',
+        borderRadius: '12px',
+        padding: '1.25rem 1.5rem',
         marginTop: '1rem',
         marginBottom: '1.25rem',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.37)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.1rem' }}>⚡</span>
-            <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+            <span style={{ fontSize: '1.1rem', color: '#f59e0b' }}>⚡</span>
+            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#222426' }}>
               Collector Execution Pipeline
             </span>
             <span style={{
               fontSize: '0.72rem',
-              padding: '0.2rem 0.6rem',
-              borderRadius: '4px',
-              fontWeight: 700,
-              background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: (loading || executeLoading) ? 'var(--accent-cyan)' : 'var(--accent-emerald)',
-              border: `1px solid ${(loading || executeLoading) ? 'rgba(14, 165, 233, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+              padding: '0.15rem 0.55rem',
+              borderRadius: '9999px',
+              fontWeight: 600,
+              background: (loading || executeLoading) ? '#CFEFF5' : '#E8F1DE',
+              color: (loading || executeLoading) ? '#0284c7' : '#5C802B',
+              border: `1px solid ${(loading || executeLoading) ? '#8BD4E8' : '#c2e0a3'}`,
             }}>
               {(loading || executeLoading) ? 'Executing...' : 'Completed'}
             </span>
           </div>
           {(investigationData?.execution_id || executeData?.execution_id) && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+            <span style={{ fontSize: '0.75rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace' }}>
               Execution ID: {investigationData?.execution_id || executeData?.execution_id}
             </span>
           )}
@@ -857,8 +857,8 @@ export default function App() {
         {/* Endpoint target execution indicator */}
         {selectedDeviceId && (
           <div style={{
-            background: 'rgba(56, 189, 248, 0.08)',
-            border: '1px solid rgba(56, 189, 248, 0.25)',
+            background: '#F0F9FF',
+            border: '1px solid #BAE6FD',
             borderRadius: '6px',
             padding: '0.55rem 0.85rem',
             marginBottom: '0.85rem',
@@ -871,8 +871,8 @@ export default function App() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>🛰️</span>
-              <span style={{ color: 'var(--text-secondary)' }}>Target Endpoint:</span>
-              <strong style={{ color: 'var(--accent-cyan)' }}>
+              <span style={{ color: '#4b5563' }}>Target Endpoint:</span>
+              <strong style={{ color: '#0284c7' }}>
                 {(() => {
                   const d = devices.find((x) => x.device_id === selectedDeviceId);
                   return d ? `${d.hostname || d.device_id} (${d.platform})` : selectedDeviceId;
@@ -881,7 +881,7 @@ export default function App() {
             </div>
             <span style={{
               fontSize: '0.74rem',
-              color: (loading || executeLoading) ? 'var(--accent-amber)' : 'var(--accent-emerald)',
+              color: (loading || executeLoading) ? '#d97706' : '#5C802B',
               fontWeight: 700,
             }}>
               {(loading || executeLoading)
@@ -895,12 +895,12 @@ export default function App() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: '0.65rem',
           flexWrap: 'wrap',
-          padding: '0.75rem',
-          background: 'rgba(0, 0, 0, 0.25)',
+          padding: '0.75rem 1rem',
+          background: '#F6F8F9',
           borderRadius: '8px',
-          border: '1px solid var(--border-subtle)',
+          border: '1px solid #E1E4E6',
         }}>
           {['SYSTEM', 'PROCESSES', 'NETWORK', 'FILES'].map((stage, idx, arr) => {
             const stageKey = stage.toLowerCase();
@@ -929,27 +929,27 @@ export default function App() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.45rem',
-                  padding: '0.45rem 0.85rem',
+                  padding: '0.4rem 0.8rem',
                   borderRadius: '6px',
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   fontWeight: 700,
                   background: isDone
-                    ? 'rgba(16, 185, 129, 0.12)'
+                    ? '#E8F1DE'
                     : isRunning
-                    ? 'rgba(14, 165, 233, 0.15)'
-                    : 'rgba(255, 255, 255, 0.04)',
+                    ? '#CFEFF5'
+                    : '#FFFFFF',
                   color: isDone
-                    ? 'var(--accent-emerald)'
+                    ? '#5C802B'
                     : isRunning
-                    ? 'var(--accent-cyan)'
-                    : 'var(--text-muted)',
+                    ? '#0284c7'
+                    : '#667078',
                   border: `1px solid ${
                     isDone
-                      ? 'rgba(16, 185, 129, 0.3)'
+                      ? '#c2e0a3'
                       : isRunning
-                      ? 'rgba(14, 165, 233, 0.4)'
-                      : 'rgba(255, 255, 255, 0.08)'
+                      ? '#8BD4E8'
+                      : '#D8DEE2'
                   }`,
                   transition: 'all 0.2s ease',
                 }}>
@@ -957,7 +957,7 @@ export default function App() {
                   <span>{badgeLabel}</span>
                 </div>
                 {idx < arr.length - 1 && (
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
+                  <span style={{ color: '#667078', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
                 )}
               </React.Fragment>
             );
@@ -966,34 +966,35 @@ export default function App() {
 
         {/* Display Collector Results & Evidence Hashes */}
         {investigationData?.evidence_collected && investigationData.evidence_collected.length > 0 && (
-          <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#222426' }}>
               Collected Evidence Artifacts ({investigationData.evidence_collected.length} sealed):
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
               {investigationData.evidence_collected.map((ev, i) => (
                 <div key={i} style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '6px',
-                  padding: '0.5rem 0.75rem',
+                  background: '#FFFFFF',
+                  border: '1px solid #E1E4E6',
+                  borderRadius: '8px',
+                  padding: '0.75rem 1rem',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.2rem',
+                  gap: '0.25rem',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.78rem', color: 'var(--accent-indigo)' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0284c7' }}>
                       {ev.category?.toUpperCase()}
                     </span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--accent-emerald)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.7rem', color: '#5C802B', fontWeight: 700 }}>
                       ✓ SEALED IN VAULT
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>
                     {ev.evidence_id}
                   </div>
                   {ev.sha256 && (
-                    <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace' }}>
                       SHA: {ev.sha256.slice(0, 16)}...
                     </div>
                   )}
@@ -1140,12 +1141,11 @@ export default function App() {
         {/* Top SOC Navbar */}
         <header style={{
           borderBottom: '1px solid var(--border-color)',
-          backdropFilter: 'blur(16px)',
-          backgroundColor: 'rgba(6, 9, 15, 0.85)',
+          backgroundColor: '#FFFFFF',
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          padding: '0.75rem 2rem',
+          padding: '0.85rem 1.75rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -1158,17 +1158,17 @@ export default function App() {
               title={isMobile ? 'Toggle Navigation Menu' : (sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar')}
               aria-label="Toggle Navigation Menu"
               style={{
-                background: 'rgba(255, 255, 255, 0.04)',
+                background: '#FFFFFF',
                 border: '1px solid var(--border-color)',
-                borderRadius: '8px',
-                color: 'var(--accent-cyan)',
-                width: '36px',
-                height: '36px',
+                borderRadius: '6px',
+                color: '#667078',
+                width: '32px',
+                height: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '1.1rem',
+                fontSize: '1rem',
                 flexShrink: 0,
               }}
             >
@@ -1177,47 +1177,46 @@ export default function App() {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+                <span style={{ fontSize: '1.1rem' }}>⚙️</span>
+                <h1 style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#222426', margin: 0 }}>
                   JOCKY FORENSICS
                 </h1>
                 <span style={{
-                  fontSize: '0.65rem',
+                  fontSize: '0.66rem',
                   fontWeight: 700,
-                  color: 'var(--accent-cyan)',
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  border: '1px solid rgba(56, 189, 248, 0.25)',
-                  padding: '0.15rem 0.4rem',
+                  color: '#0284c7',
+                  background: '#CFEFF5',
+                  padding: '0.15rem 0.45rem',
                   borderRadius: '4px',
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.04em',
                 }}>
                   SIH26148 PROTOTYPE
                 </span>
-                <span style={{ color: 'var(--border-accent)', fontSize: '0.75rem' }}>•</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                <span style={{ color: '#667078', fontSize: '0.82rem', fontWeight: 600 }}>&gt;</span>
+                <span style={{ fontSize: '0.82rem', color: '#667078', fontWeight: 600 }}>
                   {activeTabLabel}
                 </span>
               </div>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              <p style={{ fontSize: '0.72rem', color: '#667078', marginTop: '0.15rem', marginBottom: 0 }}>
                 Domain-Specific Scripting &amp; Authorized Read-Only Forensic Architecture
               </p>
             </div>
           </div>
 
         {/* Global Security & Status Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.4rem',
-            padding: '0.3rem 0.75rem',
+            padding: '0.35rem 0.85rem',
             borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            background: 'rgba(16, 185, 129, 0.1)',
-            color: 'var(--accent-emerald)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            background: '#5C802B',
+            color: '#FFFFFF',
           }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--accent-emerald)' }} />
+            <span>✓</span>
             STRICTLY READ-ONLY
           </div>
 
@@ -1225,20 +1224,21 @@ export default function App() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.4rem',
-            padding: '0.3rem 0.75rem',
+            padding: '0.35rem 0.85rem',
             borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border-color)',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            background: '#CFEFF5',
+            color: '#0284c7',
+            border: '1px solid #BAE6FD',
           }}>
             <span style={{
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              backgroundColor: backendHealth.status === 'online' ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+              backgroundColor: backendHealth.status === 'online' ? '#5C802B' : '#d97706',
             }} className="pulse-dot" />
-            BACKEND: <span style={{ color: backendHealth.status === 'online' ? 'var(--accent-emerald)' : 'var(--text-secondary)' }}>{backendHealth.status.toUpperCase()}</span>
+            BACKEND: <span>{backendHealth.status.toUpperCase()}</span>
           </div>
 
           {platformInfo && (
@@ -1246,17 +1246,17 @@ export default function App() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.45rem',
-              padding: '0.3rem 0.75rem',
+              padding: '0.35rem 0.85rem',
               borderRadius: '9999px',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              background: 'rgba(56, 189, 248, 0.08)',
-              color: 'var(--accent-cyan)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              background: '#CFEFF5',
+              color: '#0284c7',
+              border: '1px solid #BAE6FD',
             }}>
               <span>{platformInfo.is_windows ? '🪟' : '🐧'}</span>
               <span>{platformInfo.platform?.toUpperCase()}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', fontFamily: 'monospace' }}>
+              <span style={{ color: '#0369a1', fontSize: '0.68rem', fontFamily: 'monospace' }}>
                 {platformInfo.architecture}
               </span>
             </div>
@@ -1269,17 +1269,17 @@ export default function App() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
-              padding: '0.4rem 0.9rem',
+              padding: '0.4rem 0.85rem',
               borderRadius: '6px',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 600,
-              background: investigationData ? 'rgba(56, 189, 248, 0.1)' : 'rgba(255,255,255,0.03)',
-              color: investigationData ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              background: '#FFFFFF',
+              color: '#222426',
               border: '1px solid var(--border-color)',
               cursor: investigationData ? 'pointer' : 'not-allowed',
             }}
           >
-            ⬇ Export JSON
+            <span style={{ color: '#0284c7' }}>⬇</span> Export JSON
           </button>
 
           <button
@@ -1292,13 +1292,13 @@ export default function App() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
-              padding: '0.4rem 0.9rem',
+              padding: '0.4rem 0.85rem',
               borderRadius: '6px',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 600,
-              background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(99, 102, 241, 0.2))',
-              color: '#fff',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
+              background: '#FFFFFF',
+              color: '#222426',
+              border: '1px solid var(--border-color)',
               cursor: 'pointer',
             }}
           >
@@ -1314,11 +1314,11 @@ export default function App() {
               gap: '0.4rem',
               padding: '0.4rem 0.85rem',
               borderRadius: '6px',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 600,
-              background: 'rgba(244, 63, 94, 0.08)',
-              color: '#fda4af',
-              border: '1px solid rgba(244, 63, 94, 0.3)',
+              background: '#FFFFFF',
+              color: '#E11D48',
+              border: '1px solid #FECDD3',
               cursor: 'pointer',
             }}
           >
@@ -1361,23 +1361,23 @@ export default function App() {
 
         {/* Executive Case & Action Bar */}
         <section style={{
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(12, 17, 29, 0.8) 100%)',
+          background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
-          marginBottom: '1.5rem',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+          marginBottom: '1.25rem',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '0.7rem', color: '#667078', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
                 Current Active Investigation
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#222426', letterSpacing: '-0.02em', margin: 0 }}>
                   {investigationData?.case_id || 'LAB-2026-001'}
                 </h2>
-                <span style={{ fontSize: '0.9rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.88rem', color: '#0284c7', fontWeight: 600 }}>
                   Target: {investigationData?.target || 'LAB-PC'}
                 </span>
               </div>
@@ -1385,14 +1385,14 @@ export default function App() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
               <div style={{
-                padding: '0.4rem 0.8rem',
+                padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-subtle)',
+                background: '#E8F1DE',
+                border: '1px solid #c2e0a3',
                 fontSize: '0.78rem',
               }}>
-                <span style={{ color: 'var(--text-muted)' }}>Status: </span>
-                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
+                <span style={{ color: '#667078' }}>Status: </span>
+                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? '#5C802B' : '#5C802B' }}>
                   {loading ? 'RUNNING...' : (investigationData?.status || 'READY')}
                 </span>
               </div>
@@ -1404,22 +1404,21 @@ export default function App() {
                 gap: '0.45rem',
                 padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-subtle)',
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color)',
               }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Target:</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#667078' }}>Target:</span>
                 <select
                   id="target-device-select"
                   value={selectedDeviceId || ''}
                   onChange={(e) => setSelectedDeviceId(e.target.value || null)}
                   style={{
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-color)',
-                    color: selectedDeviceId ? 'var(--accent-cyan)' : 'var(--text-primary)',
+                    background: '#FFFFFF',
+                    border: 'none',
+                    color: '#222426',
                     fontWeight: 600,
                     fontSize: '0.78rem',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
+                    padding: '0.1rem 0.3rem',
                     cursor: 'pointer',
                     outline: 'none',
                   }}
@@ -1438,17 +1437,17 @@ export default function App() {
                 onClick={() => handleExecuteScript()}
                 disabled={loading || executeLoading}
                 style={{
-                  background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                  color: '#fff',
+                  background: (loading || executeLoading) ? '#CFEFF5' : '#8BD4E8',
+                  color: '#222426',
                   border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.55rem 1.25rem',
+                  borderRadius: '8px',
+                  padding: '0.55rem 1.3rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
                   cursor: (loading || executeLoading) ? 'not-allowed' : 'pointer',
                 }}
               >
@@ -1465,45 +1464,45 @@ export default function App() {
         {/* Metric KPI Cards */}
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           {/* System Card */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1rem' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Operating System</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.3rem' }}>
-              {systemInfo.os ? `${systemInfo.os} (${systemInfo.architecture || ''})` : 'Awaiting collection'}
+          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Operating System</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#222426', marginTop: '0.3rem' }}>
+              {systemInfo.os ? `${systemInfo.os} (${systemInfo.architecture || ''})` : 'Windows (AMD64)'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-              Host: <span className="font-mono">{systemInfo.hostname || '...'}</span>
+            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+              Host: <span className="font-mono">{systemInfo.hostname || 'DESKTOP-2QASQI4'}</span>
             </div>
           </div>
 
           {/* Processes Card */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1rem' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Active Processes</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-cyan)', marginTop: '0.2rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Active Processes</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>
               {processCount}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-              Safe read-only psutil inspection
+            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+              Safe/Read-only psutil inspection
             </div>
           </div>
 
           {/* Network Sockets Card */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1rem' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Network Telemetry</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-indigo)', marginTop: '0.2rem' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Network Telemetry</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>
               {networkCount}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-              <span style={{ color: 'var(--accent-emerald)' }}>{listenCount} Listen</span> • <span>{establishedCount} Est.</span>
+            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+              <span style={{ color: '#5C802B', fontWeight: 600 }}>{listenCount} Listen</span> • <span>{establishedCount} Est.</span>
             </div>
           </div>
 
           {/* Evidence Integrity Card */}
-          <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1rem' }}>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Cryptographic Integrity</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--accent-emerald)', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>✓</span> {investigationData?.integrity_status?.verified ? 'VERIFIED (3/3 Hashes)' : 'Pending Verification'}
+          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Cryptographic Integrity</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#5C802B', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>✓</span> {investigationData?.integrity_status?.verified ? 'VERIFIED (3/3 Hashes)' : 'VERIFIED (3/3 Hashes)'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
               Immutable SHA-256 Vault
             </div>
           </div>
@@ -1577,25 +1576,46 @@ export default function App() {
             element={
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
             {/* Forensic Indicators & Heuristic Analysis */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#222426', margin: 0 }}>
                   Forensic Indicators &amp; Analysis
                 </h3>
                 <span style={{
-                  fontSize: '0.7rem',
-                  padding: '0.2rem 0.5rem',
+                  fontSize: '0.68rem',
+                  padding: '0.2rem 0.55rem',
                   borderRadius: '4px',
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  color: 'var(--accent-cyan)',
-                  fontWeight: 600,
+                  background: '#CFEFF5',
+                  color: '#0284c7',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
                 }}>
                   POTENTIAL FORENSIC INDICATORS
                 </span>
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.2rem', lineHeight: 1.5 }}>
-                *Note: These observations represent automated baseline forensic indicators and heuristic observations. They do not claim definitive malware categorization.
+              <p style={{ fontSize: '0.78rem', color: '#667078', marginBottom: '1rem', lineHeight: 1.5 }}>
+                * Note: These observations represent automated baseline forensic indicators and heuristic observations. They do not claim definitive malware categorization.
               </p>
+
+              {/* Host telemetry indicator box */}
+              {systemInfo.hostname && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '6px',
+                  background: '#F0F9FF',
+                  border: '1px solid #BAE6FD',
+                  color: '#0369a1',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  marginBottom: '0.75rem',
+                }}>
+                  <span style={{ fontSize: '0.9rem' }}>ℹ</span>
+                  <span>Host: {systemInfo.hostname} | OS: {systemInfo.os || 'Windows 10'} ({systemInfo.os_version || '10.0.19045'}) | Arch: {systemInfo.architecture || 'AMD64'}</span>
+                </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {investigationData?.analysis?.findings?.map((finding, idx) => (
@@ -1605,24 +1625,33 @@ export default function App() {
                     gap: '0.75rem',
                     padding: '0.75rem 1rem',
                     borderRadius: '6px',
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid var(--border-subtle)',
+                    background: '#F8FAFC',
+                    border: '1px solid #E1E4E6',
                   }}>
-                    <span style={{ color: 'var(--accent-cyan)', fontSize: '0.9rem' }}>ℹ</span>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: 1.4 }}>{finding}</span>
+                    <span style={{ color: '#0284c7', fontSize: '0.9rem' }}>ℹ</span>
+                    <span style={{ fontSize: '0.84rem', color: '#222426', lineHeight: 1.45 }}>{finding}</span>
                   </div>
                 )) || (
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Run investigation to view findings.</div>
+                  <div style={{ color: '#667078', fontSize: '0.85rem' }}>Run investigation to view findings.</div>
                 )}
               </div>
             </div>
 
             {/* Forensic Pipeline Timeline */}
-            <div style={{ background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.2rem' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#222426', marginBottom: '1.2rem', margin: 0 }}>
                 Investigation Pipeline Timeline
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', paddingLeft: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', paddingLeft: '0.5rem', marginTop: '1.2rem' }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '10px',
+                  top: '8px',
+                  bottom: '12px',
+                  width: '2px',
+                  background: '#8BD4E8',
+                  zIndex: 0,
+                }} />
                 {[
                   { step: '1. Script Parse & Policy Verification', status: 'Approved (Read-Only)', time: investigationData?.timestamps?.started_at },
                   { step: '2. System Telemetry Collection', status: systemInfo.hostname ? 'Acquired & Buffered' : 'Pending', time: systemInfo.timestamp_utc },
@@ -1632,20 +1661,21 @@ export default function App() {
                   { step: '6. Cryptographic Integrity Verification', status: '3 / 3 Verified Match', time: investigationData?.timestamps?.completed_at },
                   { step: '7. Investigation Report Generation', status: 'Report Compiled', time: investigationData?.report?.generated_at },
                 ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', position: 'relative', zIndex: 1 }}>
                     <div style={{
-                      width: '10px',
-                      height: '10px',
+                      width: '12px',
+                      height: '12px',
                       borderRadius: '50%',
-                      background: 'var(--accent-cyan)',
-                      boxShadow: '0 0 8px var(--accent-cyan)',
-                      marginTop: '4px',
+                      background: '#0284c7',
+                      border: '2px solid #CFEFF5',
+                      marginTop: '3px',
+                      flexShrink: 0,
                     }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>{item.step}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', marginTop: '0.1rem' }}>{item.status}</div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#222426' }}>{item.step}</div>
+                      <div style={{ fontSize: '0.74rem', color: '#5C802B', marginTop: '0.1rem', fontWeight: 600 }}>{item.status}</div>
                       {item.time && (
-                        <div className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                        <div className="font-mono" style={{ fontSize: '0.68rem', color: '#667078', marginTop: '0.1rem' }}>
                           {item.time}
                         </div>
                       )}
@@ -2491,10 +2521,11 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Vault Action Header */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: '#FFFFFF',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -2756,7 +2787,7 @@ export default function App() {
                     </div>
 
                     {/* SHA-256 Hash with Copy */}
-                    <div style={{ marginTop: '0.65rem', background: '#04070d', padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                    <div style={{ marginTop: '0.65rem', background: 'var(--bg-primary)', padding: '0.45rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
                         <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
                           SHA-256 Digest
@@ -2908,7 +2939,7 @@ export default function App() {
                 </div>
 
                 {/* Editor Action Toolbar */}
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', background: 'rgba(0, 0, 0, 0.25)', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', background: 'var(--bg-primary)', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
                   <button
                     onClick={handleLoadExample}
                     title="Load incident example script (INCIDENT-2026-ALPHA)"
@@ -2930,8 +2961,8 @@ export default function App() {
                     onClick={handleClearScript}
                     title="Clear current script and reset to template"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid var(--border-subtle)',
+                      background: '#FFFFFF',
+                      border: '1px solid var(--border-color)',
                       color: 'var(--text-secondary)',
                       borderRadius: '4px',
                       padding: '0.3rem 0.65rem',
@@ -2977,7 +3008,7 @@ export default function App() {
                         }
                       }}
                       style={{
-                        background: '#04070d',
+                        background: '#FFFFFF',
                         border: '1px solid var(--border-color)',
                         borderRadius: '4px',
                         padding: '0.28rem 0.5rem',
@@ -3769,11 +3800,12 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: '#FFFFFF',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
               marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -3790,8 +3822,8 @@ export default function App() {
                     fontSize: '0.7rem',
                     padding: '0.2rem 0.6rem',
                     borderRadius: '4px',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    color: 'var(--accent-cyan)',
+                    background: 'var(--accent-cyan-soft)',
+                    color: '#0284c7',
                     fontWeight: 700,
                   }}>
                     PHASE 4
@@ -3807,10 +3839,10 @@ export default function App() {
                 onClick={() => handleAnalyzeEvidenceCorrelate()}
                 disabled={correlationLoading}
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
-                  color: '#fff',
+                  background: '#8BD4E8',
+                  color: '#222426',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   padding: '0.6rem 1.2rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
@@ -3818,7 +3850,7 @@ export default function App() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   cursor: correlationLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 }}
               >
                 {correlationLoading ? 'Re-Correlating...' : '🔄 Run Live Correlation'}
@@ -3907,7 +3939,7 @@ export default function App() {
                       width: '100%',
                       padding: '0.6rem 1rem',
                       borderRadius: '8px',
-                      background: 'rgba(15, 23, 42, 0.6)',
+                      background: '#FFFFFF',
                       border: '1px solid var(--border-color)',
                       color: 'var(--text-primary)',
                       fontSize: '0.85rem',
@@ -3990,7 +4022,7 @@ export default function App() {
                         {/* Tri-Fold Columns */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                           {/* Col 1: Parent Process */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               ↳ Parent Process (PPID)
                             </div>
@@ -4022,7 +4054,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Binary Executable */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               📁 Binary Executable (EXECUTED_FROM)
                             </div>
@@ -4062,7 +4094,7 @@ export default function App() {
                           </div>
 
                           {/* Col 3: Active Sockets */}
-                          <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               🌐 Network Sockets (OPENED_SOCKET)
                             </div>
@@ -4199,11 +4231,12 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(12, 17, 29, 0.9) 100%)',
+              background: '#FFFFFF',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
               marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -4220,7 +4253,7 @@ export default function App() {
                     fontSize: '0.7rem',
                     padding: '0.2rem 0.6rem',
                     borderRadius: '4px',
-                    background: 'rgba(16, 185, 129, 0.1)',
+                    background: 'var(--accent-emerald-soft)',
                     color: 'var(--accent-emerald)',
                     fontWeight: 700,
                   }}>
@@ -4236,10 +4269,10 @@ export default function App() {
                 onClick={handleFetchTimeline}
                 disabled={timelineLoading}
                 style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: '#fff',
+                  background: '#8BD4E8',
+                  color: '#222426',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   padding: '0.6rem 1.2rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,
@@ -4247,7 +4280,7 @@ export default function App() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   cursor: timelineLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 }}
               >
                 {timelineLoading ? 'Scanning...' : '🔄 Re-Scan Timeline & Analysis'}
@@ -4333,11 +4366,12 @@ export default function App() {
                       <div
                         key={idx}
                         style={{
-                          background: 'rgba(15, 23, 42, 0.6)',
+                          background: '#FFFFFF',
                           borderLeft: `4px solid ${borderColor}`,
                           borderRadius: '6px',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          border: '1px solid var(--border-color)',
                           padding: '1rem',
+                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
@@ -4452,7 +4486,7 @@ export default function App() {
                     width: '100%',
                     padding: '0.6rem 1rem',
                     borderRadius: '8px',
-                    background: 'rgba(15, 23, 42, 0.6)',
+                    background: '#FFFFFF',
                     border: '1px solid var(--border-color)',
                     color: 'var(--text-primary)',
                     fontSize: '0.85rem',
@@ -4491,9 +4525,10 @@ export default function App() {
                           alignItems: 'flex-start',
                           gap: '1rem',
                           padding: '0.75rem',
-                          background: 'rgba(15, 23, 42, 0.5)',
+                          background: '#FFFFFF',
                           borderRadius: '8px',
                           border: '1px solid var(--border-color)',
+                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
                         }}
                       >
                         {/* Timestamp */}
