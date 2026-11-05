@@ -94,3 +94,12 @@ def test_unknown_alias_suggests_the_closest_name():
 def test_flat_scripts_still_reject_two_statements_on_one_line():
     err = compile_jocky('CASE "a"\nTARGET "b"\nCOLLECT SYSTEM COLLECT NETWORK')["error"]
     assert err["code"] == "JKY201"
+
+
+def test_shipped_block_example_compiles():
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parent.parent / "examples" / "block_audit.jocky").read_text(encoding="utf-8")
+    ir = _ops(source)
+    assert ir["case_id"] == "System_Audit_001"
+    assert len(ir["operations"]) == 7
