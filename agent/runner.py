@@ -18,6 +18,8 @@ import json
 import logging
 from typing import Any, Dict, List, Optional, Set
 
+from backend.app.collectors.inventory import INVENTORY_COLLECTORS
+
 from .adapter import CollectorAdapter
 
 logger = logging.getLogger("jocky.agent.runner")
@@ -31,6 +33,8 @@ STRICT_ALLOWED_COLLECTORS: Set[str] = {
     "users",
     "registry",
     "windows_metadata",
+    # host inventory (services, startup, drivers, listening_ports, dns)
+    *INVENTORY_COLLECTORS,
 }
 
 # Forbidden keywords in parameters or directives
