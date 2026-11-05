@@ -25,7 +25,10 @@ from backend.app.agents.models import (
 
 def test_allowed_collector_enum():
     """Verify only the approved read-only collectors exist."""
-    approved = {"system", "processes", "network", "files", "users", "registry"}
+    approved = {
+        "system", "processes", "network", "files", "users", "registry",
+        "services", "startup", "drivers", "listening_ports", "dns",
+    }
     actual = {c.value for c in AllowedCollector}
     assert actual == approved
 
