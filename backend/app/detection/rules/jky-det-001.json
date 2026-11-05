@@ -1,0 +1,41 @@
+{
+  "id": "JKY-DET-001",
+  "title": "Service binary runs from a temporary or user-writable folder",
+  "description": "A service or systemd unit's executable sits in a location any user can write to. Real services live in system or program folders; attackers drop payloads in temp folders and register them as services to survive reboots.",
+  "source": "services",
+  "condition": {
+    "field": "executable",
+    "op": "contains_any",
+    "values": [
+      "/tmp/",
+      "/var/tmp/",
+      "/dev/shm/",
+      "/appdata/local/temp/",
+      "/windows/temp/",
+      "/users/public/",
+      "/$recycle.bin/",
+      "/appdata/roaming/",
+      "/home/"
+    ]
+  },
+  "severity": "high",
+  "confidence": "medium",
+  "attack": [
+    {
+      "id": "T1543",
+      "name": "Create or Modify System Process"
+    },
+    {
+      "id": "T1543.002",
+      "name": "Systemd Service"
+    },
+    {
+      "id": "T1543.003",
+      "name": "Windows Service"
+    }
+  ],
+  "benign_explanations": [
+    "Per-user updaters (browsers, chat clients) sometimes register services under AppData",
+    "Developer tools started from a home directory during testing"
+  ]
+}

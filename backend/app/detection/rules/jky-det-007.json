@@ -1,0 +1,35 @@
+{
+  "id": "JKY-DET-007",
+  "title": "Process executing from a temporary or public folder",
+  "description": "A running process's executable sits in a temporary or world-writable folder. Droppers and first-stage payloads usually run from there.",
+  "source": "processes",
+  "condition": {
+    "field": "exe",
+    "op": "contains_any",
+    "values": [
+      "/tmp/",
+      "/var/tmp/",
+      "/dev/shm/",
+      "/appdata/local/temp/",
+      "/windows/temp/",
+      "/users/public/",
+      "/$recycle.bin/"
+    ]
+  },
+  "severity": "medium",
+  "confidence": "medium",
+  "attack": [
+    {
+      "id": "T1204.002",
+      "name": "User Execution: Malicious File"
+    },
+    {
+      "id": "T1036",
+      "name": "Masquerading"
+    }
+  ],
+  "benign_explanations": [
+    "Installers and self-extracting archives unpack and run from Temp",
+    "Some updaters copy themselves to Temp before replacing their own binary"
+  ]
+}

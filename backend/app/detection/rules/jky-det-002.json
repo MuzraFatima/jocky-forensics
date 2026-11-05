@@ -1,0 +1,54 @@
+{
+  "id": "JKY-DET-002",
+  "title": "Startup entry downloads or decodes code, or runs from a temp folder",
+  "description": "A Run key, startup folder item, cron job or autostart entry fetches remote content, decodes an encoded command, or executes from a temporary location. These are common ways to persist a loader.",
+  "source": "startup",
+  "condition": {
+    "field": "command",
+    "op": "contains_any",
+    "values": [
+      "/tmp/",
+      "/var/tmp/",
+      "/dev/shm/",
+      "/appdata/local/temp/",
+      "/windows/temp/",
+      "/users/public/",
+      "/$recycle.bin/",
+      "curl ",
+      "wget ",
+      "| sh",
+      "|sh",
+      "| bash",
+      "|bash",
+      "-encodedcommand",
+      "-enc ",
+      "frombase64string",
+      "iex(",
+      "invoke-expression",
+      "mshta",
+      "bitsadmin",
+      "certutil -urlcache",
+      "base64 -d"
+    ]
+  },
+  "severity": "high",
+  "confidence": "medium",
+  "attack": [
+    {
+      "id": "T1547.001",
+      "name": "Registry Run Keys / Startup Folder"
+    },
+    {
+      "id": "T1053.003",
+      "name": "Cron"
+    },
+    {
+      "id": "T1105",
+      "name": "Ingress Tool Transfer"
+    }
+  ],
+  "benign_explanations": [
+    "Package managers or monitoring agents that self-update with curl from a vendor URL",
+    "Maintenance cron jobs that download signed artifacts"
+  ]
+}

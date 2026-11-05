@@ -1,0 +1,34 @@
+{
+  "id": "JKY-DET-003",
+  "title": "Unsigned or out-of-tree kernel module loaded",
+  "description": "The kernel reports a loaded module as unsigned (taint E) or built outside the kernel tree (taint O). Rootkits load as kernel modules; most distribution modules are signed and in-tree.",
+  "source": "drivers",
+  "condition": {
+    "any": [
+      {
+        "field": "unsigned",
+        "op": "is_true"
+      },
+      {
+        "field": "out_of_tree",
+        "op": "is_true"
+      }
+    ]
+  },
+  "severity": "high",
+  "confidence": "medium",
+  "attack": [
+    {
+      "id": "T1547.006",
+      "name": "Kernel Modules and Extensions"
+    },
+    {
+      "id": "T1014",
+      "name": "Rootkit"
+    }
+  ],
+  "benign_explanations": [
+    "VirtualBox, VMware, NVIDIA and ZFS modules are out-of-tree and sometimes unsigned",
+    "Modules built locally with DKMS"
+  ]
+}
