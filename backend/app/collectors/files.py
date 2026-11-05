@@ -64,8 +64,11 @@ def _is_file_hidden(file_path: Path, st: os.stat_result) -> bool:
     """Check if file is marked hidden."""
     if file_path.name.startswith("."):
         return True
-    if hasattr(stat, "FILE_ATTRIBUTE_HIDDEN"):
-        return bool(st.st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN)
+    # st_file_attributes only exists on Windows, although the stat module
+    # defines FILE_ATTRIBUTE_HIDDEN everywhere.
+    attributes = getattr(st, "st_file_attributes", 0)
+    if attributes and hasattr(stat, "FILE_ATTRIBUTE_HIDDEN"):
+        return bool(attributes & stat.FILE_ATTRIBUTE_HIDDEN)
     return False
 
 
