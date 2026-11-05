@@ -24,7 +24,7 @@ from .ast import (
     TargetNode,
     VerifyNode,
 )
-from .errors import JockySyntaxError
+from .errors import JockySyntaxError, suggest
 from .tokens import Token, TokenType
 
 # ---------------------------------------------------------------------------
@@ -57,6 +57,9 @@ _COLLECT_CATEGORIES = {
     TokenType.REGISTRY,
     TokenType.WINDOWS_METADATA,
 }
+
+# Words that may start a statement, used for "did you mean" hints
+_STATEMENT_KEYWORDS = ["CASE", "TARGET", "COLLECT", "ANALYZE", "VERIFY", "REPORT"]
 
 # COLLECT categories that support WHERE filters
 _FILTERABLE_CATEGORIES = {
@@ -98,7 +101,7 @@ class Parser:
         token = self._peek()
         if token.type == token_type:
             return self._advance()
-        raise JockySyntaxError(error_message, token.line, token.column)
+        raise JockySyntaxError(error_message, token.line, token.column, code="JKY200")
 
     def _skip_newlines(self) -> None:
         while self._match(TokenType.NEWLINE):
@@ -112,6 +115,7 @@ class Parser:
                 f"Unexpected token '{token.value}' after {command_name} statement",
                 token.line,
                 token.column,
+                code="JKY201",
             )
 
     # ─── WHERE clause parser ──────────────────────────────────────────────────
@@ -152,6 +156,7 @@ class Parser:
                 f"Expected filter field name (e.g., 'status', 'state') after WHERE, got '{field_tok.value}'",
                 field_tok.line,
                 field_tok.column,
+                code="JKY210",
             )
         field_tok = self._advance()
 
@@ -162,6 +167,7 @@ class Parser:
                 f"Expected '==' after filter field '{field_tok.value}', got '{eq_tok.value}'",
                 eq_tok.line,
                 eq_tok.column,
+                code="JKY210",
             )
         self._advance()  # consume ==
 
@@ -172,6 +178,7 @@ class Parser:
                 f"Expected filter value (e.g., RUNNING, ESTABLISHED) after '==', got '{val_tok.value}'",
                 val_tok.line,
                 val_tok.column,
+                code="JKY210",
             )
         val_tok = self._advance()
 
@@ -213,6 +220,7 @@ class Parser:
                     f"Expected case identifier string after CASE, got '{str_tok.value}'",
                     str_tok.line,
                     str_tok.column,
+                    code="JKY202",
                 )
             self._advance()
             self._assert_end_of_statement("CASE")
@@ -226,6 +234,7 @@ class Parser:
                     f"Expected target name string after TARGET, got '{str_tok.value}'",
                     str_tok.line,
                     str_tok.column,
+                    code="JKY203",
                 )
             self._advance()
             self._assert_end_of_statement("TARGET")
@@ -247,6 +256,7 @@ class Parser:
                     f"Expected 'INTEGRITY' after 'VERIFY', got '{target_tok.value}'",
                     target_tok.line,
                     target_tok.column,
+                    code="JKY204",
                 )
             self._advance()
             self._assert_end_of_statement("VERIFY INTEGRITY")
@@ -262,6 +272,8 @@ class Parser:
             f"Expected: CASE | TARGET | COLLECT | ANALYZE | VERIFY | REPORT",
             token.line,
             token.column,
+            code="JKY205",
+            hint=suggest(token.value, _STATEMENT_KEYWORDS),
         )
 
     def _parse_collect(self, collect_token: Token) -> CollectNode:
@@ -274,6 +286,8 @@ class Parser:
                 f"Expected: SYSTEM | PROCESSES | NETWORK | FILES | USERS | REGISTRY | WINDOWS_METADATA",
                 cat_tok.line,
                 cat_tok.column,
+                code="JKY206",
+                hint=suggest(cat_tok.value, [t.value for t in _COLLECT_CATEGORIES]),
             )
 
         self._advance()  # consume category
@@ -286,6 +300,7 @@ class Parser:
                     f"Expected directory path string after 'COLLECT FILES', got '{path_tok.value}'",
                     path_tok.line,
                     path_tok.column,
+                    code="JKY207",
                 )
             self._advance()
             self._assert_end_of_statement("COLLECT FILES")
@@ -358,6 +373,7 @@ class Parser:
                     f"Expected report format (e.g., JSON) after FORMAT, got '{fmt_val_tok.value}'",
                     fmt_val_tok.line,
                     fmt_val_tok.column,
+                    code="JKY208",
                 )
 
         self._assert_end_of_statement("REPORT")

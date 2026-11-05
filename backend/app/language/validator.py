@@ -32,7 +32,7 @@ from .ast import (
     TargetNode,
     VerifyNode,
 )
-from .errors import JockyValidationError
+from .errors import JockyValidationError, suggest
 
 # Supported report formats
 _SUPPORTED_REPORT_FORMATS = {"JSON", "HTML", "MD", "MARKDOWN"}
@@ -81,6 +81,7 @@ class Validator:
                 "Missing mandatory 'CASE' declaration. A forensic script must define a case identifier.",
                 line=program.line,
                 column=program.column,
+                code="JKY301",
             )
         if len(case_nodes) > 1:
             second_case = case_nodes[1]
@@ -88,6 +89,7 @@ class Validator:
                 f"Duplicate 'CASE' declaration '{second_case.case_id}'. Only one case context is permitted per script.",
                 line=second_case.line,
                 column=second_case.column,
+                code="JKY302",
             )
 
         # TARGET required and unique
@@ -96,6 +98,7 @@ class Validator:
                 "Missing mandatory 'TARGET' declaration. A forensic script must define a target host.",
                 line=program.line,
                 column=program.column,
+                code="JKY303",
             )
         if len(target_nodes) > 1:
             second_target = target_nodes[1]
@@ -103,6 +106,7 @@ class Validator:
                 f"Duplicate 'TARGET' declaration '{second_target.target_name}'. Only one target host is permitted per script.",
                 line=second_target.line,
                 column=second_target.column,
+                code="JKY304",
             )
 
         case_id = case_nodes[0].case_id.strip()
@@ -111,6 +115,7 @@ class Validator:
                 "Case identifier cannot be empty.",
                 line=case_nodes[0].line,
                 column=case_nodes[0].column,
+                code="JKY305",
             )
 
         target_name = target_nodes[0].target_name.strip()
@@ -119,6 +124,7 @@ class Validator:
                 "Target identifier cannot be empty.",
                 line=target_nodes[0].line,
                 column=target_nodes[0].column,
+                code="JKY305",
             )
 
         # ── 2. Validate individual statements and collect evidence-tracking info
@@ -148,6 +154,8 @@ class Validator:
                                 f"Allowed fields: {valid_str}",
                                 line=flt.line,
                                 column=flt.column,
+                                code="JKY310",
+                                hint=suggest(flt.field, allowed_fields),
                             )
                         valid_values = _VALID_FILTER_VALUES.get(flt.field, set())
                         if valid_values and flt.value.upper() not in valid_values:
@@ -157,6 +165,8 @@ class Validator:
                                 f"Allowed values: {valid_str}",
                                 line=flt.line,
                                 column=flt.column,
+                                code="JKY311",
+                                hint=suggest(flt.value, valid_values),
                             )
 
                 # COLLECT FILES needs a non-empty path
@@ -165,6 +175,7 @@ class Validator:
                         "COLLECT FILES path cannot be empty.",
                         line=stmt.line,
                         column=stmt.column,
+                        code="JKY306",
                     )
 
             elif isinstance(stmt, VerifyNode):
@@ -175,6 +186,7 @@ class Validator:
                         "(SYSTEM, PROCESSES, NETWORK, or FILES).",
                         line=stmt.line,
                         column=stmt.column,
+                        code="JKY320",
                     )
 
             elif isinstance(stmt, ReportNode):
@@ -185,6 +197,7 @@ class Validator:
                         f"Supported formats: {', '.join(sorted(_SUPPORTED_REPORT_FORMATS))}",
                         line=stmt.line,
                         column=stmt.column,
+                        code="JKY330",
                     )
 
         # Rule 3: At least one COLLECT required
@@ -193,6 +206,7 @@ class Validator:
                 "A forensic script must contain at least one COLLECT operation.",
                 line=program.line,
                 column=program.column,
+                code="JKY307",
             )
 
         # ── 3. Build structured execution plan tasks ──────────────────────────

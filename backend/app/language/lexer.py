@@ -78,6 +78,7 @@ class Lexer:
                     "Unterminated string literal: unexpected newline before closing quote",
                     start_line,
                     start_col,
+                    code="JKY101",
                 )
 
             if ch == "\\":
@@ -100,6 +101,7 @@ class Lexer:
             "Unterminated string literal: reached end-of-file without closing quote",
             start_line,
             start_col,
+            code="JKY101",
         )
 
     def _read_word(self) -> Token:
@@ -209,6 +211,7 @@ class Lexer:
                 f"Unexpected character '{bad_char}'",
                 start_line,
                 start_col,
+                code="JKY102",
             )
 
         # Ensure trailing NEWLINE + EOF sentinel
