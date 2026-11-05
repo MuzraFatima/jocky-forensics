@@ -17,16 +17,40 @@ Safety Invariants:
 """
 
 import datetime
+import functools
 import os
 import platform
 import socket
 from pathlib import Path
 from stat import S_ISREG
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import psutil
 
+from backend.app.collectors.provenance import create_provenance
 from backend.app.evidence.hashing import hash_file
+
+
+def _linux_collector(name: str, method: str) -> Callable[[Callable[..., Dict[str, Any]]], Callable[..., Dict[str, Any]]]:
+    """
+    Give a Linux collector's result the same envelope the Windows and macOS
+    collectors return: collector name, read_only flag, platform and a
+    provenance record (blueprint §6.2). Keys the collector already set win.
+    """
+
+    def decorate(fn: Callable[..., Dict[str, Any]]) -> Callable[..., Dict[str, Any]]:
+        @functools.wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any) -> Dict[str, Any]:
+            result = fn(*args, **kwargs)
+            result.setdefault("collector", name)
+            result.setdefault("read_only", True)
+            result.setdefault("platform", "Linux")
+            result.setdefault("provenance", create_provenance(collector_name=name, method=method))
+            return result
+
+        return wrapper
+
+    return decorate
 
 
 def _resolve_path(root_dir: str, target_path: str) -> Path:
@@ -39,6 +63,7 @@ def _resolve_path(root_dir: str, target_path: str) -> Path:
 # 1. Linux System Telemetry
 # ---------------------------------------------------------------------------
 
+@_linux_collector("system", "procfs_os_release")
 def collect_linux_system_info(root_dir: str = "/") -> Dict[str, Any]:
     """
     Collects Linux system information strictly via read-only inspection:
@@ -150,6 +175,7 @@ def collect_linux_system_info(root_dir: str = "/") -> Dict[str, Any]:
 # 2. Linux Process Telemetry
 # ---------------------------------------------------------------------------
 
+@_linux_collector("processes", "psutil_procfs")
 def collect_linux_process_info(root_dir: str = "/") -> Dict[str, Any]:
     """
     Collects running Linux process telemetry strictly via read-only inspection.
@@ -236,6 +262,7 @@ def collect_linux_process_info(root_dir: str = "/") -> Dict[str, Any]:
 # 3. Linux Network Sockets
 # ---------------------------------------------------------------------------
 
+@_linux_collector("network", "psutil_net_connections")
 def collect_linux_network_info(root_dir: str = "/") -> Dict[str, Any]:
     """
     Collects network socket connections on Linux.
@@ -297,6 +324,7 @@ def collect_linux_network_info(root_dir: str = "/") -> Dict[str, Any]:
 # 4. Linux Filesystem Artifacts
 # ---------------------------------------------------------------------------
 
+@_linux_collector("files", "filesystem_stat_and_sha256_bounded_scan")
 def collect_linux_files_info(root_dir: str = "/", target_dir: Optional[str] = None, max_files: int = 50) -> Dict[str, Any]:
     """
     Collects forensic filesystem artifacts from critical Linux directories:
@@ -371,6 +399,7 @@ def collect_linux_files_info(root_dir: str = "/", target_dir: Optional[str] = No
 # 5. Linux Users & Sessions
 # ---------------------------------------------------------------------------
 
+@_linux_collector("users", "etc_passwd_and_psutil_users")
 def collect_linux_users_info(root_dir: str = "/") -> Dict[str, Any]:
     """
     Collects user account and session data on Linux:
@@ -443,6 +472,7 @@ def collect_linux_users_info(root_dir: str = "/") -> Dict[str, Any]:
 # 6. Linux Persistence Telemetry (Cron & Systemd)
 # ---------------------------------------------------------------------------
 
+@_linux_collector("persistence", "cron_and_systemd_unit_scan")
 def collect_linux_persistence_info(root_dir: str = "/") -> Dict[str, Any]:
     """
     Collects Linux persistence mechanisms strictly via read-only inspection:
