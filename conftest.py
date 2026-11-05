@@ -24,3 +24,7 @@ if "JOCKY_STORAGE_DIR" not in os.environ:
         for seed_file in _seed_dir.glob("*.json"):
             shutil.copy2(seed_file, _tmp_storage / seed_file.name)
     os.environ["JOCKY_STORAGE_DIR"] = str(_tmp_storage)
+
+# The API test modules predate sign-in enforcement and call endpoints without a
+# token. They run with enforcement off; tests/test_rbac.py switches it back on.
+os.environ.setdefault("JOCKY_AUTH_DISABLED", "1")

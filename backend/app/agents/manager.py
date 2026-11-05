@@ -27,6 +27,7 @@ from typing import Any, Dict, List, Optional
 
 from .models import (
     AgentJob,
+    CollectorOperation,
     DeviceRecord,
     DeviceStatus,
     EvidenceSubmission,
@@ -34,6 +35,7 @@ from .models import (
     PairingExchangeRequest,
     PairingExchangeResponse,
 )
+from .signing import get_job_signer
 
 # Unambiguous alphanumeric characters for pairing codes (no 0/O, 1/I)
 PAIRING_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -100,6 +102,10 @@ class AgentManager:
 
         # In-memory results store: execution_id -> List[EvidenceSubmission]
         self._results: Dict[str, List[EvidenceSubmission]] = collections.defaultdict(list)
+
+        # Multi-endpoint cases: job_id -> tracking record, and case_id -> [job_id]
+        self._job_index: Dict[str, Dict[str, Any]] = {}
+        self._case_jobs: Dict[str, List[str]] = collections.defaultdict(list)
 
         # Load persisted devices from disk
         self._load_devices()
@@ -249,6 +255,7 @@ class AgentManager:
                     user_id=user_id,
                     status=DeviceStatus.ACTIVE,
                     paired_at=now,
+                    job_signing_public_key=get_job_signer().public_key_b64,
                 )
 
             # 5. Otherwise generate new device credentials
@@ -277,6 +284,7 @@ class AgentManager:
                 user_id=user_id,
                 status=DeviceStatus.ACTIVE,
                 paired_at=now,
+                job_signing_public_key=get_job_signer().public_key_b64,
             )
 
     # ─── 2. Device Registry & Lifecycle ───────────────────────────────────────
@@ -435,6 +443,7 @@ class AgentManager:
                 user_id=dev.user_id,
                 status=DeviceStatus.ACTIVE,
                 paired_at=now,
+                job_signing_public_key=get_job_signer().public_key_b64,
             )
 
     # ─── 3. In-Memory Job Queue ───────────────────────────────────────────────
@@ -448,6 +457,8 @@ class AgentManager:
             if job.device_id != device_id:
                 raise ValueError(f"Job device_id {job.device_id} mismatch with target {device_id}")
 
+            # Every queued job is signed, with an expiry and a single-use nonce
+            get_job_signer().sign(job)
             self._job_queues[device_id].append(job)
 
     def get_pending_job(self, device_id: str) -> Optional[AgentJob]:
@@ -458,7 +469,11 @@ class AgentManager:
 
             q = self._job_queues[device_id]
             if q:
-                return q.popleft()
+                job = q.popleft()
+                tracked = self._job_index.get(job.job_id)
+                if tracked is not None:
+                    tracked["picked_up_at"] = datetime.datetime.now(datetime.timezone.utc)
+                return job
             return None
 
     def get_pending_jobs_count(self, device_id: str) -> int:
@@ -471,6 +486,104 @@ class AgentManager:
         with self._lock:
             if device_id in self._job_queues:
                 self._job_queues[device_id].clear()
+
+    # ─── 3b. Multi-Endpoint Cases ──────────────────────────────────────────────
+
+    def dispatch_case(
+        self,
+        case_id: str,
+        user_id: str,
+        device_ids: List[str],
+        operations: List[CollectorOperation],
+        timeout_seconds: int = 60,
+    ) -> Dict[str, Any]:
+        """
+        Queue one signed job per device for a single case. Devices that are
+        unknown, revoked or owned by someone else are reported, not silently
+        dropped, and do not stop the others from being queued.
+        """
+        dispatched: List[Dict[str, Any]] = []
+        rejected: List[Dict[str, str]] = []
+        for device_id in dict.fromkeys(device_ids):  # de-duplicate, keep order
+            device = self.get_device(device_id)
+            if device is None:
+                rejected.append({"device_id": device_id, "reason": "unknown device"})
+                continue
+            if device.user_id != user_id:
+                rejected.append({"device_id": device_id, "reason": "device belongs to another investigator"})
+                continue
+            if not self.is_device_active(device_id):
+                rejected.append({"device_id": device_id, "reason": "device is revoked or inactive"})
+                continue
+            job = AgentJob(
+                job_id=f"JOB-{secrets.token_hex(5).upper()}",
+                user_id=user_id,
+                device_id=device_id,
+                case_id=case_id,
+                execution_id=f"EXEC-{secrets.token_hex(5).upper()}",
+                allowed_operations=operations,
+                timeout_seconds=timeout_seconds,
+            )
+            self.enqueue_job(device_id, job)
+            with self._lock:
+                self._job_index[job.job_id] = {
+                    "job_id": job.job_id,
+                    "case_id": case_id,
+                    "device_id": device_id,
+                    "hostname": device.hostname,
+                    "platform": device.platform,
+                    "execution_id": job.execution_id,
+                    "expected": [op.collector.value for op in operations],
+                    "created_at": job.created_at,
+                    "expires_at": job.expires_at,
+                    "picked_up_at": None,
+                }
+                self._case_jobs[case_id].append(job.job_id)
+            dispatched.append({"device_id": device_id, "job_id": job.job_id, "execution_id": job.execution_id})
+        return {"case_id": case_id, "dispatched": dispatched, "rejected": rejected}
+
+    def case_status(self, case_id: str) -> Dict[str, Any]:
+        """Per-endpoint progress for every job dispatched under a case."""
+        now = datetime.datetime.now(datetime.timezone.utc)
+        with self._lock:
+            records = [dict(self._job_index[j]) for j in self._case_jobs.get(case_id, [])]
+        endpoints = []
+        for rec in records:
+            received = sorted({
+                r.collector.value if hasattr(r.collector, "value") else str(r.collector).lower()
+                for r in self.get_results(rec["execution_id"])
+            })
+            missing = [c for c in rec["expected"] if c not in received]
+            if not missing:
+                state = "completed"
+            elif rec["expires_at"] and now > rec["expires_at"]:
+                state = "expired" if not received else "partial"
+            elif received:
+                state = "receiving"
+            elif rec["picked_up_at"]:
+                state = "running"
+            else:
+                state = "queued"
+            endpoints.append({
+                "device_id": rec["device_id"],
+                "hostname": rec["hostname"],
+                "platform": rec["platform"],
+                "job_id": rec["job_id"],
+                "execution_id": rec["execution_id"],
+                "state": state,
+                "received": received,
+                "missing": missing,
+                "picked_up_at": rec["picked_up_at"].isoformat() if rec["picked_up_at"] else None,
+                "expires_at": rec["expires_at"].isoformat() if rec["expires_at"] else None,
+            })
+        counts: Dict[str, int] = collections.Counter(e["state"] for e in endpoints)
+        return {
+            "case_id": case_id,
+            "endpoint_count": len(endpoints),
+            "states": dict(counts),
+            "complete": bool(endpoints) and all(e["state"] == "completed" for e in endpoints),
+            "endpoints": endpoints,
+        }
 
     # ─── 4. In-Memory Result Registry ─────────────────────────────────────────
 

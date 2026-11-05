@@ -31,12 +31,17 @@ from backend.app.language import (
     parse_jocky_script,
 )
 from backend.app.security import security_router
+from backend.app.security.rbac import rbac_middleware
 
 app = FastAPI(
     title="JOCKY Forensic Analysis Framework API",
     version="0.1.0",
     description="Authorized domain-specific forensic scripting & analysis framework",
 )
+
+# Sign-in and role checks for /api/jocky and /api/forensics. Registered before
+# CORS so CORS stays the outer layer and 401/403 responses keep their headers.
+app.middleware("http")(rbac_middleware)
 
 # CORS configuration for React frontend communication & live deployment
 cors_origins_env = os.getenv("CORS_ORIGINS", "")

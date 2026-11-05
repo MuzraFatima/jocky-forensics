@@ -108,9 +108,20 @@ def login_endpoint(req: LoginRequest, request: Request):
 
 @router.post("/api/auth/register")
 @router.post("/auth/register")
-def register_endpoint(req: RegisterRequest, request: Request):
+def register_endpoint(req: RegisterRequest, request: Request, authorization: Optional[str] = Header(None)):
     """Registers a new investigator account with email/username and secure PBKDF2 password."""
     client_ip = request.client.host if request.client else "127.0.0.1"
+    # Self-registration may create viewer or investigator accounts only. An admin
+    # account has to be created by someone already signed in as admin.
+    from .rbac import ADMIN, role_level
+
+    if role_level(req.role) >= ADMIN:
+        caller = validate_token(authorization) if authorization else None
+        if not caller or role_level(caller.get("role")) < ADMIN:
+            return JSONResponse(
+                status_code=403,
+                content={"success": False, "error": f"Only an existing administrator can create a '{req.role}' account."},
+            )
     identifier = (req.email or req.username or "").strip()
     if not identifier:
         return JSONResponse(status_code=400, content={"success": False, "error": "Email or username is required."})

@@ -362,8 +362,7 @@ export default function Login({ onLoginSuccess }) {
               >
                 <option value="Lead Forensic Examiner">Lead Forensic Examiner</option>
                 <option value="Incident Responder">Incident Responder</option>
-                <option value="SOC Incident Commander">SOC Incident Commander</option>
-                <option value="Digital Evidence Auditor">Digital Evidence Auditor</option>
+                <option value="Digital Evidence Auditor">Digital Evidence Auditor (read-only)</option>
               </select>
             </div>
           )}

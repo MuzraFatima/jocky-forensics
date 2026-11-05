@@ -14,9 +14,11 @@ import logging
 import platform
 import threading
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
+
+from backend.app.agents.signing import JobVerifier
 
 from .config import AgentConfig
 from .runner import AgentRunner
@@ -95,6 +97,8 @@ class EndpointAgentClient:
                 self.config.hostname = data.get("hostname", hostname)
                 self.config.platform = data.get("platform", platform.system())
                 self.config.paired_at = data.get("paired_at", datetime.datetime.now(datetime.timezone.utc).isoformat())
+                self.config.job_signing_public_key = data.get("job_signing_public_key")
+                self._verifier = None
                 saved_path = self.config.save()
                 logger.info(f"Successfully paired device '{self.config.device_id}' to {clean_url}. Config saved to {saved_path}")
                 return True
@@ -242,6 +246,10 @@ class EndpointAgentClient:
 
         completed = 0
         for job in jobs:
+            accepted, reason = self.check_job(job)
+            if not accepted:
+                logger.error(f"Refusing job {job.get('job_id')}: {reason}")
+                continue
             try:
                 submissions = self.runner.execute_job(job)
                 for sub in submissions:
@@ -253,6 +261,20 @@ class EndpointAgentClient:
                 logger.error(f"Error executing job {job.get('job_id')}: {e}", exc_info=True)
 
         return completed
+
+    def check_job(self, job: Dict[str, Any]) -> Tuple[bool, str]:
+        """
+        Verify a job before running anything: server signature, target device,
+        expiry and single-use nonce. Agents paired before job signing existed
+        have no server key; they log a warning and accept, until re-paired.
+        """
+        key = getattr(self.config, "job_signing_public_key", None)
+        if not key:
+            logger.warning("No job-signing key configured; re-pair this agent to enable job verification.")
+            return True, "unverified (agent paired without a signing key)"
+        if getattr(self, "_verifier", None) is None:
+            self._verifier = JobVerifier(key, self.config.device_id)
+        return self._verifier.check(job)
 
     # ─── 6. Continuous Daemon Loop ────────────────────────────────────────────
 

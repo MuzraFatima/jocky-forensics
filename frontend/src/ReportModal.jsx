@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE } from './config.js';
+import { downloadWithAuth } from './api.js';
 
 export default function ReportModal({
   isOpen,
@@ -73,7 +74,7 @@ export default function ReportModal({
   const handleGenerateOnly = () => {
     // Downloads directly using existing live download endpoint
     const url = `${API_BASE}/api/forensics/report/download?format=${format.toLowerCase()}&case_id=${encodeURIComponent(caseId)}`;
-    window.open(url, '_blank');
+    downloadWithAuth(url, `${caseId}-report.${format.toLowerCase()}`).catch((err) => setErrorMsg(err.message));
     onClose();
   };
 

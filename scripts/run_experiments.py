@@ -9,8 +9,8 @@ E3  collection performance     wall time, CPU time and memory per collector on t
 E4  detection effectiveness    precision / recall / F1 / FPR on the labelled dataset
 E5  evidence integrity         which tampering each storage mode detects
 
-E2 (cross-platform) and E6 (orchestration) are covered by CI on Ubuntu and
-Windows and by tests/test_orchestration.py; see docs/EVALUATION.md.
+E6  orchestration              dispatch-to-evidence time and success across 1, 3 and 5 endpoints
+E2 (cross-platform) is covered by CI on Ubuntu and Windows; see docs/EVALUATION.md.
 Nothing here modifies the host: E5 works in a temporary directory.
 """
 
@@ -31,6 +31,17 @@ import psutil
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+
+# E6 pairs devices and signs in users. Point the backend at a scratch copy of
+# data/ before anything imports it, so the tracked JSON files stay untouched.
+if "JOCKY_STORAGE_DIR" not in os.environ:
+    import shutil
+
+    _scratch = Path(tempfile.mkdtemp(prefix="jocky-experiments-"))
+    for _seed in (ROOT / "data").glob("*.json"):
+        shutil.copy2(_seed, _scratch / _seed.name)
+    os.environ["JOCKY_STORAGE_DIR"] = str(_scratch)
+os.environ.setdefault("JOCKY_AUDIT_LOG", "off")
 
 from backend.app.collectors import get_collectors  # noqa: E402
 from backend.app.detection.evaluation import evaluate_dataset, load_dataset  # noqa: E402
@@ -226,13 +237,75 @@ def run_e5(trials=10):
     return rows
 
 
+# ── E6 ──────────────────────────────────────────────────────────────────────
+
+def run_e6(sizes=(1, 3, 5), repeats=3):
+    """
+    Pair N real agent clients against the API (in-process), dispatch one case
+    to all of them, let each poll, verify its signed job, collect and upload,
+    and time dispatch until the case reports complete.
+    """
+    from fastapi.testclient import TestClient
+
+    from agent.client import EndpointAgentClient
+    from agent.config import AgentConfig
+    from backend.app.main import app
+
+    client = TestClient(app)
+
+    class _Session:
+        def get(self, url, **kw):
+            kw.pop("timeout", None)
+            return client.get(url.replace("http://e6", ""), **kw)
+
+        def post(self, url, **kw):
+            kw.pop("timeout", None)
+            return client.post(url.replace("http://e6", ""), **kw)
+
+    login = client.post("/api/auth/login", json={"username": "investigator@jocky.local",
+                                                 "password": "jocky-forensics-2026"}).json()
+    headers = {"Authorization": f"Bearer {login['session']['token']}"}
+    rows = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for n in sizes:
+            times, completed = [], 0
+            for rep in range(repeats):
+                agents = []
+                for i in range(n):
+                    code = client.post("/api/agents/pairing/generate", headers=headers,
+                                       json={"device_name": f"E6-{n}-{rep}-{i}"}).json()["pairing_code"]
+                    agent = EndpointAgentClient(AgentConfig(config_path=str(Path(tmp) / f"{n}-{rep}-{i}.json")))
+                    agent.session = _Session()
+                    agent.pair("http://e6", code, custom_hostname=f"E6-{n}-{rep}-{i}")
+                    agent.send_heartbeat = lambda: True
+                    agents.append(agent)
+                case_id = f"CASE-E6-{n}-{rep}-{secrets.token_hex(3)}"
+                start = time.perf_counter()
+                client.post(f"/api/agents/cases/{case_id}/dispatch", headers=headers,
+                            json={"device_ids": [a.config.device_id for a in agents], "collectors": ["system", "dns"]})
+                for agent in agents:
+                    agent.run_once()
+                status = client.get(f"/api/agents/cases/{case_id}", headers=headers).json()
+                times.append(time.perf_counter() - start)
+                completed += status["states"].get("completed", 0)
+            rows.append({
+                "endpoints": n,
+                "runs": repeats,
+                "jobs": n * repeats,
+                "completed": completed,
+                "median_s": round(statistics.median(times), 2),
+                "max_s": round(max(times), 2),
+            })
+    return rows
+
+
 # ── report ──────────────────────────────────────────────────────────────────
 
 def _fmt(value):
     return "n/a" if value is None else f"{value:.3f}" if isinstance(value, float) else str(value)
 
 
-def write_report(e1, e3, e4, e5, out):
+def write_report(e1, e3, e4, e5, e6, out):
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     host = f"{platform.system()} {platform.release()} · Python {platform.python_version()} · {psutil.cpu_count()} logical CPUs"
     lines = [
@@ -309,11 +382,28 @@ def write_report(e1, e3, e4, e5, out):
         "record is authenticated with a key the attacker does not hold and bound to its evidence ID, so every",
         "modification above is caught. This is why `JOCKY_EVIDENCE_KEY` should be set for real cases.",
         "",
-        "## E2 and E6",
+        "## E6 — Multi-endpoint orchestration",
         "",
-        "E2 (cross-platform consistency) runs on every push: the test suite, including the Linux collectors against",
-        "a fixture filesystem and live collection on the runner, passes on Ubuntu (Python 3.11 and 3.12) and",
-        "Windows. E6 (multi-endpoint orchestration) is exercised by the orchestration tests.",
+        "Real agent clients are paired against the API in-process, one case is dispatched to all of them, and each",
+        "agent polls, verifies its Ed25519-signed job, runs `system` and `dns` and uploads the evidence. Time is",
+        "measured from dispatch until the case status reports every endpoint completed. Network latency is not",
+        "included, so these figures are the server and agent overhead only.",
+        "",
+        "| Endpoints | Runs | Jobs | Completed | Median s | Max s |",
+        "|---|---|---|---|---|---|",
+    ]
+    for r in e6:
+        lines.append(f"| {r['endpoints']} | {r['runs']} | {r['jobs']} | {r['completed']} | {r['median_s']} | {r['max_s']} |")
+    lines += [
+        "",
+        "Refusal of forged, replayed, expired and mis-addressed jobs is covered by `tests/test_job_signing.py`;",
+        "an endpoint that never answers stays `queued` and is reported as such (`tests/test_orchestration.py`).",
+        "",
+        "## E2 — Cross-platform consistency",
+        "",
+        "Runs on every push: the full test suite, including the Linux collectors against a fixture filesystem and",
+        "live collection on the runner, passes on Ubuntu (Python 3.11 and 3.12) and Windows (Python 3.12). E1 above",
+        "also confirms the same script produces identical IR whichever platform it is lowered for.",
         "",
     ]
     out.write_text("\n".join(lines), encoding="utf-8")
@@ -324,13 +414,12 @@ def main():
     parser.add_argument("--quick", action="store_true", help="one repetition for E3 and fewer E5 trials")
     parser.add_argument("--output", default=str(ROOT / "docs" / "EVALUATION.md"))
     args = parser.parse_args()
-    os.environ.setdefault("JOCKY_AUDIT_LOG", "off")
-
     e1 = run_e1()
     e3 = run_e3(1 if args.quick else 5)
     e4 = evaluate_dataset(load_dataset(ROOT / "tests/fixtures/detection/labelled_records.json"))
     e5 = run_e5(3 if args.quick else 10)
-    write_report(e1, e3, e4, e5, Path(args.output))
+    e6 = run_e6(repeats=1 if args.quick else 3)
+    write_report(e1, e3, e4, e5, e6, Path(args.output))
     print(json.dumps({"E1": e1, "E4": e4["overall"], "E5": e5}, indent=2, default=str))
     print(f"wrote {args.output}")
 
