@@ -35,8 +35,8 @@ the remaining work as five phases (0–4). Each phase lands as one pull request 
 |---|---|
 | 0 — Foundation and CI | Merged (#1) |
 | 1 — Language and compiler | Merged (#2) |
-| 2 — Cross-platform forensic library | In review |
-| 3 — Detection and evidence integrity | Planned |
+| 2 — Cross-platform forensic library | Merged (#3) |
+| 3 — Detection and evidence integrity | In review |
 | 4 — Secure orchestration and hardening | Planned |
 
 ## Phase 0 — Foundation and CI

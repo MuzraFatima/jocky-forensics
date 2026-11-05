@@ -86,7 +86,7 @@ where         = [ NEWLINE ] , "where" , field , "==" , value ;
 field         = "status" | "state" | IDENTIFIER ;
 value         = IDENTIFIER | STRING | INTEGER ;
 
-analyze       = "analyze" , [ "process_network" | IDENTIFIER ] ;
+analyze       = "analyze" , [ "process_network" | "detections" | "threats" | "threat_indicators" | IDENTIFIER ] ;
 verify        = "verify" , "integrity" ;
 report        = "report" , [ "format" , ( "json" | "html" | "md" | "markdown" ) ] ;
 ```
@@ -124,6 +124,7 @@ keeps this table identical to the runtime allow-list in `backend/app/engine/ir_p
 | `collect registry` | COLLECT_REGISTRY | jocky.registry.v1 | Windows |
 | `collect windows_metadata` | COLLECT_WINDOWS_METADATA | jocky.windows_metadata.v1 | Windows |
 | `analyze` / `analyze process_network` | ANALYZE_PROCESS_NETWORK | jocky.analysis.v1 | Windows, Linux, macOS |
+| `analyze detections` (alias `threats`) | ANALYZE_DETECTIONS | jocky.detections.v1 | Windows, Linux, macOS |
 | `verify integrity` | VERIFY_INTEGRITY | jocky.integrity.v1 | Windows, Linux, macOS |
 | `report [format json\|html\|md]` | REPORT_JSON / REPORT_HTML / REPORT_MD | jocky.report.v1 | Windows, Linux, macOS |
 
@@ -143,6 +144,8 @@ read the Windows DNS client cache, because that needs an undocumented API.
 Every inventory result uses the same envelope: `collector`, `collector_version`, `platform`,
 `endpoint`, `collected_at`, `collection_status` (`collected`, `partial`, `unsupported`, `denied`
 or `error`), `count`, `items`, `errors` and `provenance`.
+
+`analyze detections` runs the declarative rules in `docs/DETECTION.md` over whatever the script collected.
 
 `analyze <anything else>` compiles but has no capability. The platform backend flags it as
 `unknown`, and the runtime policy denies it.
