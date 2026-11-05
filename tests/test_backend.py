@@ -244,7 +244,7 @@ def test_api_execute_ir_valid_script():
     assert data["success"] is True
     assert data["case_id"] == "IR-2026-001"
     assert data["target"] == "IR-HOST"
-    assert data["ir_version"] == "1.0"
+    assert data["ir_version"] == "2.0"
 
     # Policy result embedded
     assert "policy_result" in data
@@ -346,7 +346,7 @@ def test_api_execute_ir_version_field():
     response = client.post("/api/jocky/execute", json={"script": script})
     assert response.status_code == 200
     data = response.json()
-    assert data["ir_version"] == "1.0"
+    assert data["ir_version"] == "2.0"
 
 
 # =====================================================================
