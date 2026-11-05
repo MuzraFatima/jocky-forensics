@@ -19,6 +19,7 @@ from .ast import (
     CaseNode,
     CollectNode,
     FilterExpression,
+    PlatformNode,
     ProgramNode,
     ReportNode,
     TargetNode,
@@ -59,7 +60,44 @@ _COLLECT_CATEGORIES = {
 }
 
 # Words that may start a statement, used for "did you mean" hints
-_STATEMENT_KEYWORDS = ["CASE", "TARGET", "COLLECT", "ANALYZE", "VERIFY", "REPORT"]
+_STATEMENT_KEYWORDS = ["CASE", "TARGET", "PLATFORM", "COLLECT", "ANALYZE", "VERIFY", "REPORT", "INVESTIGATION"]
+
+# Tokens that begin a statement. Inside an investigation block several
+# statements may share a line, so any of these also ends the previous one.
+_STATEMENT_START_TOKENS = {
+    TokenType.CASE,
+    TokenType.TARGET,
+    TokenType.PLATFORM,
+    TokenType.COLLECT,
+    TokenType.ANALYZE,
+    TokenType.VERIFY,
+    TokenType.REPORT,
+}
+
+# Readable aliases accepted after COLLECT (the names used in the blueprint's
+# example scripts). Each maps onto an existing collection category.
+COLLECT_ALIASES = {
+    "SYSTEM_INFORMATION": "SYSTEM",
+    "SYSTEM_INFO": "SYSTEM",
+    "RUNNING_PROCESSES": "PROCESSES",
+    "PROCESS_LIST": "PROCESSES",
+    "ACTIVE_NETWORK_CONNECTIONS": "NETWORK",
+    "ACTIVE_CONNECTIONS": "NETWORK",
+    "NETWORK_CONNECTIONS": "NETWORK",
+    "USER_ACCOUNTS": "USERS",
+    "LOCAL_USERS": "USERS",
+}
+
+# PLATFORM values and their canonical form
+_PLATFORM_VALUES = {
+    "DETECT": "AUTO",
+    "AUTO": "AUTO",
+    "WINDOWS": "WINDOWS",
+    "LINUX": "LINUX",
+    "UBUNTU": "LINUX",
+    "MACOS": "MACOS",
+    "DARWIN": "MACOS",
+}
 
 # COLLECT categories that support WHERE filters
 _FILTERABLE_CATEGORIES = {
@@ -74,6 +112,7 @@ class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.position = 0
+        self._in_block = False
 
     # ─── Core token navigation ────────────────────────────────────────────────
 
@@ -110,6 +149,10 @@ class Parser:
     def _assert_end_of_statement(self, command_name: str) -> None:
         """Ensure the current position is at a NEWLINE or EOF."""
         token = self._peek()
+        if token.type in (TokenType.NEWLINE, TokenType.EOF, TokenType.SEMICOLON, TokenType.RBRACE):
+            return
+        if self._in_block and token.type in _STATEMENT_START_TOKENS:
+            return
         if token.type not in (TokenType.NEWLINE, TokenType.EOF):
             raise JockySyntaxError(
                 f"Unexpected token '{token.value}' after {command_name} statement",
@@ -130,6 +173,10 @@ class Parser:
         The WHERE keyword must appear on the very next non-empty line.
         Returns None if no WHERE is found (the clause is optional).
         """
+        # WHERE on the same line as COLLECT
+        if self._check(TokenType.WHERE):
+            return self._parse_where_body()
+
         # Save position so we can backtrack if no WHERE found
         saved_pos = self.position
 
@@ -147,6 +194,10 @@ class Parser:
             self.position = saved_pos
             return None
 
+        return self._parse_where_body()
+
+    def _parse_where_body(self) -> FilterExpression:
+        """Parse `WHERE <field> == <value>` with the cursor on WHERE."""
         where_tok = self._advance()  # consume WHERE
 
         # Expect a field name (STATUS, STATE, or an identifier)
@@ -198,14 +249,66 @@ class Parser:
         start_line = self.tokens[0].line if self.tokens else 1
         start_col = self.tokens[0].column if self.tokens else 1
 
-        self._skip_newlines()
+        self._skip_separators()
 
         while not self._check(TokenType.EOF):
-            stmt = self._parse_statement()
-            statements.append(stmt)
-            self._skip_newlines()
+            if self._check(TokenType.INVESTIGATION):
+                statements.extend(self._parse_investigation_block())
+            else:
+                statements.append(self._parse_statement())
+            self._skip_separators()
 
         return ProgramNode(statements=statements, line=start_line, column=start_col)
+
+    def _skip_separators(self) -> None:
+        while self._check(TokenType.NEWLINE) or self._check(TokenType.SEMICOLON):
+            self._advance()
+
+    def _parse_investigation_block(self) -> List[ASTNode]:
+        """
+        Parse the block form from the blueprint:
+
+            investigation "<case id>" {
+                target "<host>"
+                collect running_processes
+                ...
+            }
+
+        The block name becomes the CASE declaration, so the block desugars
+        into the same statements as the flat syntax.
+        """
+        inv_tok = self._advance()  # consume INVESTIGATION
+        name_tok = self._peek()
+        if name_tok.type != TokenType.STRING:
+            raise JockySyntaxError(
+                f"Expected a quoted investigation name after 'investigation', got '{name_tok.value}'",
+                name_tok.line,
+                name_tok.column,
+                code="JKY202",
+            )
+        self._advance()
+        self._skip_newlines()
+        self._consume(TokenType.LBRACE, f"Expected '{{' to open investigation '{name_tok.value}'")
+
+        statements: List[ASTNode] = [CaseNode(case_id=name_tok.value, line=inv_tok.line, column=inv_tok.column)]
+        self._in_block = True
+        try:
+            self._skip_separators()
+            while not self._check(TokenType.RBRACE):
+                if self._check(TokenType.EOF):
+                    raise JockySyntaxError(
+                        f"Investigation '{name_tok.value}' is missing its closing '}}'",
+                        inv_tok.line,
+                        inv_tok.column,
+                        code="JKY209",
+                    )
+                statements.append(self._parse_statement())
+                self._skip_separators()
+            self._advance()  # consume RBRACE
+        finally:
+            self._in_block = False
+        self._assert_end_of_statement("investigation block")
+        return statements
 
     # ─── Statement parsers ────────────────────────────────────────────────────
 
@@ -240,6 +343,22 @@ class Parser:
             self._assert_end_of_statement("TARGET")
             return TargetNode(target_name=str_tok.value, line=token.line, column=token.column)
 
+        # 2b. PLATFORM detect | windows | linux | macos
+        if self._match(TokenType.PLATFORM):
+            value_tok = self._peek()
+            raw = str(value_tok.value).upper() if value_tok.type in (TokenType.IDENTIFIER, TokenType.STRING) else ""
+            if raw not in _PLATFORM_VALUES:
+                raise JockySyntaxError(
+                    f"Invalid PLATFORM value '{value_tok.value}'. Expected: detect | windows | linux | macos",
+                    value_tok.line,
+                    value_tok.column,
+                    code="JKY211",
+                    hint=suggest(str(value_tok.value), _PLATFORM_VALUES),
+                )
+            self._advance()
+            self._assert_end_of_statement("PLATFORM")
+            return PlatformNode(platform=_PLATFORM_VALUES[raw], line=token.line, column=token.column)
+
         # 3. COLLECT <category> [WHERE <field> == <value>]
         if self._match(TokenType.COLLECT):
             return self._parse_collect(token)
@@ -266,6 +385,14 @@ class Parser:
         if self._match(TokenType.REPORT):
             return self._parse_report(token)
 
+        if token.type == TokenType.RBRACE:
+            raise JockySyntaxError(
+                "Unexpected '}' with no open investigation block",
+                token.line,
+                token.column,
+                code="JKY209",
+            )
+
         # Unknown / unrecognized command
         raise JockySyntaxError(
             f"Unknown command or unexpected token '{token.value}'.\n"
@@ -280,6 +407,11 @@ class Parser:
         """Parse: COLLECT <category> [WHERE <field> == <value>]"""
         cat_tok = self._peek()
 
+        if cat_tok.type == TokenType.IDENTIFIER and cat_tok.value.upper() in COLLECT_ALIASES:
+            canonical = COLLECT_ALIASES[cat_tok.value.upper()]
+            cat_tok = Token(TokenType[canonical], canonical, cat_tok.line, cat_tok.column)
+            self.tokens[self.position] = cat_tok
+
         if cat_tok.type not in _COLLECT_CATEGORIES:
             raise JockySyntaxError(
                 f"Invalid COLLECT target '{cat_tok.value}'.\n"
@@ -287,7 +419,7 @@ class Parser:
                 cat_tok.line,
                 cat_tok.column,
                 code="JKY206",
-                hint=suggest(cat_tok.value, [t.value for t in _COLLECT_CATEGORIES]),
+                hint=suggest(cat_tok.value, [t.value for t in _COLLECT_CATEGORIES] + list(COLLECT_ALIASES)),
             )
 
         self._advance()  # consume category

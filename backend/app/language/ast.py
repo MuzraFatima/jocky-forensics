@@ -90,6 +90,20 @@ class TargetNode(ASTNode):
         }
 
 
+@dataclass
+class PlatformNode(ASTNode):
+    """Represents: PLATFORM detect | windows | linux | macos"""
+    platform: str = "AUTO"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "type": "PlatformNode",
+            "platform": self.platform,
+            "line": self.line,
+            "column": self.column,
+        }
+
+
 # ---------------------------------------------------------------------------
 # Operational nodes
 # ---------------------------------------------------------------------------

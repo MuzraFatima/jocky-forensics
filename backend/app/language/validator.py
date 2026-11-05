@@ -27,6 +27,7 @@ from .ast import (
     AnalyzeNode,
     CaseNode,
     CollectNode,
+    PlatformNode,
     ProgramNode,
     ReportNode,
     TargetNode,
@@ -66,6 +67,7 @@ class Validator:
         """
         case_nodes: List[CaseNode] = []
         target_nodes: List[TargetNode] = []
+        platform_nodes: List[PlatformNode] = []
 
         # ── 1. Scan for CASE and TARGET — check uniqueness & presence ─────────
 
@@ -74,6 +76,17 @@ class Validator:
                 case_nodes.append(stmt)
             elif isinstance(stmt, TargetNode):
                 target_nodes.append(stmt)
+            elif isinstance(stmt, PlatformNode):
+                platform_nodes.append(stmt)
+
+        if len(platform_nodes) > 1:
+            raise JockyValidationError(
+                "Duplicate 'PLATFORM' declaration. Only one platform may be declared per script.",
+                line=platform_nodes[1].line,
+                column=platform_nodes[1].column,
+                code="JKY308",
+            )
+        platform = platform_nodes[0].platform if platform_nodes else "AUTO"
 
         # CASE required and unique
         if len(case_nodes) == 0:
@@ -134,7 +147,7 @@ class Validator:
         collected_categories: List[str] = []
 
         for stmt in program.statements:
-            if isinstance(stmt, (CaseNode, TargetNode)):
+            if isinstance(stmt, (CaseNode, TargetNode, PlatformNode)):
                 continue
 
             if isinstance(stmt, CollectNode):
@@ -215,7 +228,7 @@ class Validator:
         step_number = 1
 
         for stmt in program.statements:
-            if isinstance(stmt, (CaseNode, TargetNode)):
+            if isinstance(stmt, (CaseNode, TargetNode, PlatformNode)):
                 continue
 
             if isinstance(stmt, CollectNode):
@@ -282,6 +295,7 @@ class Validator:
         execution_plan: Dict[str, Any] = {
             "case_id": case_id,
             "target": target_name,
+            "platform": platform,
             "tasks": tasks,
             "metadata": {
                 "read_only": True,

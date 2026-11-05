@@ -16,6 +16,12 @@ from typing import List
 from .errors import JockySyntaxError
 from .tokens import KEYWORDS, Token, TokenType
 
+_PUNCTUATION = {
+    "{": TokenType.LBRACE,
+    "}": TokenType.RBRACE,
+    ";": TokenType.SEMICOLON,
+}
+
 
 class Lexer:
     """Tokenizer for the JOCKY Domain-Specific Language."""
@@ -186,6 +192,12 @@ class Lexer:
                 self._advance()  # first '='
                 self._advance()  # second '='
                 tokens.append(Token(TokenType.EQ, "==", start_line, start_col))
+                continue
+
+            # Block delimiters and statement separator
+            if ch in _PUNCTUATION:
+                tokens.append(Token(_PUNCTUATION[ch], ch, self.line, self.column))
+                self._advance()
                 continue
 
             # String literals

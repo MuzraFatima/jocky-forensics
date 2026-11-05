@@ -29,6 +29,7 @@ from .ast import (
     AnalyzeNode,
     CaseNode,
     CollectNode,
+    PlatformNode,
     ProgramNode,
     ReportNode,
     TargetNode,
@@ -54,6 +55,7 @@ def build_ir(program: ProgramNode) -> Dict[str, Any]:
     """
     case_id: str = ""
     target: str = ""
+    platform: str = "AUTO"
     operations: List[Dict[str, Any]] = []
 
     for stmt in program.statements:
@@ -66,6 +68,10 @@ def build_ir(program: ProgramNode) -> Dict[str, Any]:
 
         if isinstance(stmt, TargetNode):
             target = stmt.target_name
+            continue
+
+        if isinstance(stmt, PlatformNode):
+            platform = stmt.platform
             continue
 
         # ── Operational nodes → IR operations ──────────────────────────────
@@ -110,5 +116,6 @@ def build_ir(program: ProgramNode) -> Dict[str, Any]:
         "version": IR_VERSION,
         "case_id": case_id,
         "target": target,
+        "platform": platform,
         "operations": operations,
     }
