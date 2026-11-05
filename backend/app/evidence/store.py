@@ -19,12 +19,13 @@ from typing import Any, Dict, List, Optional
 
 from .custody import CustodyRecord
 from .hashing import compute_sha256, verify_sha256
+from .storage import EvidenceCipher, EvidenceDecryptionError, cipher_from_environment, read_record, write_record
 
 
 class EvidenceStore:
     """Local JSON-backed evidence store with cryptographic chain of custody."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[str] = None, cipher: Optional[EvidenceCipher] = None):
         # Default to repository evidence directory if not specified
         if base_dir:
             self.base_dir = Path(base_dir)
@@ -36,6 +37,8 @@ class EvidenceStore:
             self.base_dir = repo_root / "evidence"
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
+        # AES-256-GCM at rest when a key is configured (see evidence/storage.py)
+        self.cipher = cipher if cipher is not None else cipher_from_environment()
 
     def _generate_evidence_id(self, case_id: str, source: str) -> str:
         """Generate an unambiguous, collision-resistant evidence ID."""
@@ -97,8 +100,7 @@ class EvidenceStore:
 
         # Persist to disk
         file_path = self._get_evidence_path(evidence_id, case_id=case_id)
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(record, f, indent=2, sort_keys=True, default=str)
+        write_record(file_path, record, self.cipher)
 
         return record
 
@@ -108,8 +110,7 @@ class EvidenceStore:
         if not file_path.exists():
             return None
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        return read_record(file_path, self.cipher)
 
     def verify_evidence(
         self,
@@ -121,7 +122,17 @@ class EvidenceStore:
         Verifies evidence integrity by recomputing the SHA-256 digest of the payload.
         Appends the verification result to the evidence artifact's chain-of-custody log.
         """
-        record = self.get_evidence(evidence_id)
+        try:
+            record = self.get_evidence(evidence_id)
+        except EvidenceDecryptionError as exc:
+            return {
+                "evidence_id": evidence_id,
+                "case_id": None,
+                "valid": False,
+                "stored_hash": None,
+                "recomputed_hash": None,
+                "error": str(exc),
+            }
         if not record:
             raise FileNotFoundError(f"Evidence artifact '{evidence_id}' not found.")
 
@@ -143,8 +154,7 @@ class EvidenceStore:
 
         # Update persistent file with updated custody record
         file_path = self._get_evidence_path(evidence_id, case_id=record.get("case_id"))
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(record, f, indent=2, sort_keys=True, default=str)
+        write_record(file_path, record, self.cipher)
 
         return {
             "evidence_id": evidence_id,
@@ -162,16 +172,15 @@ class EvidenceStore:
         pattern = f"{case_id}/*.json" if case_id else "**/*.json"
         for json_file in self.base_dir.glob(pattern):
             try:
-                with open(json_file, "r", encoding="utf-8") as f:
-                    rec = json.load(f)
-                    summaries.append({
-                        "evidence_id": rec.get("evidence_id"),
-                        "case_id": rec.get("case_id"),
-                        "source": rec.get("source"),
-                        "timestamp_utc": rec.get("timestamp_utc"),
-                        "sha256": rec.get("sha256"),
-                        "custody_events": len(rec.get("custody_log", [])),
-                    })
+                rec = read_record(json_file, self.cipher)
+                summaries.append({
+                    "evidence_id": rec.get("evidence_id"),
+                    "case_id": rec.get("case_id"),
+                    "source": rec.get("source"),
+                    "timestamp_utc": rec.get("timestamp_utc"),
+                    "sha256": rec.get("sha256"),
+                    "custody_events": len(rec.get("custody_log", [])),
+                })
             except Exception:
                 continue
 

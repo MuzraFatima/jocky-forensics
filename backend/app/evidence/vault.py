@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional
 
 from .custody import CustodyRecord
 from .hashing import compute_sha256, verify_sha256
+from .storage import EvidenceCipher, EvidenceDecryptionError, cipher_from_environment, read_record, write_record
 
 
 class EvidenceVault:
@@ -32,7 +33,7 @@ class EvidenceVault:
     and auditable chain-of-custody tracking.
     """
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[str] = None, cipher: Optional[EvidenceCipher] = None):
         if base_dir:
             self.base_dir = Path(base_dir)
         else:
@@ -44,6 +45,8 @@ class EvidenceVault:
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.cases_dir = self.base_dir / "cases"
         self.cases_dir.mkdir(parents=True, exist_ok=True)
+        # AES-256-GCM at rest when a key is configured (see evidence/storage.py)
+        self.cipher = cipher if cipher is not None else cipher_from_environment()
 
     def _generate_evidence_id(self, case_id: str, source: str) -> str:
         """Generate a deterministic, collision-resistant evidence identifier."""
@@ -119,8 +122,7 @@ class EvidenceVault:
 
         # Write to vault
         target_path = self._get_artifact_path(evidence_id, case_id=case_id)
-        with open(target_path, "w", encoding="utf-8") as f:
-            json.dump(record, f, indent=2, sort_keys=True, default=str)
+        write_record(target_path, record, self.cipher)
 
         return record
 
@@ -130,8 +132,7 @@ class EvidenceVault:
         if not file_path.exists():
             return None
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        return read_record(file_path, self.cipher)
 
     def verify_artifact(
         self,
@@ -144,7 +145,20 @@ class EvidenceVault:
         its SHA-256 payload digest and checking for tampering.
         Appends a VERIFIED entry to the artifact's chain of custody.
         """
-        record = self.get_artifact(evidence_id)
+        try:
+            record = self.get_artifact(evidence_id)
+        except EvidenceDecryptionError as exc:
+            # An encrypted record that fails AES-GCM authentication was altered
+            # (or moved, or the key changed); it cannot be trusted or re-hashed.
+            return {
+                "evidence_id": evidence_id,
+                "case_id": None,
+                "valid": False,
+                "tampered": True,
+                "stored_hash": None,
+                "recomputed_hash": None,
+                "error": str(exc),
+            }
         if not record:
             raise FileNotFoundError(f"Sealed evidence artifact '{evidence_id}' not found in vault.")
 
@@ -168,8 +182,7 @@ class EvidenceVault:
 
         # Update artifact file in vault
         file_path = self._get_artifact_path(evidence_id, case_id=record.get("case_id"))
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(record, f, indent=2, sort_keys=True, default=str)
+        write_record(file_path, record, self.cipher)
 
         return {
             "evidence_id": evidence_id,
@@ -198,8 +211,7 @@ class EvidenceVault:
 
         for artifact_file in self.cases_dir.glob(pattern):
             try:
-                with open(artifact_file, "r", encoding="utf-8") as f:
-                    rec = json.load(f)
+                rec = read_record(artifact_file, self.cipher)
 
                 ev_id = rec.get("evidence_id")
                 c_id = rec.get("case_id")
@@ -261,8 +273,7 @@ class EvidenceVault:
 
         for artifact_file in self.cases_dir.glob(pattern):
             try:
-                with open(artifact_file, "r", encoding="utf-8") as f:
-                    rec = json.load(f)
+                rec = read_record(artifact_file, self.cipher)
 
                 ev_id = rec.get("evidence_id")
                 c_id = rec.get("case_id")
@@ -293,8 +304,7 @@ class EvidenceVault:
         if c_dir.exists():
             for json_file in c_dir.glob("*.json"):
                 try:
-                    with open(json_file, "r", encoding="utf-8") as f:
-                        artifacts.append(json.load(f))
+                    artifacts.append(read_record(json_file, self.cipher))
                 except Exception:
                     continue
 
@@ -348,8 +358,7 @@ class EvidenceVault:
             record["data"] = f"{record.get('data')}_TAMPERED"
 
         file_path = self._get_artifact_path(evidence_id, case_id=record.get("case_id"))
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(record, f, indent=2, sort_keys=True, default=str)
+        write_record(file_path, record, self.cipher)
 
         return True
 

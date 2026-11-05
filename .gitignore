@@ -31,3 +31,6 @@ Thumbs.db
 .coverage
 htmlcov/
 .gemini/
+# Evidence encryption key and audit log written at runtime (never commit)
+data/*.key
+data/*.jsonl
