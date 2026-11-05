@@ -369,3 +369,19 @@ class TestAgentCLI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_agent_adapter_collects_inventory_sources():
+    adapter = CollectorAdapter()
+    for name in ("services", "startup", "drivers", "listening_ports", "dns"):
+        assert adapter.is_collector_allowed(name)
+        result = adapter.collect(name)
+        assert result["collector"] == name
+        assert result["read_only"] is True
+
+
+def test_job_models_accept_inventory_collectors():
+    from backend.app.agents.models import AllowedCollector, CollectorOperation
+
+    op = CollectorOperation(collector="LISTENING_PORTS")
+    assert op.collector == AllowedCollector.LISTENING_PORTS

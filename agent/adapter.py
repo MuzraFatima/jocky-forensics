@@ -22,6 +22,7 @@ from backend.app.collectors.dispatcher import (
     is_windows,
     win_collect_registry,
 )
+from backend.app.collectors.inventory import INVENTORY_COLLECTORS
 
 # Strict allowlist of authorized collector names
 ALLOWED_COLLECTOR_NAMES: Set[str] = {
@@ -32,6 +33,7 @@ ALLOWED_COLLECTOR_NAMES: Set[str] = {
     "users",
     "registry",
     "windows_metadata",
+    *INVENTORY_COLLECTORS,
 }
 
 
@@ -92,6 +94,9 @@ class CollectorAdapter:
                 return win_collect_registry()
             # On Linux/macOS, gather platform-specific persistence autoruns
             return dispatch_persistence_info()
+
+        elif clean_name in INVENTORY_COLLECTORS:
+            return INVENTORY_COLLECTORS[clean_name]()
 
         else:
             raise ValueError(f"Unhandled collector implementation: '{clean_name}'")

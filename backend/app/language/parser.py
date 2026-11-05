@@ -57,6 +57,24 @@ _COLLECT_CATEGORIES = {
     TokenType.USERS,
     TokenType.REGISTRY,
     TokenType.WINDOWS_METADATA,
+    TokenType.SERVICES,
+    TokenType.STARTUP,
+    TokenType.DRIVERS,
+    TokenType.LISTENING_PORTS,
+    TokenType.DNS,
+}
+
+# Categories that take no path and no WHERE clause
+_STANDALONE_CATEGORIES = {
+    TokenType.SYSTEM,
+    TokenType.USERS,
+    TokenType.REGISTRY,
+    TokenType.WINDOWS_METADATA,
+    TokenType.SERVICES,
+    TokenType.STARTUP,
+    TokenType.DRIVERS,
+    TokenType.LISTENING_PORTS,
+    TokenType.DNS,
 }
 
 # Words that may start a statement, used for "did you mean" hints
@@ -86,6 +104,15 @@ COLLECT_ALIASES = {
     "NETWORK_CONNECTIONS": "NETWORK",
     "USER_ACCOUNTS": "USERS",
     "LOCAL_USERS": "USERS",
+    "INSTALLED_SERVICES": "SERVICES",
+    "STARTUP_ENTRIES": "STARTUP",
+    "AUTOSTART_ENTRIES": "STARTUP",
+    "KERNEL_MODULES": "DRIVERS",
+    "INSTALLED_DRIVERS": "DRIVERS",
+    "OPEN_PORTS": "LISTENING_PORTS",
+    "DNS_CONFIGURATION": "DNS",
+    # The blueprint's examples say dns_cache; JOCKY collects resolver configuration
+    "DNS_CACHE": "DNS",
 }
 
 # PLATFORM values and their canonical form
@@ -415,7 +442,8 @@ class Parser:
         if cat_tok.type not in _COLLECT_CATEGORIES:
             raise JockySyntaxError(
                 f"Invalid COLLECT target '{cat_tok.value}'.\n"
-                f"Expected: SYSTEM | PROCESSES | NETWORK | FILES | USERS | REGISTRY | WINDOWS_METADATA",
+                "Expected: SYSTEM | PROCESSES | NETWORK | FILES | USERS | SERVICES | STARTUP | DRIVERS | "
+                "LISTENING_PORTS | DNS | REGISTRY | WINDOWS_METADATA",
                 cat_tok.line,
                 cat_tok.column,
                 code="JKY206",
@@ -443,8 +471,8 @@ class Parser:
                 column=collect_token.column,
             )
 
-        # Standalone collections without filters: SYSTEM, USERS, REGISTRY, WINDOWS_METADATA
-        if cat_tok.type in (TokenType.SYSTEM, TokenType.USERS, TokenType.REGISTRY, TokenType.WINDOWS_METADATA):
+        # Standalone collections without filters
+        if cat_tok.type in _STANDALONE_CATEGORIES:
             self._assert_end_of_statement(f"COLLECT {cat_tok.value}")
             return CollectNode(
                 category=cat_tok.value,

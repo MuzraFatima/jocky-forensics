@@ -22,6 +22,7 @@ from .dispatcher import (
     is_windows,
 )
 from .files import collect_files_info
+from .inventory import INVENTORY_COLLECTORS
 from .linux_collectors import (
     collect_linux_files_info,
     collect_linux_network_info,
@@ -47,6 +48,11 @@ from .windows_metadata import collect_registry_info, collect_windows_metadata
 
 
 def get_collectors() -> Dict[str, Callable[..., Dict[str, Any]]]:
+    """Platform collectors plus the cross-platform host inventory collectors."""
+    return {**_platform_collectors(), **INVENTORY_COLLECTORS}
+
+
+def _platform_collectors() -> Dict[str, Callable[..., Dict[str, Any]]]:
     """
     Returns available forensic collector implementations for the active host platform.
     Ensures backward compatibility with Phase 3 tests while supporting cross-platform (Windows, Linux, macOS).

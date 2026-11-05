@@ -16,6 +16,7 @@ from typing import Dict, FrozenSet, Optional, Tuple
 
 ALL_PLATFORMS: FrozenSet[str] = frozenset({"WINDOWS", "LINUX", "MACOS"})
 WINDOWS_ONLY: FrozenSet[str] = frozenset({"WINDOWS"})
+WINDOWS_AND_LINUX: FrozenSet[str] = frozenset({"WINDOWS", "LINUX"})
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,21 @@ OPERATIONS: Dict[Tuple[str, Optional[str]], OperationSpec] = {
     ),
     ("COLLECT", "WINDOWS_METADATA"): OperationSpec(
         "COLLECT_WINDOWS_METADATA", "jocky.windows_metadata.v1", WINDOWS_ONLY, "Windows-specific host metadata"
+    ),
+    ("COLLECT", "SERVICES"): OperationSpec(
+        "COLLECT_SERVICES", "jocky.services.v1", ALL_PLATFORMS, "Installed services, systemd units or LaunchDaemons"
+    ),
+    ("COLLECT", "STARTUP"): OperationSpec(
+        "COLLECT_STARTUP", "jocky.startup.v1", ALL_PLATFORMS, "Run keys, startup folders, cron, autostart"
+    ),
+    ("COLLECT", "DRIVERS"): OperationSpec(
+        "COLLECT_DRIVERS", "jocky.drivers.v1", WINDOWS_AND_LINUX, "Kernel drivers or loaded kernel modules"
+    ),
+    ("COLLECT", "LISTENING_PORTS"): OperationSpec(
+        "COLLECT_LISTENING_PORTS", "jocky.listening_ports.v1", ALL_PLATFORMS, "Listening sockets and owners"
+    ),
+    ("COLLECT", "DNS"): OperationSpec(
+        "COLLECT_DNS", "jocky.dns.v1", ALL_PLATFORMS, "DNS resolver configuration and hosts file"
     ),
     ("ANALYZE", None): OperationSpec(
         "ANALYZE_PROCESS_NETWORK", "jocky.analysis.v1", ALL_PLATFORMS, "Process and network correlation"

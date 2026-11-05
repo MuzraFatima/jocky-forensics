@@ -75,10 +75,13 @@ platform      = "platform" , ( "detect" | "auto" | "windows" | "linux" | "ubuntu
 collect       = "collect" , ( files | category , [ where ] ) ;
 files         = "files" , STRING ;
 category      = "system" | "processes" | "network" | "users" | "registry" | "windows_metadata"
+              | "services" | "startup" | "drivers" | "listening_ports" | "dns"
               | alias ;
 alias         = "system_information" | "system_info" | "running_processes" | "process_list"
               | "active_network_connections" | "active_connections" | "network_connections"
-              | "user_accounts" | "local_users" ;
+              | "user_accounts" | "local_users" | "installed_services" | "startup_entries"
+              | "autostart_entries" | "kernel_modules" | "installed_drivers" | "open_ports"
+              | "dns_configuration" | "dns_cache" ;
 where         = [ NEWLINE ] , "where" , field , "==" , value ;
 field         = "status" | "state" | IDENTIFIER ;
 value         = IDENTIFIER | STRING | INTEGER ;
@@ -113,11 +116,33 @@ keeps this table identical to the runtime allow-list in `backend/app/engine/ir_p
 | `collect network` | COLLECT_NETWORK | jocky.network.v1 | Windows, Linux, macOS |
 | `collect files "<path>"` | COLLECT_FILES | jocky.file_list.v1 | Windows, Linux, macOS |
 | `collect users` | COLLECT_USERS | jocky.users.v1 | Windows, Linux, macOS |
+| `collect services` | COLLECT_SERVICES | jocky.services.v1 | Windows, Linux, macOS |
+| `collect startup` | COLLECT_STARTUP | jocky.startup.v1 | Windows, Linux, macOS |
+| `collect drivers` | COLLECT_DRIVERS | jocky.drivers.v1 | Windows, Linux |
+| `collect listening_ports` | COLLECT_LISTENING_PORTS | jocky.listening_ports.v1 | Windows, Linux, macOS |
+| `collect dns` | COLLECT_DNS | jocky.dns.v1 | Windows, Linux, macOS |
 | `collect registry` | COLLECT_REGISTRY | jocky.registry.v1 | Windows |
 | `collect windows_metadata` | COLLECT_WINDOWS_METADATA | jocky.windows_metadata.v1 | Windows |
 | `analyze` / `analyze process_network` | ANALYZE_PROCESS_NETWORK | jocky.analysis.v1 | Windows, Linux, macOS |
 | `verify integrity` | VERIFY_INTEGRITY | jocky.integrity.v1 | Windows, Linux, macOS |
 | `report [format json\|html\|md]` | REPORT_JSON / REPORT_HTML / REPORT_MD | jocky.report.v1 | Windows, Linux, macOS |
+
+`dns` (and its alias `dns_cache`) reads resolver configuration and the hosts file. JOCKY does not
+read the Windows DNS client cache, because that needs an undocumented API.
+
+### What each inventory source reads
+
+| Source | Windows | Linux | macOS |
+|---|---|---|---|
+| services | Service Control Manager (psutil) | systemd unit files, enabled via `*.wants` links | LaunchDaemons |
+| startup | HKLM/HKCU Run and RunOnce, Startup folders | cron (system and per-user), XDG autostart, rc.local | LaunchAgents |
+| drivers | `HKLM\SYSTEM\CurrentControlSet\Services` with driver Type | `/proc/modules` plus `/sys/module/*/taint` (unsigned, out-of-tree) | reported unsupported |
+| listening_ports | psutil socket table | psutil socket table | psutil (may report `denied`) |
+| dns | Tcpip interface NameServer values, hosts file | `/etc/resolv.conf`, `/etc/hosts` | `/etc/resolv.conf`, `/etc/hosts` |
+
+Every inventory result uses the same envelope: `collector`, `collector_version`, `platform`,
+`endpoint`, `collected_at`, `collection_status` (`collected`, `partial`, `unsupported`, `denied`
+or `error`), `count`, `items`, `errors` and `provenance`.
 
 `analyze <anything else>` compiles but has no capability. The platform backend flags it as
 `unknown`, and the runtime policy denies it.

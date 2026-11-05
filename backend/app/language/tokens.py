@@ -50,6 +50,13 @@ class TokenType(str, Enum):
     # Analysis target
     PROCESS_NETWORK = "PROCESS_NETWORK"
 
+    # ── Host inventory targets (blueprint §5.1 / §5.2) ───────────────────────
+    SERVICES = "SERVICES"
+    STARTUP = "STARTUP"
+    DRIVERS = "DRIVERS"
+    LISTENING_PORTS = "LISTENING_PORTS"
+    DNS = "DNS"
+
     # ── Block syntax (blueprint §4.3) ────────────────────────────────────────
     INVESTIGATION = "INVESTIGATION"
     PLATFORM = "PLATFORM"
@@ -98,6 +105,12 @@ KEYWORDS: dict[str, TokenType] = {
     "USERS": TokenType.USERS,
     "REGISTRY": TokenType.REGISTRY,
     "WINDOWS_METADATA": TokenType.WINDOWS_METADATA,
+    # Host inventory
+    "SERVICES": TokenType.SERVICES,
+    "STARTUP": TokenType.STARTUP,
+    "DRIVERS": TokenType.DRIVERS,
+    "LISTENING_PORTS": TokenType.LISTENING_PORTS,
+    "DNS": TokenType.DNS,
     # Block syntax
     "INVESTIGATION": TokenType.INVESTIGATION,
     "PLATFORM": TokenType.PLATFORM,

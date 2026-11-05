@@ -31,6 +31,11 @@ class AllowedCollector(str, Enum):
     FILES = "files"
     USERS = "users"
     REGISTRY = "registry"
+    SERVICES = "services"
+    STARTUP = "startup"
+    DRIVERS = "drivers"
+    LISTENING_PORTS = "listening_ports"
+    DNS = "dns"
 
     @classmethod
     def _missing_(cls, value: object):

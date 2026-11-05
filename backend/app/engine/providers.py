@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Set, Union
 
 from backend.app.collectors.files import collect_files_info
+from backend.app.collectors.inventory import INVENTORY_COLLECTORS
 from backend.app.collectors.network import collect_network_info
 from backend.app.collectors.processes import collect_process_info
 from backend.app.collectors.system import collect_system_info
@@ -34,6 +35,7 @@ ALLOWED_COLLECTORS: Set[str] = {
     "users",
     "registry",
     "windows_metadata",
+    *INVENTORY_COLLECTORS,
 }
 
 
@@ -80,6 +82,10 @@ class CollectorProvider(ABC):
         """Acquires Windows-specific forensic persistence metadata."""
         pass
 
+    def collect_inventory(self, name: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Acquires a host inventory source (services, startup, drivers, listening_ports, dns)."""
+        raise NotImplementedError(f"{type(self).__name__} does not provide inventory source '{name}'")
+
     def get_evidence(
         self, collector_name: str, params: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
@@ -103,6 +109,8 @@ class CollectorProvider(ABC):
             return self.collect_registry(params)
         elif clean_name == "windows_metadata":
             return self.collect_windows_metadata(params)
+        elif clean_name in INVENTORY_COLLECTORS:
+            return self.collect_inventory(clean_name, params)
         else:
             raise ValueError(f"Unhandled collector type: '{collector_name}'")
 
@@ -138,6 +146,11 @@ class LocalCollectorProvider(CollectorProvider):
 
     def collect_windows_metadata(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         return collect_windows_metadata()
+
+    def collect_inventory(self, name: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        if name not in INVENTORY_COLLECTORS:
+            raise ValueError(f"Unsupported inventory source: '{name}'")
+        return INVENTORY_COLLECTORS[name]()
 
 
 # ─── 2. Endpoint Evidence Provider ────────────────────────────────────────────
@@ -269,3 +282,6 @@ class EndpointEvidenceProvider(CollectorProvider):
         if "registry" in self._evidence_by_collector:
             return self.get_evidence("registry", params)
         return self.get_evidence("windows_metadata", params)
+
+    def collect_inventory(self, name: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        return self.get_evidence(name, params)
