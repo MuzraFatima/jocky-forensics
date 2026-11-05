@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api, getExternalServerUrl } from './api.js';
 import { getUniqueTargetDevices, getUniqueDeviceCards } from './deviceUtils.js';
 
@@ -55,7 +55,7 @@ export default function EndpointDevices({
   const [isPairModalOpen, setIsPairModalOpen] = useState(false);
   const [pairingLoading, setPairingLoading] = useState(false);
   const [pairingData, setPairingData] = useState(null);
-  const [customDeviceName, setCustomDeviceName] = useState('');
+  const [customDeviceName] = useState('');
   const [pairingError, setPairingError] = useState(null);
   const [copyCodeSuccess, setCopyCodeSuccess] = useState(false);
   const [copyCmdSuccess, setCopyCmdSuccess] = useState(false);

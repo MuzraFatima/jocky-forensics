@@ -261,12 +261,6 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
               cat === 'ALL'
                 ? SUPPORTED_COMMANDS.length
                 : SUPPORTED_COMMANDS.filter((c) => c.category === cat).length;
-            const styleConf = CATEGORY_COLORS[cat] || {
-              bg: 'rgba(255, 255, 255, 0.05)',
-              text: 'var(--text-secondary)',
-              border: 'var(--border-subtle)',
-            };
-
             return (
               <button
                 key={cat}
