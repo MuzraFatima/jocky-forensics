@@ -13,7 +13,6 @@ Safety Invariants:
 """
 
 from abc import ABC, abstractmethod
-import datetime
 from typing import Any, Dict, List, Optional, Set, Union
 
 from backend.app.collectors.files import collect_files_info
@@ -210,18 +209,16 @@ class EndpointEvidenceProvider(CollectorProvider):
             raise ValueError(f"Unsupported or unauthorized collector type: '{clean_col}'")
 
         # Validate device scoping if configured
-        if self.expected_device_id and device_id:
-            if device_id.strip() != self.expected_device_id:
-                raise ValueError(
-                    f"Evidence device_id '{device_id}' does not match expected device '{self.expected_device_id}'"
-                )
+        if self.expected_device_id and device_id and device_id.strip() != self.expected_device_id:
+            raise ValueError(
+                f"Evidence device_id '{device_id}' does not match expected device '{self.expected_device_id}'"
+            )
 
         # Validate execution scoping if configured
-        if self.expected_execution_id and execution_id:
-            if execution_id.strip() != self.expected_execution_id:
-                raise ValueError(
-                    f"Evidence execution_id '{execution_id}' does not match expected execution '{self.expected_execution_id}'"
-                )
+        if self.expected_execution_id and execution_id and execution_id.strip() != self.expected_execution_id:
+            raise ValueError(
+                f"Evidence execution_id '{execution_id}' does not match expected execution '{self.expected_execution_id}'"
+            )
 
         # Enforce that payload is a dictionary (passive structured data)
         if not isinstance(payload, dict):

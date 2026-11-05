@@ -12,10 +12,10 @@ Phase-1 additions:
 """
 
 from typing import List, Optional
-from .tokens import Token, TokenType
+
 from .ast import (
-    ASTNode,
     AnalyzeNode,
+    ASTNode,
     CaseNode,
     CollectNode,
     FilterExpression,
@@ -25,7 +25,7 @@ from .ast import (
     VerifyNode,
 )
 from .errors import JockySyntaxError
-
+from .tokens import Token, TokenType
 
 # ---------------------------------------------------------------------------
 # Token sets

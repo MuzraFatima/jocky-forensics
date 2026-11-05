@@ -21,12 +21,10 @@ export default function AdvancedTechniques({
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [tacticFilter, setTacticFilter] = useState('ALL');
-  const [selectedFinding, setSelectedFinding] = useState(null);
 
   // Extract case metadata
   const caseId = investigationData?.case_id || 'UNKNOWN-CASE';
   const targetHost = investigationData?.target || 'localhost';
-  const executionId = investigationData?.execution_id || 'LOCAL-EXEC';
 
   // Normalize findings list
   const findings = useMemo(() => {
@@ -94,10 +92,6 @@ export default function AdvancedTechniques({
     });
   }, [findings, searchTerm, severityFilter, tacticFilter]);
 
-  // KPI Metrics
-  const highSevCount = findings.filter((f) => (f.severity || '').toUpperCase() === 'HIGH').length;
-  const medSevCount = findings.filter((f) => (f.severity || '').toUpperCase() === 'MEDIUM').length;
-  const lowSevCount = findings.filter((f) => (f.severity || '').toUpperCase() === 'LOW').length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -399,12 +393,10 @@ export default function AdvancedTechniques({
           {filteredFindings.map((f, idx) => {
             const tObj = f.technique || {};
             const tName = tObj.name || 'Unspecified Technique';
-            const tId = tObj.technique_id || 'TECH-UNKNOWN';
             const mId = tObj.mitre_id || 'TXXXX';
             const mTactic = tObj.mitre_tactic || '';
             const sev = (f.severity || 'MEDIUM').toUpperCase();
             const conf = f.confidence || 'HIGH';
-            const status = f.status || 'ANALYZED';
             const fId = f.finding_id || `FIND-${idx + 1}`;
             const eids = f.evidence_ids || [];
 

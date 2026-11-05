@@ -14,6 +14,7 @@ import datetime
 import os
 import platform
 from typing import Any, Dict, List, Optional
+
 import psutil
 
 from .provenance import create_provenance, generate_collector_evidence_id

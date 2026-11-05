@@ -13,7 +13,8 @@ Safety Invariants:
 - NO file deletion, registry manipulation, or system configuration edits.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 from backend.app.analysis.correlator import generate_file_entity_id
 from backend.app.analysis.mapping import ForensicContext, ObservableIndicator
 

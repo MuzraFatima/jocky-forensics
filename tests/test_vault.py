@@ -11,15 +11,15 @@ Validates:
 7. REST API endpoints for Evidence Vault operations.
 """
 
-import os
 import shutil
 import tempfile
-import pytest
 from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.evidence.hashing import compute_sha256
 from backend.app.evidence.vault import EvidenceVault
-from backend.app.evidence.hashing import compute_sha256, verify_sha256
 from backend.app.main import app
 
 
@@ -148,7 +148,7 @@ def test_vault_audit_identifies_intact_and_compromised_vaults(temp_vault):
 
     # Add 2 intact artifacts
     s1 = temp_vault.seal_artifact("CASE-AUDIT", "system", {"host": "pc1"})
-    s2 = temp_vault.seal_artifact("CASE-AUDIT", "network", {"connections": []})
+    temp_vault.seal_artifact("CASE-AUDIT", "network", {"connections": []})
 
     audit2 = temp_vault.verify_vault_integrity(case_id="CASE-AUDIT")
     assert audit2["vault_status"] == "INTACT"
@@ -170,7 +170,7 @@ def test_vault_audit_identifies_intact_and_compromised_vaults(temp_vault):
 
 def test_audit_ledger_chronological_ordering(temp_vault):
     s1 = temp_vault.seal_artifact("CASE-LEDGER", "system", {"item": 1}, who="User A")
-    s2 = temp_vault.seal_artifact("CASE-LEDGER", "processes", {"item": 2}, who="User B")
+    temp_vault.seal_artifact("CASE-LEDGER", "processes", {"item": 2}, who="User B")
     temp_vault.verify_artifact(s1["evidence_id"], who="Verifier")
 
     ledger = temp_vault.get_audit_ledger(case_id="CASE-LEDGER")
@@ -211,8 +211,8 @@ def test_persistence_after_restart_and_tamper_detection():
     """
     temp_dir = tempfile.mkdtemp(prefix="jocky_persist_test_")
     try:
-        from backend.app.collectors.system import collect_system_info
         from backend.app.collectors.processes import collect_process_info
+        from backend.app.collectors.system import collect_system_info
 
         # 1. Initialize original vault instance
         vault1 = EvidenceVault(base_dir=temp_dir)

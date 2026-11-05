@@ -14,6 +14,7 @@ Safety Invariants:
 
 import datetime
 from typing import Any, Dict, List, Optional
+
 import psutil
 
 
@@ -104,10 +105,7 @@ def collect_process_info() -> Dict[str, Any]:
                     cmdline = None
                 except Exception:
                     cmdline = None
-            if isinstance(cmdline, list):
-                cmdline = [str(arg) for arg in cmdline]
-            else:
-                cmdline = None
+            cmdline = [str(arg) for arg in cmdline] if isinstance(cmdline, list) else None
 
             # Username
             username = info.get("username")

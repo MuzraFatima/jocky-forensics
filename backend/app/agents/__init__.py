@@ -5,6 +5,12 @@ Provides backend data models, device pairing lifecycle, and secure REST communic
 interfaces for remote authorized forensic endpoint collection.
 """
 
+from .manager import (
+    AgentManager,
+    get_agent_manager,
+    hash_device_token,
+    verify_device_token_hash,
+)
 from .models import (
     AgentHeartbeatRequest,
     AgentHeartbeatResponse,
@@ -18,12 +24,6 @@ from .models import (
     PairingCodeGenerateResponse,
     PairingExchangeRequest,
     PairingExchangeResponse,
-)
-from .manager import (
-    AgentManager,
-    get_agent_manager,
-    hash_device_token,
-    verify_device_token_hash,
 )
 
 __all__ = [

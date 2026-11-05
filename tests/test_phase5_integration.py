@@ -20,17 +20,16 @@ Verifies:
 """
 
 import pytest
-from backend.app.evidence.store import EvidenceStore
+
 from backend.app.analysis import (
-    ForensicContext,
     build_forensic_timeline,
     build_mitre_analysis,
     correlate_evidence,
-    analyze_evidence_techniques,
 )
 from backend.app.analysis.analyzers import AdvancedAnalysisPipeline
+from backend.app.engine import LocalCollectorProvider, execute_jocky_ir
+from backend.app.evidence.store import EvidenceStore
 from backend.app.language import compile_jocky
-from backend.app.engine import execute_jocky_ir, LocalCollectorProvider
 
 
 @pytest.fixture
@@ -147,7 +146,7 @@ def test_stage1_evidence_collection_and_sealing(sealed_vault_and_evidence):
 
     # Verify all artifacts are cryptographically registered
     assert len(evidence_ids) == 3
-    for source, ev_id in evidence_ids.items():
+    for _source, ev_id in evidence_ids.items():
         assert ev_id.startswith("EVID-")
         verification = vault.verify_evidence(ev_id, who="TestAuditor", why="Stage 1 Integrity Verification")
         assert verification["valid"] is True
@@ -298,7 +297,7 @@ def test_stage6_evidence_traceability_back_to_vault(sealed_vault_and_evidence):
     traceability = mitre_data["traceability"]
 
     # Every technique entry in the traceability matrix must resolve to sealed Evidence Vault IDs
-    for key, trace_item in traceability.items():
+    for _key, trace_item in traceability.items():
         assert len(trace_item["evidence_ids"]) > 0
         for ev_id in trace_item["evidence_ids"]:
             # Verify the ID actually exists in our vault

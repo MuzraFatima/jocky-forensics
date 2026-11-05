@@ -346,7 +346,9 @@ export default function App() {
     setSession(newSession);
     try {
       sessionStorage.setItem('jocky_session', JSON.stringify(newSession));
-    } catch (e) {}
+    } catch {
+      // storage can be unavailable (private mode); the UI keeps working without it
+    }
     navigate('/dashboard');
   };
 
@@ -393,7 +395,9 @@ export default function App() {
     setIsLogoutModalOpen(false);
     try {
       sessionStorage.removeItem('jocky_session');
-    } catch (e) {}
+    } catch {
+      // storage can be unavailable (private mode); the UI keeps working without it
+    }
     navigate('/login');
   };
 
@@ -418,7 +422,9 @@ export default function App() {
     setIsLogoutModalOpen(false);
     try {
       sessionStorage.removeItem('jocky_session');
-    } catch (e) {}
+    } catch {
+      // storage can be unavailable (private mode); the UI keeps working without it
+    }
     navigate('/login');
   };
 
@@ -445,7 +451,9 @@ export default function App() {
         const data = await res.json();
         if (data.status) setAnalystStatus(data.status);
       }
-    } catch (e) {}
+    } catch {
+      // the analyst status poll is best-effort; keep the last known value
+    }
   };
 
   useEffect(() => {
@@ -471,7 +479,9 @@ export default function App() {
       const next = !prev;
       try {
         localStorage.setItem('jocky_sidebar_collapsed', String(next));
-      } catch (e) {}
+      } catch {
+        // storage can be unavailable (private mode)
+      }
       return next;
     });
   };
@@ -723,7 +733,7 @@ export default function App() {
       });
 
       const result = await response.json();
-      const { success, execution_id, evidence_collected, errors } = result;
+      const { success, errors } = result;
 
       if (!response.ok || success === false || (errors && errors.length > 0)) {
         const errMsg = (errors && errors.length > 0)
@@ -1521,7 +1531,7 @@ export default function App() {
                   }}
                   onPreserveEvidence={async () => {
                     try {
-                      await handleVerifyVault();
+                      await handleAuditEntireVault();
                     } catch (e) {
                       console.error(e);
                     }

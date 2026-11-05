@@ -21,9 +21,8 @@ Usage:
 
 import argparse
 import logging
-import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Ensure repository root is on sys.path
 repo_root = Path(__file__).resolve().parent
@@ -32,14 +31,12 @@ if str(repo_root) not in sys.path:
 
 from agent.client import EndpointAgentClient
 from agent.config import AgentConfig
-from agent.runner import AgentRunner
-
 
 BANNER = r"""
        _  ____   ____ _  ____   __
       | |/ __ \ / ___| |/ /\ \ / /
-   _  | | |  | | |   | ' /  \ V / 
-  | |_| | |__| | |___| . \   | |  
+   _  | | |  | | |   | ' /  \ V /
+  | |_| | |__| | |___| . \   | |
    \___/ \____/ \____|_|\_\  |_|  ENDPOINT FORENSIC AGENT
 """
 

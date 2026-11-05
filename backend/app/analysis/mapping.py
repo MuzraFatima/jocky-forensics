@@ -17,11 +17,15 @@ Key Capabilities:
 import datetime
 import uuid
 from typing import Any, Dict, List, Optional, Union
+
 from pydantic import BaseModel, ConfigDict, Field
 
-from .registry import AnalysisStatus, TechniqueCategory, TechniqueEntry, get_technique_registry
-from .correlator import generate_process_entity_id, generate_user_entity_id, generate_network_entity_id, generate_file_entity_id
-
+from .correlator import (
+    generate_file_entity_id,
+    generate_network_entity_id,
+    generate_process_entity_id,
+)
+from .registry import TechniqueCategory, get_technique_registry
 
 # ── Context & Metadata Preservation ──────────────────────────────────────────
 
@@ -187,11 +191,11 @@ class EvidenceTechniqueMapper:
         persistence, and memory artifacts.
         Evidence → Modular Analyzers → Observable Indicators
         """
-        from backend.app.analysis.analyzers.process_analyzer import ProcessAnalyzer
-        from backend.app.analysis.analyzers.network_analyzer import NetworkAnalyzer
         from backend.app.analysis.analyzers.execution_analyzer import ExecutionAnalyzer
-        from backend.app.analysis.analyzers.persistence_analyzer import PersistenceAnalyzer
         from backend.app.analysis.analyzers.memory_analyzer import MemoryAnalyzer
+        from backend.app.analysis.analyzers.network_analyzer import NetworkAnalyzer
+        from backend.app.analysis.analyzers.persistence_analyzer import PersistenceAnalyzer
+        from backend.app.analysis.analyzers.process_analyzer import ProcessAnalyzer
 
         analyzers = [
             ProcessAnalyzer(),
@@ -297,7 +301,6 @@ class EvidenceTechniqueMapper:
 
             if isinstance(raddr, dict) and raddr.get("port"):
                 r_port = raddr.get("port")
-                r_ip = raddr.get("ip", "")
                 net_ent = generate_network_entity_id(proto, conn.get("laddr"), raddr)
 
                 # A. High-Risk C2 Backdoor Port
@@ -378,7 +381,6 @@ class EvidenceTechniqueMapper:
         for f in file_list:
             path = f.get("path", "")
             mod_ts = f.get("modified_time")
-            create_ts = f.get("created_time")
             # Zeroed sub-seconds or ancient creation dates
             if mod_ts and isinstance(mod_ts, str) and mod_ts.endswith(".000000Z"):
                 indicators.append(ObservableIndicator(
@@ -440,15 +442,9 @@ class EvidenceTechniqueMapper:
             elif ind.indicator_type == "autorun_anomaly":
                 tech_id = "TECH-REG-AUTORUN"
             elif ind.indicator_type == "persistence_anomaly":
-                if "LAUNCHD" in ind.indicator_id:
-                    tech_id = "TECH-MACOS-PERSIST"
-                else:
-                    tech_id = "TECH-LINUX-PERSIST"
+                tech_id = "TECH-MACOS-PERSIST" if "LAUNCHD" in ind.indicator_id else "TECH-LINUX-PERSIST"
             elif ind.indicator_type == "integrity_anomaly":
-                if "IND-VAULT-TAMPER" in ind.indicator_id:
-                    tech_id = "TECH-EVID-TAMPER"
-                else:
-                    tech_id = "TECH-TIMESTOMP"
+                tech_id = "TECH-EVID-TAMPER" if "IND-VAULT-TAMPER" in ind.indicator_id else "TECH-TIMESTOMP"
 
             if tech_id:
                 technique_indicator_map.setdefault(tech_id, []).append(ind)

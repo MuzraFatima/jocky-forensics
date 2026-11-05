@@ -12,7 +12,7 @@ export default function CyberSupport({
     is_simulation: true,
     status_label: 'Security Analyst Online',
   });
-  const [chatMode, setChatMode] = useState('auto'); // auto, analyst, ai
+  const [chatMode] = useState('auto'); // auto, analyst, ai
   const [messages, setMessages] = useState([
     {
       id: 'welcome-1',

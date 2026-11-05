@@ -11,7 +11,7 @@ Provides security validation, invariant protection, and defensive boundaries:
 import os
 import re
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Optional
 
 
 class SecurityValidationError(ValueError):
@@ -61,7 +61,7 @@ def sanitize_forensic_path(path_str: str, base_boundary: Optional[str] = None) -
     try:
         resolved = Path(path_str).resolve()
     except Exception as exc:
-        raise SecurityValidationError(f"Invalid path string: {exc}")
+        raise SecurityValidationError(f"Invalid path string: {exc}") from exc
 
     if base_boundary:
         base_path = Path(base_boundary).resolve()
@@ -70,7 +70,7 @@ def sanitize_forensic_path(path_str: str, base_boundary: Optional[str] = None) -
         except ValueError:
             raise SecurityValidationError(
                 f"Security violation: path '{path_str}' escapes designated boundary '{base_boundary}'."
-            )
+            ) from None
 
     return resolved
 

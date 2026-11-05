@@ -22,6 +22,7 @@ from backend.app.collectors.windows_metadata import (
     collect_windows_metadata,
 )
 from backend.app.evidence.store import EvidenceStore
+
 from .policy import PolicyEngine
 
 

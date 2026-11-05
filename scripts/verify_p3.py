@@ -6,16 +6,16 @@ WORKSPACE_ROOT = Path(r"c:\Users\User\OneDrive\Desktop\sih148\jocky-forensics")
 if str(WORKSPACE_ROOT) not in sys.path:
     sys.path.insert(0, str(WORKSPACE_ROOT))
 
+from fastapi.testclient import TestClient  # type: ignore
+
 from backend.app.collectors import (  # type: ignore
-    get_collectors,
     collect_files_info,
     collect_users_info,
     collect_windows_metadata,
-    collect_registry_info,
+    get_collectors,
 )
 from backend.app.engine import execute_jocky_ir  # type: ignore
 from backend.app.language import compile_jocky  # type: ignore
-from fastapi.testclient import TestClient  # type: ignore
 from backend.app.main import app  # type: ignore
 
 print("=== 1. COLLECTORS REGISTRY ===")

@@ -21,12 +21,12 @@ Important:
     It does NOT execute commands, access the filesystem, or harvest data.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 from .ast import (
     AnalyzeNode,
     CaseNode,
     CollectNode,
-    FilterExpression,
     ProgramNode,
     ReportNode,
     TargetNode,
@@ -160,13 +160,12 @@ class Validator:
                             )
 
                 # COLLECT FILES needs a non-empty path
-                if stmt.category == "FILES":
-                    if not stmt.path or not stmt.path.strip():
-                        raise JockyValidationError(
-                            "COLLECT FILES path cannot be empty.",
-                            line=stmt.line,
-                            column=stmt.column,
-                        )
+                if stmt.category == "FILES" and (not stmt.path or not stmt.path.strip()):
+                    raise JockyValidationError(
+                        "COLLECT FILES path cannot be empty.",
+                        line=stmt.line,
+                        column=stmt.column,
+                    )
 
             elif isinstance(stmt, VerifyNode):
                 # Rule 6: VERIFY INTEGRITY must follow at least one evidence-producing COLLECT

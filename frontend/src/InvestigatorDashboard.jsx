@@ -18,7 +18,6 @@ export default function InvestigatorDashboard({
   devices = [],
   selectedDeviceId = null,
   onSelectTarget = () => {},
-  onOpenPairModal = () => {},
 }) {
   // Safe extractions
   const caseId = investigationData?.case_id || 'N/A';

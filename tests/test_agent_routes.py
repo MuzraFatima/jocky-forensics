@@ -13,10 +13,10 @@ Validates:
 """
 
 import datetime
+
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.agents.manager import get_agent_manager
 from backend.app.agents.models import (
     AgentJob,
@@ -24,6 +24,7 @@ from backend.app.agents.models import (
     CollectorOperation,
 )
 from backend.app.evidence.hashing import compute_sha256
+from backend.app.main import app
 
 client = TestClient(app)
 

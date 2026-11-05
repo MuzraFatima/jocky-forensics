@@ -206,13 +206,11 @@ function PanelToggleIcon({ collapsed = false, size = 18 }) {
 }
 
 export default function Sidebar({
-  activeTab,
   onSelectTab,
   collapsed,
   onToggleCollapse,
   mobileOpen,
   onCloseMobile,
-  platformInfo,
   counts = {},
   session,
   onOpenLogout,
@@ -311,25 +309,6 @@ export default function Sidebar({
         },
       ],
     },
-  ];
-
-  // Hidden from primary sidebar per SIH judge-facing navigation requirement.
-  // Preserved so all routes, components, and backend functionality remain intact.
-  const hiddenItems = [
-    { id: 'system', path: '/dashboard/system', label: 'System Telemetry', icon: (props) => <SystemIcon {...props} /> },
-    { id: 'processes', path: '/dashboard/processes', label: 'Active Processes', icon: (props) => <ProcessesIcon {...props} />, count: counts.processes },
-    { id: 'network', path: '/dashboard/network', label: 'Network Sockets', icon: (props) => <NetworkIcon {...props} />, count: counts.network },
-    { id: 'files', path: '/dashboard/files', label: 'Files & Binaries', icon: (props) => <FilesIcon {...props} />, count: counts.files },
-    { id: 'users', path: '/dashboard/users', label: 'Users & Sessions', icon: (props) => <UsersIcon {...props} />, count: counts.users },
-    { id: 'windows', path: '/dashboard/windows', label: platformInfo?.is_linux ? 'Linux Persistence' : 'Windows Persistence', icon: (props) => <PersistenceIcon isLinux={platformInfo?.is_linux} {...props} /> },
-    { id: 'execute', path: '/dashboard/execute', label: 'Execution Engine', icon: (props) => <ExecuteIcon {...props} /> },
-    { id: 'commands', path: '/dashboard/commands', label: 'Command Search', icon: (props) => <SearchIcon {...props} />, statusBadge: 'DSL' },
-  ];
-
-  // Complete registry of all modules for safe lookups and backward compatibility
-  const allNavItems = [
-    ...navSections.flatMap((s) => s.items),
-    ...hiddenItems,
   ];
 
   const handleItemClick = (item) => {

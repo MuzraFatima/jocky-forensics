@@ -16,12 +16,13 @@ Validates:
 import datetime
 import threading
 import time
+
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
-from backend.app.evidence.hashing import compute_sha256
 from backend.app.evidence import _default_vault
+from backend.app.evidence.hashing import compute_sha256
+from backend.app.main import app
 
 client = TestClient(app)
 

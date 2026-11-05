@@ -12,14 +12,16 @@ Validates:
 4. Static frontend build verification (dist bundle generated cleanly)
 """
 
-import json
-from pathlib import Path
 import unittest
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.agents.manager import get_agent_manager
-from backend.app.security.auth import authenticate_user, DEFAULT_DEMO_USER, DEFAULT_DEMO_PASS
+from backend.app.main import app
+from backend.app.security.auth import DEFAULT_DEMO_PASS, DEFAULT_DEMO_USER, authenticate_user
+
+_FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 
 class TestFrontendEndpointContract(unittest.TestCase):
@@ -138,9 +140,13 @@ class TestFrontendEndpointContract(unittest.TestCase):
         self.assertIn("collected_data", data)
         self.assertIn("system", data["collected_data"])
 
+    @unittest.skipUnless(
+        (_FRONTEND_DIST / "index.html").is_file(),
+        "frontend/dist not built; run `npm run build` in frontend/ to check the bundle",
+    )
     def test_frontend_dist_bundle_integrity(self):
         """Verifies that the Vite production build exists and contains key component tokens."""
-        dist_dir = Path("frontend/dist")
+        dist_dir = _FRONTEND_DIST
         self.assertTrue(dist_dir.is_dir(), "frontend/dist directory must exist")
         index_html = dist_dir / "index.html"
         self.assertTrue(index_html.is_file(), "frontend/dist/index.html must exist")

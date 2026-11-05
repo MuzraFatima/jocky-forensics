@@ -7,43 +7,43 @@ Cross-Platform support for Windows, Linux/Ubuntu, and macOS (Darwin) with identi
 
 from typing import Any, Callable, Dict
 
+from .dispatcher import (
+    dispatch_files_info,
+    dispatch_network_info,
+    dispatch_persistence_info,
+    dispatch_process_info,
+    dispatch_system_info,
+    dispatch_users_info,
+    get_current_platform,
+    get_platform_collectors,
+    is_darwin,
+    is_linux,
+    is_macos,
+    is_windows,
+)
 from .files import collect_files_info
+from .linux_collectors import (
+    collect_linux_files_info,
+    collect_linux_network_info,
+    collect_linux_persistence_info,
+    collect_linux_process_info,
+    collect_linux_system_info,
+    collect_linux_users_info,
+)
+from .macos_collectors import (
+    collect_macos_files_info,
+    collect_macos_network_info,
+    collect_macos_persistence_info,
+    collect_macos_process_info,
+    collect_macos_system_info,
+    collect_macos_users_info,
+)
 from .network import collect_network_info
 from .processes import collect_process_info
+from .provenance import create_provenance, generate_collector_evidence_id
 from .system import collect_system_info
 from .users import collect_users_info
 from .windows_metadata import collect_registry_info, collect_windows_metadata
-from .provenance import create_provenance, generate_collector_evidence_id
-from .linux_collectors import (
-    collect_linux_system_info,
-    collect_linux_process_info,
-    collect_linux_network_info,
-    collect_linux_files_info,
-    collect_linux_users_info,
-    collect_linux_persistence_info,
-)
-from .macos_collectors import (
-    collect_macos_system_info,
-    collect_macos_process_info,
-    collect_macos_network_info,
-    collect_macos_files_info,
-    collect_macos_users_info,
-    collect_macos_persistence_info,
-)
-from .dispatcher import (
-    get_current_platform,
-    get_platform_collectors,
-    dispatch_system_info,
-    dispatch_process_info,
-    dispatch_network_info,
-    dispatch_files_info,
-    dispatch_users_info,
-    dispatch_persistence_info,
-    is_windows,
-    is_linux,
-    is_macos,
-    is_darwin,
-)
 
 
 def get_collectors() -> Dict[str, Callable[..., Dict[str, Any]]]:

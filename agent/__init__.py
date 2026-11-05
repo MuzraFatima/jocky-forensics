@@ -15,10 +15,10 @@ Components:
 
 __version__ = "1.0.0"
 
-from .config import AgentConfig
 from .adapter import CollectorAdapter
-from .runner import AgentRunner
 from .client import EndpointAgentClient
+from .config import AgentConfig
+from .runner import AgentRunner
 
 __all__ = [
     "__version__",

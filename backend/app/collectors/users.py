@@ -16,6 +16,7 @@ import getpass
 import os
 import platform
 from typing import Any, Dict, List, Optional
+
 import psutil
 
 from .provenance import create_provenance, generate_collector_evidence_id
@@ -96,9 +97,10 @@ def _enumerate_home_directories() -> List[str]:
         try:
             with os.scandir(base_dir) as it:
                 for entry in it:
-                    if entry.is_dir(follow_symlinks=False):
-                        if entry.name not in ("All Users", "Default", "Default User", "Public", "Shared"):
-                            discovered.append(entry.name)
+                    if entry.is_dir(follow_symlinks=False) and entry.name not in (
+                        "All Users", "Default", "Default User", "Public", "Shared"
+                    ):
+                        discovered.append(entry.name)
         except Exception:
             pass
     return discovered

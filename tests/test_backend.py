@@ -2,7 +2,11 @@
 Integration tests for JOCKY FastAPI backend endpoints.
 """
 
+import sys
+
+import pytest
 from fastapi.testclient import TestClient
+
 from backend.app.main import app
 
 client = TestClient(app)
@@ -392,6 +396,7 @@ def test_api_forensics_direct_collect_users():
     assert "current_user" in artifact
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="windows_metadata returns Windows autoruns and services only on Windows")
 def test_api_forensics_direct_collect_windows_metadata():
     """Verify GET /api/forensics/collect/windows_metadata returns Windows metadata."""
     response = client.get("/api/forensics/collect/windows_metadata")

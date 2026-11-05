@@ -29,29 +29,19 @@ Phase 3+ (report rendering, cross-case correlation) is out of scope here.
 import datetime
 from typing import Any, Dict, List, Optional
 
-from backend.app.collectors.files import collect_files_info
-from backend.app.collectors.network import collect_network_info
-from backend.app.collectors.processes import collect_process_info
-from backend.app.collectors.system import collect_system_info
-from backend.app.collectors.users import collect_users_info
-from backend.app.collectors.windows_metadata import (
-    collect_registry_info,
-    collect_windows_metadata,
-)
 from backend.app.analysis import (
+    ForensicContext,
+    analyze_evidence_techniques,
     build_forensic_timeline,
+    build_mitre_analysis,
     correlate_evidence,
     evaluate_forensic_rules,
-    analyze_evidence_techniques,
-    build_mitre_analysis,
-    ForensicContext,
 )
 from backend.app.evidence.store import EvidenceStore
 from backend.app.reporting import ForensicReportBuilder
 
 from .ir_policy import evaluate_ir_policy
 from .providers import CollectorProvider, LocalCollectorProvider
-
 
 # ---------------------------------------------------------------------------
 # Filter helpers — apply WHERE clauses post-collection
@@ -262,7 +252,6 @@ class IRExecutor:
 
         for idx, op in enumerate(ir.get("operations", [])):
             op_type = op.get("type", "").upper()
-            op_target = (op.get("target") or "").upper()
             op_filters = op.get("filters", [])
             op_format  = op.get("format", "JSON")
 
@@ -713,7 +702,6 @@ class IRExecutor:
                             "error": str(exc),
                         })
 
-                all_valid = all(d.get("valid", False) for d in integrity_details)
                 receipts.append(_receipt_entry(
                     index=idx,
                     op_type=op_type,

@@ -10,10 +10,9 @@ Safely persists and manages endpoint credentials (.jocky-agent.json):
 
 import json
 import os
-from pathlib import Path
 import platform
+from pathlib import Path
 from typing import Any, Dict, Optional
-
 
 DEFAULT_CONFIG_FILENAME = ".jocky-agent.json"
 
@@ -128,7 +127,7 @@ class AgentConfig:
                 return cls(config_path=str(target))
 
         try:
-            with open(target, "r", encoding="utf-8") as f:
+            with open(target, encoding="utf-8") as f:
                 data = json.load(f)
             return cls.from_dict(data, config_path=str(target))
         except (json.JSONDecodeError, OSError):

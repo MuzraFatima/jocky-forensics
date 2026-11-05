@@ -8,7 +8,6 @@ Phase 2 IR tests: evaluate_ir_policy, filter helpers, IRExecutor.
 from backend.app.engine import ForensicExecutor, PolicyEngine
 from backend.app.language import parse_jocky_script
 
-
 # =============================================================================
 # Phase 1 — Legacy Policy Engine + ForensicExecutor Tests
 # =============================================================================
@@ -180,7 +179,7 @@ def test_executor_does_not_perform_real_collection():
 # =============================================================================
 
 from backend.app.engine import evaluate_ir_policy
-from backend.app.engine.ir_executor import IRExecutor, _apply_process_filter, _apply_network_filter
+from backend.app.engine.ir_executor import IRExecutor, _apply_network_filter, _apply_process_filter
 
 
 def _make_ir(ops, case_id="CASE-TEST", target="HOST-TEST"):
@@ -404,7 +403,6 @@ def test_apply_network_filter_no_filter_returns_all():
 # Phase 2 — IRExecutor Pipeline Tests
 # =============================================================================
 
-import pytest
 
 
 def test_ir_executor_collect_system_completes(tmp_path):
@@ -552,6 +550,7 @@ def test_ir_executor_full_pipeline(tmp_path):
 def test_ir_executor_receipt_timestamps_are_iso8601(tmp_path):
     """Timestamps in the execution receipt must be valid ISO-8601 strings."""
     import datetime
+
     from backend.app.evidence.store import EvidenceStore
     ir = _make_ir([{"type": "COLLECT", "target": "SYSTEM"}], case_id="IR-TS-001")
     executor = IRExecutor(evidence_store=EvidenceStore(base_dir=str(tmp_path)))

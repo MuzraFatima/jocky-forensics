@@ -14,10 +14,9 @@ Safety Invariants:
 - Strictly read-only analysis of collected forensic evidence.
 """
 
-import os
-from typing import Any, Dict, List, Optional
-from .correlator import generate_process_entity_id
+from typing import Any, Dict, List
 
+from .correlator import generate_process_entity_id
 
 TEMP_PATHS = [
     r"\temp",
@@ -74,7 +73,7 @@ class ForensicRuleEngine:
 
         procs_raw = evidence_data.get("processes", {})
         procs = procs_raw.get("processes", []) if isinstance(procs_raw, dict) else (procs_raw if isinstance(procs_raw, list) else [])
-        
+
         proc_by_pid = {p.get("pid"): p for p in procs if p.get("pid") is not None}
 
         # ── RULE-001: Execution from Temporary Directories ─────────────────────

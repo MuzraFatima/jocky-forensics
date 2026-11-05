@@ -24,7 +24,7 @@ export default function CriticalIncidentAlert({
       }
       setPreservedNotice('Evidence Vault verified and cryptographically locked. SHA-256 chain-of-custody recorded.');
       setTimeout(() => setPreservedNotice(null), 5000);
-    } catch (e) {
+    } catch {
       setPreservedNotice('Evidence preservation check error.');
     } finally {
       setVerifying(false);

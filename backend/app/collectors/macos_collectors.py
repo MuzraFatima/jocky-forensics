@@ -23,13 +23,10 @@ import os
 import platform
 import plistlib
 import socket
-import stat
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 import psutil
-
-from backend.app.evidence.hashing import compute_sha256, hash_file
 
 
 def _resolve_path(root_dir: str, target_path: str) -> Path:
@@ -428,7 +425,7 @@ def collect_macos_users_info(root_dir: str = "/") -> Dict[str, Any]:
     passwd_file = _resolve_path(root_dir, "etc/passwd")
     if passwd_file.exists():
         try:
-            with open(passwd_file, "r", encoding="utf-8", errors="replace") as f:
+            with open(passwd_file, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):

@@ -9,26 +9,23 @@ Validates:
 """
 
 import json
-import os
 import shutil
 import tempfile
 import time
 from pathlib import Path
+
 import pytest
 
+from backend.app.analysis.correlator import correlate_evidence
+from backend.app.cli import main as cli_main
 from backend.app.engine.hardening import (
     SecurityValidationError,
     bounded_memory_inspect,
     sanitize_case_id,
     sanitize_forensic_path,
-    verify_read_only_access,
 )
 from backend.app.language.compiler import compile_jocky
-from backend.app.analysis.correlator import correlate_evidence
-from backend.app.analysis.timeline import build_forensic_timeline
 from backend.app.reporting.report_engine import ForensicReportBuilder
-from backend.app.cli import main as cli_main
-
 
 # ---------------------------------------------------------------------------
 # 1. Security Hardening Unit Tests
