@@ -1521,7 +1521,7 @@ export default function App() {
                   }}
                   onPreserveEvidence={async () => {
                     try {
-                      await handleVerifyVault();
+                      await handleAuditEntireVault();
                     } catch (e) {
                       console.error(e);
                     }
