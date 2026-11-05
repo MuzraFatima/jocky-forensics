@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { API_BASE } from './config.js';
+import { downloadWithAuth } from './api.js';
 
 export default function ReportSection({
   investigationData,
@@ -32,10 +33,10 @@ export default function ReportSection({
     if (onDownloadReport) {
       onDownloadReport(selectedFormat);
     } else {
-      window.open(
+      downloadWithAuth(
         `${API_BASE}/api/forensics/report/download?format=${selectedFormat.toLowerCase()}&case_id=${encodeURIComponent(caseId)}`,
-        '_blank'
-      );
+        `${caseId}-report.${selectedFormat.toLowerCase()}`
+      ).catch((err) => setReportError(err.message));
     }
   };
 

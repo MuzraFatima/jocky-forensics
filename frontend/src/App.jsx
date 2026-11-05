@@ -11,7 +11,7 @@ import CommandSearch, { SUPPORTED_COMMANDS } from './CommandSearch.jsx';
 import ReportSection from './ReportSection.jsx';
 import EndpointDevices from './EndpointDevices.jsx';
 import AdvancedTechniques from './AdvancedTechniques.jsx';
-import { api } from './api.js';
+import { api, authFetch, downloadWithAuth } from './api.js';
 import { getUniqueTargetDevices } from './deviceUtils.js';
 
 export const ID_TO_PATH = {
@@ -378,7 +378,7 @@ export default function App() {
   const handleLogoutWithoutSending = async () => {
     try {
       if (session?.token) {
-        await fetch(`${API_BASE}/api/auth/logout`, {
+        await authFetch(`${API_BASE}/api/auth/logout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -401,10 +401,26 @@ export default function App() {
     navigate('/login');
   };
 
+  // A 401 from the API means the session no longer exists on the server
+  // (expired, or the backend restarted). Drop it and return to sign-in.
+  useEffect(() => {
+    const onExpired = () => {
+      setSession(null);
+      try {
+        sessionStorage.removeItem('jocky_session');
+      } catch {
+        // storage can be unavailable (private mode)
+      }
+      navigate('/login');
+    };
+    window.addEventListener('jocky:session-expired', onExpired);
+    return () => window.removeEventListener('jocky:session-expired', onExpired);
+  }, [navigate]);
+
   const handleLogoutAfterReport = async () => {
     try {
       if (session?.token) {
-        await fetch(`${API_BASE}/api/auth/logout`, {
+        await authFetch(`${API_BASE}/api/auth/logout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -432,7 +448,7 @@ export default function App() {
     try {
       const cId = investigationData?.case_id || 'LAB-2026-001';
       const tgt = investigationData?.target || 'LAB-PC';
-      const res = await fetch(`${API_BASE}/api/security/incident/current?case_id=${encodeURIComponent(cId)}&target=${encodeURIComponent(tgt)}`);
+      const res = await authFetch(`${API_BASE}/api/security/incident/current?case_id=${encodeURIComponent(cId)}&target=${encodeURIComponent(tgt)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.incident) {
@@ -446,7 +462,7 @@ export default function App() {
 
   const fetchAnalystStatus = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/security/analyst/status`);
+      const res = await authFetch(`${API_BASE}/api/security/analyst/status`);
       if (res.ok) {
         const data = await res.json();
         if (data.status) setAnalystStatus(data.status);
@@ -502,7 +518,7 @@ export default function App() {
     setVaultLoading(true);
     try {
       const q = caseId ? `?case_id=${encodeURIComponent(caseId)}` : '';
-      const res = await fetch(`${API_BASE}/api/forensics/vault/audit${q}`);
+      const res = await authFetch(`${API_BASE}/api/forensics/vault/audit${q}`);
       const json = await res.json();
       if (json.success) {
         setVaultAudit(json.audit_summary);
@@ -517,7 +533,7 @@ export default function App() {
 
   const handleVerifyArtifact = async (evidenceId) => {
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/vault/verify`, {
+      const res = await authFetch(`${API_BASE}/api/forensics/vault/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evidence_id: evidenceId }),
@@ -534,7 +550,7 @@ export default function App() {
   const handleAuditEntireVault = async () => {
     setVaultLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/vault/verify`, {
+      const res = await authFetch(`${API_BASE}/api/forensics/vault/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -553,7 +569,7 @@ export default function App() {
   const handleSimulateTamper = async (evidenceId) => {
     if (!evidenceId) return;
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/vault/simulate-tampering`, {
+      const res = await authFetch(`${API_BASE}/api/forensics/vault/simulate-tampering`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evidence_id: evidenceId, new_val: 'SIMULATED_MALICIOUS_INJECTION' }),
@@ -561,7 +577,7 @@ export default function App() {
       const json = await res.json();
       if (json.success) {
         setVaultTamperMsg(`Tampered payload for ${evidenceId}. Re-auditing vault...`);
-        await fetch(`${API_BASE}/api/forensics/vault/verify`, {
+        await authFetch(`${API_BASE}/api/forensics/vault/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ evidence_id: evidenceId }),
@@ -575,7 +591,8 @@ export default function App() {
 
   const handleExportBundle = (caseId) => {
     const cId = caseId || investigationData?.case_id || 'LAB-2026-001';
-    window.open(`${API_BASE}/api/forensics/vault/export/${encodeURIComponent(cId)}`, '_blank');
+    downloadWithAuth(`${API_BASE}/api/forensics/vault/export/${encodeURIComponent(cId)}`, `${cId}-evidence-bundle.json`)
+      .catch((err) => console.error('Error exporting evidence bundle:', err));
   };
 
   const handleGenerateReport = async (fmtOverride) => {
@@ -585,7 +602,7 @@ export default function App() {
     const caseId = investigationData?.case_id || executeData?.case_id || 'LAB-2026-001';
     const target = investigationData?.target || executeData?.target || 'LAB-PC';
     try {
-      const res = await fetch(`${API_BASE}/api/reports/generate`, {
+      const res = await authFetch(`${API_BASE}/api/reports/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -609,14 +626,18 @@ export default function App() {
 
   const handleDownloadReport = (fmt) => {
     const cId = investigationData?.case_id || executeData?.case_id || 'LAB-2026-001';
-    window.open(`${API_BASE}/api/forensics/report/download?format=${(fmt || reportFormat).toLowerCase()}&case_id=${encodeURIComponent(cId)}`, '_blank');
+    const chosen = (fmt || reportFormat).toLowerCase();
+    downloadWithAuth(
+      `${API_BASE}/api/forensics/report/download?format=${chosen}&case_id=${encodeURIComponent(cId)}`,
+      `${cId}-report.${chosen === 'markdown' ? 'md' : chosen}`
+    ).catch((err) => console.error('Error downloading report:', err));
   };
 
   const handleAnalyzeEvidenceCorrelate = async (customEvidence = null) => {
     setCorrelationLoading(true);
     try {
       const evidence = customEvidence || investigationData?.collected_data || executeData?.collected_data || {};
-      const res = await fetch(`${API_BASE}/api/forensics/correlate`, {
+      const res = await authFetch(`${API_BASE}/api/forensics/correlate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ evidence }),
@@ -638,8 +659,8 @@ export default function App() {
     setTimelineLoading(true);
     try {
       const [tlRes, anRes] = await Promise.all([
-        fetch(`${API_BASE}/api/forensics/timeline`),
-        fetch(`${API_BASE}/api/forensics/analysis`)
+        authFetch(`${API_BASE}/api/forensics/timeline`),
+        authFetch(`${API_BASE}/api/forensics/analysis`)
       ]);
       const tlJson = await tlRes.json();
       const anJson = await anRes.json();
@@ -655,7 +676,7 @@ export default function App() {
   const handleDirectCollect = async (source) => {
     setDirectLoading((prev) => ({ ...prev, [source]: true }));
     try {
-      const res = await fetch(`${API_BASE}/api/forensics/collect/${source}`);
+      const res = await authFetch(`${API_BASE}/api/forensics/collect/${source}`);
       const json = await res.json();
       if (json.success) {
         if (source === 'files') setFilesData(json.artifact);
@@ -671,7 +692,7 @@ export default function App() {
 
   // Check backend health on mount and auto-trigger initial run if online
   useEffect(() => {
-    fetch(`${API_BASE}/api/health`)
+    authFetch(`${API_BASE}/api/health`)
       .then((res) => res.json())
       .then((data) => {
         setBackendHealth({ status: 'online', details: data });
@@ -683,7 +704,7 @@ export default function App() {
       });
 
     // Fetch cross-platform status and initial vault audit
-    fetch(`${API_BASE}/api/forensics/platform`)
+    authFetch(`${API_BASE}/api/forensics/platform`)
       .then((res) => res.json())
       .then((data) => { if (data.success) setPlatformInfo(data); })
       .catch(() => {});
@@ -726,7 +747,7 @@ export default function App() {
         headers['Authorization'] = `Bearer ${session.token}`;
       }
 
-      const response = await fetch(`${API_BASE}/api/jocky/execute`, {
+      const response = await authFetch(`${API_BASE}/api/jocky/execute`, {
         method: 'POST',
         headers,
         body: JSON.stringify(requestPayload),
@@ -807,7 +828,7 @@ export default function App() {
     setCompiling(true);
     setCompilerResult(null);
     try {
-      const response = await fetch(`${API_BASE}/api/jocky/compile`, {
+      const response = await authFetch(`${API_BASE}/api/jocky/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ script: scriptText }),

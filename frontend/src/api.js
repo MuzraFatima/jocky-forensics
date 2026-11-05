@@ -246,3 +246,54 @@ export const api = {
 };
 
 export default api;
+
+/**
+ * Session token from storage, as an Authorization header (or an empty object).
+ */
+export const authHeaders = () => {
+  try {
+    const stored = sessionStorage.getItem('jocky_session') || localStorage.getItem('jocky_session');
+    const token = stored ? JSON.parse(stored)?.token : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+};
+
+/**
+ * fetch() for an absolute API URL with the session token attached. A 401 from
+ * a protected endpoint means the session is gone (for example after a backend
+ * restart), so the app is told to send the user back to the login screen.
+ */
+export const authFetch = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    headers: { ...authHeaders(), ...(options.headers || {}) },
+  });
+  if (response.status === 401 && !String(url).includes('/api/auth/') && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('jocky:session-expired'));
+  }
+  return response;
+};
+
+/**
+ * Download a protected file. window.open() cannot send the Authorization
+ * header, so the file is fetched with the token and saved from a blob.
+ */
+export const downloadWithAuth = async (url, fallbackName = 'jocky-download') => {
+  const response = await authFetch(url);
+  if (!response.ok) {
+    throw new Error(`Download failed (${response.status})`);
+  }
+  const disposition = response.headers.get('content-disposition') || '';
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = match ? match[1] : fallbackName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+};
