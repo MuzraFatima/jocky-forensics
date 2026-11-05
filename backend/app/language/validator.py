@@ -53,7 +53,17 @@ _VALID_FILTER_VALUES: Dict[str, set] = {
 # Evidence-producing COLLECT categories
 _EVIDENCE_CATEGORIES = {
     "SYSTEM", "PROCESSES", "NETWORK", "FILES",
-    "USERS", "REGISTRY", "WINDOWS_METADATA"
+    "USERS", "REGISTRY", "WINDOWS_METADATA",
+    "SERVICES", "STARTUP", "DRIVERS", "LISTENING_PORTS", "DNS",
+}
+
+
+_INVENTORY_DESCRIPTIONS = {
+    "SERVICES": "Enumerate installed services and how they start (read-only)",
+    "STARTUP": "Enumerate programs configured to run at boot or logon (read-only)",
+    "DRIVERS": "Enumerate kernel drivers or loaded kernel modules (read-only)",
+    "LISTENING_PORTS": "Enumerate listening TCP and bound UDP sockets with owning processes (read-only)",
+    "DNS": "Read DNS resolver configuration and hosts-file entries (read-only)",
 }
 
 
@@ -248,6 +258,8 @@ class Validator:
                 elif stmt.category == "FILES":
                     task["description"] = f"Collect file metadata and compute hashes within target directory '{stmt.path}'"
                     task["params"] = {"path": stmt.path}
+                elif stmt.category in _INVENTORY_DESCRIPTIONS:
+                    task["description"] = _INVENTORY_DESCRIPTIONS[stmt.category]
 
                 if stmt.filters:
                     task["filters"] = [f.to_dict() for f in stmt.filters]

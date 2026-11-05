@@ -36,6 +36,11 @@ _CAPABILITY_MAP: Dict[Tuple[str, Optional[str]], str] = {
     ("COLLECT",  "USERS"):            "COLLECT_USERS",
     ("COLLECT",  "REGISTRY"):         "COLLECT_REGISTRY",
     ("COLLECT",  "WINDOWS_METADATA"): "COLLECT_WINDOWS_METADATA",
+    ("COLLECT",  "SERVICES"):         "COLLECT_SERVICES",
+    ("COLLECT",  "STARTUP"):          "COLLECT_STARTUP",
+    ("COLLECT",  "DRIVERS"):          "COLLECT_DRIVERS",
+    ("COLLECT",  "LISTENING_PORTS"):  "COLLECT_LISTENING_PORTS",
+    ("COLLECT",  "DNS"):              "COLLECT_DNS",
     ("ANALYZE",  "PROCESS_NETWORK"):  "ANALYZE_PROCESS_NETWORK",
     ("ANALYZE",  None):               "ANALYZE_PROCESS_NETWORK",   # bare ANALYZE
     ("VERIFY",   "INTEGRITY"):        "VERIFY_INTEGRITY",

@@ -115,6 +115,16 @@ def _apply_network_filter(
 # Operation receipt builder
 # ---------------------------------------------------------------------------
 
+# Inventory capabilities share one generic execution path
+_INVENTORY_CAPABILITIES: Dict[str, str] = {
+    "COLLECT_SERVICES": "services",
+    "COLLECT_STARTUP": "startup",
+    "COLLECT_DRIVERS": "drivers",
+    "COLLECT_LISTENING_PORTS": "listening_ports",
+    "COLLECT_DNS": "dns",
+}
+
+
 def _receipt_entry(
     index: int,
     op_type: str,
@@ -271,8 +281,51 @@ class IRExecutor:
             capability = approved_entry["capability"]
             op_start = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
+            # ── COLLECT host inventory (services, startup, drivers, ports, DNS)
+            if capability in _INVENTORY_CAPABILITIES:
+                source_name = _INVENTORY_CAPABILITIES[capability]
+                try:
+                    data = self.collector_provider.collect_inventory(source_name)
+                    collected_data[source_name] = data
+                    record = self.evidence_store.save_evidence(
+                        case_id=case_id,
+                        source=source_name,
+                        data=data,
+                        who="JOCKY IR Executor",
+                        why=f"IR-directed {source_name} inventory acquisition for case {case_id}",
+                    )
+                    evidence_ids[source_name] = record["evidence_id"]
+                    sha256_hashes[source_name] = record["sha256"]
+                    collection_status = data.get("collection_status", "collected")
+                    entry = _receipt_entry(
+                        index=idx,
+                        op_type=op_type,
+                        capability=capability,
+                        decision="ALLOWED",
+                        # an unsupported source is reported as such, never as an empty success
+                        status="UNSUPPORTED" if collection_status == "unsupported" else "COMPLETED",
+                        record_count=data.get("count", 0),
+                        evidence_id=record["evidence_id"],
+                        sha256=record["sha256"],
+                        started_at=op_start,
+                        completed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    )
+                    entry["collection_status"] = collection_status
+                    receipts.append(entry)
+                except Exception as exc:
+                    receipts.append(_receipt_entry(
+                        index=idx,
+                        op_type=op_type,
+                        capability=capability,
+                        decision="ALLOWED",
+                        status="ERROR",
+                        error=str(exc),
+                        started_at=op_start,
+                        completed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    ))
+
             # ── COLLECT SYSTEM ──────────────────────────────────────────────
-            if capability == "COLLECT_SYSTEM":
+            elif capability == "COLLECT_SYSTEM":
                 try:
                     data = self.collector_provider.collect_system()
                     collected_data["system"] = data
