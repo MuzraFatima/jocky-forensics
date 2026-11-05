@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -1370,6 +1370,18 @@ if _dist_dir.is_dir():
         if index_file.is_file():
             return FileResponse(str(index_file))
         return JSONResponse(status_code=404, content={"detail": "Not Found"})
+else:
+    # API-only mode (no frontend build next to the backend): keep "/" useful
+    # instead of returning 404, and point people at the API docs.
+    @app.get("/", response_class=HTMLResponse)
+    async def serve_api_landing():
+        return HTMLResponse(
+            "<!doctype html><html><head><meta charset='utf-8'><title>JOCKY API</title></head>"
+            "<body><h1>JOCKY Forensic Analysis API</h1>"
+            "<p>The frontend bundle is not built on this host. "
+            "See <a href='/docs'>/docs</a> for the API, or <a href='/api/status'>/api/status</a>.</p>"
+            "</body></html>"
+        )
 
 
 
