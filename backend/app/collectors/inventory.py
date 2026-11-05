@@ -37,13 +37,28 @@ def _under(root_dir: str, path: str) -> Path:
 
 def _read_text(path: Path, errors: List[str], limit: int = 256 * 1024) -> Optional[str]:
     try:
-        if not path.is_file():
+        if not _is_file(path):
             return None
         with open(path, encoding="utf-8", errors="replace") as handle:
             return handle.read(limit)
     except (PermissionError, OSError) as exc:
         errors.append(f"{path}: {exc.__class__.__name__}")
         return None
+
+
+def _is_dir(path: Path) -> bool:
+    """Path.is_dir() that treats an unreadable parent as 'not there' instead of raising."""
+    try:
+        return path.is_dir()
+    except OSError:
+        return False
+
+
+def _is_file(path: Path) -> bool:
+    try:
+        return path.is_file()
+    except OSError:
+        return False
 
 
 def _list_dir(path: Path, errors: Optional[List[str]] = None, pattern: Optional[str] = None) -> List[Path]:
@@ -53,7 +68,7 @@ def _list_dir(path: Path, errors: Optional[List[str]] = None, pattern: Optional[
     error (making the result "partial") instead of aborting the collection.
     """
     try:
-        if not path.is_dir():
+        if not _is_dir(path):
             return []
         entries = path.glob(pattern) if pattern else path.iterdir()
         return sorted(entries)
@@ -127,7 +142,7 @@ def _parse_unit(text: str) -> Dict[str, str]:
 def _enabled_units(root_dir: str) -> set:
     enabled = set()
     base = _under(root_dir, "etc/systemd/system")
-    if base.is_dir():
+    if _is_dir(base):
         for wants in _list_dir(base, pattern="*.wants"):
             for link in _list_dir(wants):
                 enabled.add(link.name)
@@ -141,7 +156,7 @@ def _linux_services(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     enabled = _enabled_units(root_dir)
     for unit_dir in _UNIT_DIRS:
         directory = _under(root_dir, unit_dir)
-        if not directory.is_dir():
+        if not _is_dir(directory):
             continue
         for unit in _list_dir(directory, errors, "*.service"):
             if unit.name in seen or len(items) >= MAX_ITEMS:
@@ -200,7 +215,7 @@ def _macos_launchd(root_dir: str, dirs: Tuple[str, ...], kind: str) -> Tuple[Lis
     errors: List[str] = []
     for rel in dirs:
         directory = _under(root_dir, rel)
-        if not directory.is_dir():
+        if not _is_dir(directory):
             continue
         for plist in _list_dir(directory, errors, "*.plist"):
             if len(items) >= MAX_ITEMS:
@@ -253,9 +268,9 @@ def _windows_startup() -> Tuple[List[Dict[str, Any]], List[str]]:
     if os.environ.get("PROGRAMDATA"):
         folders.append(Path(os.environ["PROGRAMDATA"]) / "Microsoft/Windows/Start Menu/Programs/StartUp")
     for folder in folders:
-        if folder.is_dir():
+        if _is_dir(folder):
             for entry in _list_dir(folder, errors):
-                if entry.is_file():
+                if _is_file(entry):
                     items.append(
                         {"name": entry.name, "command": str(entry), "location": str(folder), "source": "startup_folder"}
                     )
@@ -283,8 +298,8 @@ def _linux_startup(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     cron_files: List[Tuple[Path, bool]] = [(_under(root_dir, "etc/crontab"), True)]
     for rel, has_user in (("etc/cron.d", True), ("var/spool/cron/crontabs", False), ("var/spool/cron", False)):
         directory = _under(root_dir, rel)
-        if directory.is_dir():
-            cron_files.extend((p, has_user) for p in _list_dir(directory, errors) if p.is_file())
+        if _is_dir(directory):
+            cron_files.extend((p, has_user) for p in _list_dir(directory, errors) if _is_file(p))
     for cron, has_user in cron_files:
         text = _read_text(cron, errors)
         if not text:
@@ -307,10 +322,10 @@ def _linux_startup(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
 
     autostart_dirs = [_under(root_dir, "etc/xdg/autostart")]
     home = _under(root_dir, "home")
-    if home.is_dir():
-        autostart_dirs.extend(user / ".config/autostart" for user in _list_dir(home, errors) if user.is_dir())
+    if _is_dir(home):
+        autostart_dirs.extend(user / ".config/autostart" for user in _list_dir(home, errors) if _is_dir(user))
     for directory in autostart_dirs:
-        if not directory.is_dir():
+        if not _is_dir(directory):
             continue
         for desktop in _list_dir(directory, errors, "*.desktop"):
             fields = _parse_unit(_read_text(desktop, errors) or "")

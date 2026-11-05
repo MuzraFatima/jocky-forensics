@@ -147,3 +147,20 @@ def test_unreadable_directory_makes_the_result_partial_not_a_crash(linux_root, m
     assert result["collection_status"] == "partial"
     assert any("crontabs" in e for e in result["errors"])
     assert any(i["source"] == "xdg_autostart" for i in result["items"])
+
+
+def test_permission_error_from_is_dir_does_not_abort_collection(linux_root, monkeypatch):
+    """On Linux, is_dir() raises for paths under an unreadable home directory."""
+    from pathlib import Path
+
+    real_is_dir = Path.is_dir
+
+    def picky_is_dir(self, *args, **kwargs):
+        if "autostart" in str(self) and "alice" in str(self):
+            raise PermissionError(13, "Permission denied")
+        return real_is_dir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_dir", picky_is_dir)
+    for fn in (collect_startup_entries, collect_services, collect_dns_config, collect_drivers):
+        result = fn(root_dir=linux_root, platform_name="Linux")
+        assert result["collection_status"] in ("collected", "partial")
