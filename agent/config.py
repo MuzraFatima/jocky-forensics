@@ -33,6 +33,7 @@ class AgentConfig:
         agent_version: str = "1.0.0",
         paired_at: Optional[str] = None,
         config_path: Optional[str] = None,
+        job_signing_public_key: Optional[str] = None,
     ):
         self.server_url = server_url.rstrip("/") if server_url else ""
         self.device_id = device_id.strip() if device_id else ""
@@ -43,6 +44,8 @@ class AgentConfig:
         self.agent_version = agent_version
         self.paired_at = paired_at
         self.config_path = config_path or self.get_default_config_path()
+        # Server key used to verify every job; set at pairing
+        self.job_signing_public_key = job_signing_public_key
 
     @staticmethod
     def get_default_config_path() -> str:
@@ -69,6 +72,7 @@ class AgentConfig:
             "os_version": self.os_version,
             "agent_version": self.agent_version,
             "paired_at": self.paired_at,
+            "job_signing_public_key": self.job_signing_public_key,
         }
 
     @classmethod
@@ -84,6 +88,7 @@ class AgentConfig:
             agent_version=data.get("agent_version", "1.0.0"),
             paired_at=data.get("paired_at"),
             config_path=config_path,
+            job_signing_public_key=data.get("job_signing_public_key"),
         )
 
     def save(self, path: Optional[str] = None) -> str:

@@ -34,6 +34,7 @@ from .models import (
     PairingExchangeRequest,
     PairingExchangeResponse,
 )
+from .signing import get_job_signer
 
 # Unambiguous alphanumeric characters for pairing codes (no 0/O, 1/I)
 PAIRING_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -249,6 +250,7 @@ class AgentManager:
                     user_id=user_id,
                     status=DeviceStatus.ACTIVE,
                     paired_at=now,
+                    job_signing_public_key=get_job_signer().public_key_b64,
                 )
 
             # 5. Otherwise generate new device credentials
@@ -277,6 +279,7 @@ class AgentManager:
                 user_id=user_id,
                 status=DeviceStatus.ACTIVE,
                 paired_at=now,
+                job_signing_public_key=get_job_signer().public_key_b64,
             )
 
     # ─── 2. Device Registry & Lifecycle ───────────────────────────────────────
@@ -435,6 +438,7 @@ class AgentManager:
                 user_id=dev.user_id,
                 status=DeviceStatus.ACTIVE,
                 paired_at=now,
+                job_signing_public_key=get_job_signer().public_key_b64,
             )
 
     # ─── 3. In-Memory Job Queue ───────────────────────────────────────────────
@@ -448,6 +452,8 @@ class AgentManager:
             if job.device_id != device_id:
                 raise ValueError(f"Job device_id {job.device_id} mismatch with target {device_id}")
 
+            # Every queued job is signed, with an expiry and a single-use nonce
+            get_job_signer().sign(job)
             self._job_queues[device_id].append(job)
 
     def get_pending_job(self, device_id: str) -> Optional[AgentJob]:

@@ -196,6 +196,10 @@ class PairingExchangeResponse(BaseModel):
         ...,
         description="UTC timestamp when the pairing took place",
     )
+    job_signing_public_key: Optional[str] = Field(
+        default=None,
+        description="Base64 Ed25519 public key the agent uses to verify every job it receives",
+    )
 
 
 # ─── 3. Heartbeat Models ──────────────────────────────────────────────────────
@@ -292,6 +296,20 @@ class AgentJob(BaseModel):
         ge=5,
         le=600,
         description="Maximum execution timeout before the agent should abort",
+    )
+    expires_at: Optional[datetime.datetime] = Field(
+        default=None,
+        description="UTC time after which the agent must refuse the job (set when the server signs it)",
+    )
+    nonce: Optional[str] = Field(
+        default=None,
+        max_length=64,
+        description="Single-use value the agent remembers to refuse replays",
+    )
+    signature: Optional[str] = Field(
+        default=None,
+        max_length=128,
+        description="Base64 Ed25519 signature over every other field",
     )
 
 
