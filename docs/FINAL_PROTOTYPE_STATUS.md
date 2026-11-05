@@ -1,9 +1,9 @@
 # JOCKY Final Prototype Status
 
-**Project**: SIH 2026 — Problem Statement SIH26148  
+**Project**: SIH 2026 - Problem Statement SIH26148  
 **Prototype Version**: 1.0 (Frozen)  
 **Freeze Date**: 2026-09-27  
-**Status**: ? COMPLETE — FROZEN  
+**Status**: Prototype 1.0 complete; follow-up work tracked in [ROADMAP.md](ROADMAP.md)  
 
 ---
 
@@ -23,7 +23,7 @@ Backend (FastAPI + Python)
 
 ---
 
-## Implementation Phases — All Complete
+## Implementation Phases - All Complete
 
 | Phase | Description | Status |
 |-------|-------------|--------|
@@ -58,7 +58,7 @@ The following capabilities are NOT implemented and must never be added:
 - Arbitrary shell execution
 - Payload generation
 
-JOCKY is a forensic analysis system only — it detects and analyzes observable indicators.
+JOCKY is a forensic analysis system only - it detects and analyzes observable indicators.
 
 ---
 
@@ -83,30 +83,31 @@ Every finding is traceable back to its source evidence artifact in the Evidence 
 
 ## Key Backend Files
 
-- backend/app/main.py — FastAPI entry point
-- backend/app/engine/jocky_parser.py — JOCKY DSL parser
-- backend/app/engine/ir_executor.py — IR execution + API endpoints
-- backend/app/collectors/ — System/process/network/file/user/persistence
-- backend/app/vault/evidence_vault.py — SHA-256 evidence storage + audit
-- backend/app/analysis/correlation_engine.py — Event correlation
-- backend/app/analysis/timeline_engine.py — Forensic timeline
-- backend/app/analysis/mitre_engine.py — MITRE ATT&CK mapping
-- backend/app/analysis/technique_analyzer.py — Indicator detection
-- backend/app/analysis/evidence_indicator_mapper.py — Evidence ? Indicator ? Technique
-- backend/app/agents/ — Endpoint Device Management (models, manager, routes)
-- backend/app/reporting/report_engine.py — Markdown + HTML forensic reports
-- backend/app/registry/technique_registry.py — 40-technique registry
-- backend/endpoint_agent/agent.py — Standalone endpoint agent
+- backend/app/main.py - FastAPI entry point and REST routes
+- backend/app/language/ - JOCKY DSL lexer, parser, AST, validator, IR builder and compiler
+- backend/app/engine/ir_executor.py - IR execution against the collector catalog
+- backend/app/engine/ir_policy.py, policy.py, hardening.py - execution policy and input hardening
+- backend/app/collectors/ - System / process / network / file / user / registry / Linux / macOS collectors
+- backend/app/evidence/vault.py, store.py, custody.py, hashing.py - SHA-256 evidence vault and chain of custody
+- backend/app/analysis/correlator.py - Event correlation
+- backend/app/analysis/timeline.py - Forensic timeline
+- backend/app/analysis/mitre.py - MITRE ATT&CK mapping
+- backend/app/analysis/mapping.py - Evidence -> indicator -> technique mapping
+- backend/app/analysis/registry.py - 40-technique registry
+- backend/app/analysis/analyzers/ - Process, network, persistence, memory and execution analyzers
+- backend/app/agents/ - Endpoint device management (models, manager, routes)
+- backend/app/reporting/report_engine.py - Markdown + HTML forensic reports
+- agent/ and jocky-agent.py - Standalone endpoint agent
 
 ## Key Frontend Files
 
-- frontend/src/App.jsx — Main application, state, tab routing
-- frontend/src/Sidebar.jsx — Navigation sidebar with counts/badges
-- frontend/src/InvestigatorDashboard.jsx — Overview & analysis dashboard
-- frontend/src/EndpointDevices.jsx — Endpoint Device Management UI
-- frontend/src/AdvancedTechniques.jsx — Advanced Technique Analysis UI
-- frontend/src/ReportSection.jsx — Forensic report display
-- frontend/src/api.js — Typed API client
+- frontend/src/App.jsx - Main application, state, tab routing
+- frontend/src/Sidebar.jsx - Navigation sidebar with counts/badges
+- frontend/src/InvestigatorDashboard.jsx - Overview & analysis dashboard
+- frontend/src/EndpointDevices.jsx - Endpoint Device Management UI
+- frontend/src/AdvancedTechniques.jsx - Advanced Technique Analysis UI
+- frontend/src/ReportSection.jsx - Forensic report display
+- frontend/src/api.js - Typed API client
 
 ---
 
