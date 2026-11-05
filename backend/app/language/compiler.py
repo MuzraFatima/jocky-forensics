@@ -26,16 +26,17 @@ Usage:
 The compiler does NOT execute any operations.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from .errors import JockyError
+from .backend import lower_ir
+from .errors import JockyError, JockySyntaxError
 from .ir import build_ir
 from .lexer import Lexer
 from .parser import Parser
 from .validator import Validator
 
 
-def compile_jocky(source: str) -> Dict[str, Any]:
+def compile_jocky(source: str, platform: Optional[str] = None) -> Dict[str, Any]:
     """
     Compile a JOCKY source string through the full Phase-1 pipeline.
 
@@ -81,11 +82,19 @@ def compile_jocky(source: str) -> Dict[str, Any]:
         # Step 4: Build IR
         ir = build_ir(ast_node)
 
+        # Step 5: Lower onto a concrete platform (explicit request,
+        # the script's PLATFORM declaration, or the compiling host)
+        try:
+            backend_plan = lower_ir(ir, platform)
+        except ValueError as exc:
+            raise JockySyntaxError(str(exc), code="JKY211") from exc
+
         return {
             "success": True,
             "tokens_count": len(tokens),
             "ast": ast_node.to_dict(),
             "ir": ir,
+            "backend": backend_plan,
             # kept for existing tests and the /api/jocky/parse endpoint
             "execution_plan": execution_plan,
         }

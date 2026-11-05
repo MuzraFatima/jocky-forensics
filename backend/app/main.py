@@ -88,6 +88,9 @@ class ScriptParseRequest(BaseModel):
     script: str = Field(..., description="Raw JOCKY forensic script source text")
     device_id: Optional[str] = Field(None, description="Optional target enrolled endpoint device ID")
     wait_timeout: Optional[int] = Field(30, description="Timeout in seconds to await endpoint execution")
+    platform: Optional[str] = Field(
+        None, description="Platform to lower the IR for (windows, linux, macos); defaults to the script or host"
+    )
 
 
 class CorrelateRequest(BaseModel):
@@ -214,7 +217,7 @@ def compile_endpoint(request: ScriptParseRequest):
 
     Does NOT execute any operations.
     """
-    result = compile_jocky(request.script)
+    result = compile_jocky(request.script, platform=request.platform)
 
     if not result["success"]:
         err = result["error"]
@@ -223,7 +226,9 @@ def compile_endpoint(request: ScriptParseRequest):
             content={
                 "success": False,
                 "error_type": err.get("error_type", "JockyError"),
+                "code": err.get("code"),
                 "message": err.get("message", "Unknown compiler error"),
+                "hint": err.get("hint"),
                 "line": err.get("line"),
                 "column": err.get("column"),
             },
@@ -253,6 +258,7 @@ def compile_endpoint(request: ScriptParseRequest):
         "tokens_count": result["tokens_count"],
         "ast": result["ast"],
         "ir": ir,
+        "backend": result["backend"],
         "summary": {
             "case_id": ir.get("case_id"),
             "target": ir.get("target"),
