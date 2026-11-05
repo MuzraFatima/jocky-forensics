@@ -16,6 +16,12 @@ from typing import List
 from .errors import JockySyntaxError
 from .tokens import KEYWORDS, Token, TokenType
 
+_PUNCTUATION = {
+    "{": TokenType.LBRACE,
+    "}": TokenType.RBRACE,
+    ";": TokenType.SEMICOLON,
+}
+
 
 class Lexer:
     """Tokenizer for the JOCKY Domain-Specific Language."""
@@ -78,6 +84,7 @@ class Lexer:
                     "Unterminated string literal: unexpected newline before closing quote",
                     start_line,
                     start_col,
+                    code="JKY101",
                 )
 
             if ch == "\\":
@@ -100,6 +107,7 @@ class Lexer:
             "Unterminated string literal: reached end-of-file without closing quote",
             start_line,
             start_col,
+            code="JKY101",
         )
 
     def _read_word(self) -> Token:
@@ -186,6 +194,12 @@ class Lexer:
                 tokens.append(Token(TokenType.EQ, "==", start_line, start_col))
                 continue
 
+            # Block delimiters and statement separator
+            if ch in _PUNCTUATION:
+                tokens.append(Token(_PUNCTUATION[ch], ch, self.line, self.column))
+                self._advance()
+                continue
+
             # String literals
             if ch == '"':
                 tokens.append(self._read_string())
@@ -209,6 +223,7 @@ class Lexer:
                 f"Unexpected character '{bad_char}'",
                 start_line,
                 start_col,
+                code="JKY102",
             )
 
         # Ensure trailing NEWLINE + EOF sentinel

@@ -5,7 +5,7 @@ Provides a headless, scriptable CLI for incident response, scripted triage,
 automated evidence acquisition, and vault auditing without a GUI.
 
 Commands:
-    jocky compile <script_file>
+    jocky compile <script_file> [--emit summary|ir|ast|tokens|backend] [--platform windows|linux|macos]
     jocky execute <script_file> [--format HTML|MD|JSON] [--output <path>]
     jocky audit [--case <case_id>]
     jocky export <case_id> [--output <path>]
@@ -14,6 +14,7 @@ Commands:
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Optional
@@ -21,6 +22,7 @@ from typing import Optional
 from backend.app.engine import execute_jocky_ir
 from backend.app.evidence import _default_vault
 from backend.app.language.compiler import compile_jocky
+from backend.app.language.lexer import Lexer
 from backend.app.reporting import ForensicReportBuilder
 
 
@@ -32,22 +34,43 @@ def cmd_compile(args: argparse.Namespace) -> int:
         return 1
 
     script_text = script_path.read_text(encoding="utf-8")
-    result = compile_jocky(script_text)
+    result = compile_jocky(script_text, platform=getattr(args, "platform", None))
+    emit = getattr(args, "emit", "summary")
+
+    if result["success"] and emit != "summary":
+        if emit == "tokens":
+            payload = [
+                {"type": t.type.value, "value": t.value, "line": t.line, "column": t.column}
+                for t in Lexer(script_text).tokenize()
+            ]
+        else:
+            payload = result[emit]
+        print(json.dumps(payload, indent=2, default=str))
+        return 0
 
     if result["success"]:
         ir = result["ir"]
+        plan = result["backend"]
         print(f"[+] Compilation SUCCESSFUL ({result['tokens_count']} tokens)")
         print(f"    Case ID:    {ir.get('case_id')}")
         print(f"    Target:     {ir.get('target')}")
         print(f"    IR Version: {ir.get('version')}")
         print(f"    Operations: {len(ir.get('operations', []))}")
+        print(f"    Platform:   {plan['platform']}")
+        status_by_id = {entry["id"]: entry for entry in plan["operations"]}
         for op in ir.get("operations", []):
-            print(f"      - {op.get('type')} {op.get('target') or ''} {op.get('format') or ''}")
+            entry = status_by_id.get(op.get("id"), {})
+            label = f"{op.get('type')} {op.get('target') or ''} {op.get('format') or ''}".strip()
+            marker = "" if entry.get("status") == "supported" else f"  [{entry.get('status')}: {entry.get('reason')}]"
+            print(f"      - line {op['source']['line']}: {label}{marker}")
         return 0
     else:
         err = result["error"]
-        print(f"[-] Compilation FAILED: {err.get('error_type')}", file=sys.stderr)
+        code = f" {err['code']}" if err.get("code") else ""
+        print(f"[-] Compilation FAILED:{code} {err.get('error_type')}", file=sys.stderr)
         print(f"    Line {err.get('line')}, Column {err.get('column')}: {err.get('message')}", file=sys.stderr)
+        if err.get("hint"):
+            print(f"    Hint: {err['hint']}", file=sys.stderr)
         return 1
 
 
@@ -154,6 +177,13 @@ def build_parser() -> argparse.ArgumentParser:
     # compile
     p_compile = subparsers.add_parser("compile", help="Compile and validate JOCKY DSL script")
     p_compile.add_argument("script_file", help="Path to JOCKY script file (.jocky)")
+    p_compile.add_argument(
+        "--emit",
+        choices=["summary", "ir", "ast", "tokens", "backend"],
+        default="summary",
+        help="What to print: a human summary (default) or a compiler stage as JSON",
+    )
+    p_compile.add_argument("--platform", help="Lower the IR for windows, linux or macos (default: script or host)")
 
     # execute
     p_exec = subparsers.add_parser("execute", help="Execute JOCKY IR pipeline and output report")

@@ -1,0 +1,16 @@
+# JOCKY block syntax (blueprint section 4.3)
+# Compile with: python jocky.py compile examples/block_audit.jocky --emit ir
+
+investigation "System_Audit_001" {
+    target "lab-pc"
+    platform detect
+
+    collect system_information
+    collect running_processes where status == running
+    collect active_network_connections where state == established
+    collect user_accounts
+
+    analyze process_network
+    verify integrity
+    report format html
+}

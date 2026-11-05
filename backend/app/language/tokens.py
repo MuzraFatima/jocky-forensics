@@ -50,6 +50,13 @@ class TokenType(str, Enum):
     # Analysis target
     PROCESS_NETWORK = "PROCESS_NETWORK"
 
+    # ── Block syntax (blueprint §4.3) ────────────────────────────────────────
+    INVESTIGATION = "INVESTIGATION"
+    PLATFORM = "PLATFORM"
+    LBRACE = "{"
+    RBRACE = "}"
+    SEMICOLON = ";"
+
     # ── Operators ─────────────────────────────────────────────────────────────
     EQ = "=="          # equality operator used in filter expressions
 
@@ -91,6 +98,9 @@ KEYWORDS: dict[str, TokenType] = {
     "USERS": TokenType.USERS,
     "REGISTRY": TokenType.REGISTRY,
     "WINDOWS_METADATA": TokenType.WINDOWS_METADATA,
+    # Block syntax
+    "INVESTIGATION": TokenType.INVESTIGATION,
+    "PLATFORM": TokenType.PLATFORM,
 }
 
 

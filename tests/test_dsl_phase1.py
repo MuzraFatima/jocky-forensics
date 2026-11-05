@@ -417,7 +417,7 @@ REPORT FORMAT JSON
     def test_ir_version(self):
         ir = self._build_ir(self.CANONICAL)
         assert ir["version"] == IR_VERSION
-        assert ir["version"] == "1.0"
+        assert ir["version"] == "2.0"
 
     def test_ir_case_id(self):
         ir = self._build_ir(self.CANONICAL)
@@ -521,7 +521,7 @@ REPORT FORMAT JSON
         result = compile_jocky(self.VALID_SOURCE)
         assert "ir" in result
         ir = result["ir"]
-        assert ir["version"] == "1.0"
+        assert ir["version"] == "2.0"
         assert ir["case_id"] == "LAB-2026-001"
         assert ir["target"] == "LAB-PC"
         assert len(ir["operations"]) == 6
