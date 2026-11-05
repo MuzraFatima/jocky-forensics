@@ -616,7 +616,7 @@ def list_collectors_endpoint():
 
 
 @app.get("/api/forensics/collect/{source}")
-def direct_collect_endpoint(source: str, target_path: str = None):
+def direct_collect_endpoint(source: str, target_path: str = None, normalized: bool = False):
     """
     Directly triggers a read-only forensic collector without requiring a script.
     Supported sources: system, processes, network, files, users, windows_metadata, registry.
@@ -641,6 +641,21 @@ def direct_collect_endpoint(source: str, target_path: str = None):
             artifact = collector_fn(target_path=target_path)
         else:
             artifact = collector_fn()
+
+        if normalized and canonical_source == "processes":
+            # Blueprint §5.3: the same nine-field record on every platform
+            import platform as _platform
+
+            from backend.app.collectors.contract import PROCESS_SCHEMA_FIELDS, normalize_process_list
+
+            artifact = {
+                **artifact,
+                "schema": "jocky.process.v1",
+                "schema_fields": list(PROCESS_SCHEMA_FIELDS),
+                "processes": normalize_process_list(
+                    artifact.get("processes", []), artifact.get("platform") or _platform.system()
+                ),
+            }
 
         return {
             "success": True,

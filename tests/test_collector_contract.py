@@ -74,3 +74,16 @@ def test_access_denied_details_are_reported():
 def test_unknown_name_becomes_none_and_lists_map():
     out = normalize_process_list([{"pid": 1, "name": "unknown"}], "Linux")
     assert out[0]["process_name"] is None
+
+
+def test_collect_api_returns_normalized_processes():
+    from fastapi.testclient import TestClient
+
+    from backend.app.main import app
+
+    body = TestClient(app).get("/api/forensics/collect/processes?normalized=true").json()
+    artifact = body["artifact"]
+    assert artifact["schema"] == "jocky.process.v1"
+    assert artifact["processes"], "expected at least the test process itself"
+    for proc in artifact["processes"]:
+        assert tuple(proc) == PROCESS_SCHEMA_FIELDS
