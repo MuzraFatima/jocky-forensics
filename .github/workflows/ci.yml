@@ -45,8 +45,8 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: backend/requirements.txt
-      - run: pip install -r backend/requirements.txt pytest-github-actions-annotate-failures
-      - run: python -m pytest -q
+      - run: pip install -r backend/requirements.txt pytest-github-actions-annotate-failures pytest-timeout
+      - run: python -m pytest -q --timeout=300
       - name: Tests must not modify tracked files
         shell: bash
         run: git diff --exit-code
