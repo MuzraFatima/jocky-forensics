@@ -29,6 +29,16 @@ the remaining work as five phases (0–4). Each phase lands as one pull request 
 | CI / lint | Missing → Phase 0 | No workflow; tests rewrote tracked `data/*.json` |
 | Docs accuracy | Drifted | `FINAL_PROTOTYPE_STATUS.md` cited files that do not exist |
 
+## Progress
+
+| Phase | State |
+|---|---|
+| 0 — Foundation and CI | Merged (#1) |
+| 1 — Language and compiler | Merged (#2) |
+| 2 — Cross-platform forensic library | In review |
+| 3 — Detection and evidence integrity | Planned |
+| 4 — Secure orchestration and hardening | Planned |
+
 ## Phase 0 — Foundation and CI
 - ruff config and a clean lint pass over the Python code
 - ESLint for the frontend; fix the undefined `handleVerifyVault` crash
