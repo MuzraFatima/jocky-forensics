@@ -176,3 +176,28 @@ def test_evidence_list(tmp_path: Path):
     assert len(case_a_evidence) == 2
     for item in case_a_evidence:
         assert item["case_id"] == "CASE-A"
+
+
+def test_hash_file_skips_directories_and_oversized_files(tmp_path):
+    from backend.app.evidence.hashing import hash_file
+
+    big = tmp_path / "big.bin"
+    big.write_bytes(b"x" * 2048)
+    assert hash_file(str(tmp_path)) is None
+    assert hash_file(str(big), max_bytes=1024) is None
+    assert hash_file(str(big)) is not None
+
+
+def test_hash_file_never_opens_a_fifo(tmp_path):
+    import os
+
+    import pytest
+
+    from backend.app.evidence.hashing import hash_file
+
+    if not hasattr(os, "mkfifo"):
+        pytest.skip("named pipes are POSIX-only")
+    fifo = tmp_path / "pipe"
+    os.mkfifo(fifo)
+    # Opening a FIFO with no writer would block forever; it must be skipped.
+    assert hash_file(str(fifo)) is None

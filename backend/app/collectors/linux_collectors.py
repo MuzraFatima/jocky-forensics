@@ -21,6 +21,7 @@ import os
 import platform
 import socket
 from pathlib import Path
+from stat import S_ISREG
 from typing import Any, Dict, Optional
 
 import psutil
@@ -326,6 +327,9 @@ def collect_linux_files_info(root_dir: str = "/", target_dir: Optional[str] = No
                     file_path = Path(root) / fname
                     try:
                         stat = file_path.stat()
+                        if not S_ISREG(stat.st_mode):
+                            # sockets, FIFOs and device nodes are not file evidence
+                            continue
                         size = stat.st_size
                         total_bytes += size
                         mtime = datetime.datetime.fromtimestamp(stat.st_mtime, datetime.timezone.utc).isoformat()

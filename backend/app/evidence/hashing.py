@@ -50,16 +50,25 @@ def verify_sha256(data: Any, expected_hash: str) -> bool:
 def hash_file(file_path: Union[str, Any], max_bytes: int = 25 * 1024 * 1024) -> Optional[str]:
     """
     Safely computes SHA-256 digest of an on-disk file in 64KB blocks.
-    Returns None if file cannot be accessed or exceeds max_bytes.
+    Returns None if file cannot be accessed, is not a regular file, or
+    exceeds max_bytes.
+
+    Only regular files are read. Opening a FIFO blocks until a writer
+    appears and a device such as /dev/zero never reaches EOF, so either
+    would hang a collector that walks /tmp or /etc.
     """
     import os
+    import stat as stat_mod
     try:
-        if os.path.getsize(file_path) > max_bytes:
+        st = os.stat(file_path)
+        if not stat_mod.S_ISREG(st.st_mode) or st.st_size > max_bytes:
             return None
         hasher = hashlib.sha256()
+        remaining = max_bytes
         with open(file_path, "rb") as f:
-            while chunk := f.read(65536):
+            while remaining > 0 and (chunk := f.read(min(65536, remaining))):
                 hasher.update(chunk)
+                remaining -= len(chunk)
         return hasher.hexdigest()
     except Exception:
         return None
