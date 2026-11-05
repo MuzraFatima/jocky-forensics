@@ -1,0 +1,64 @@
+{
+  "id": "JKY-DET-006",
+  "title": "Hosts file redirects a well-known update, vendor or security domain",
+  "description": "A static hosts entry sends a domain belonging to an OS vendor, update service or security vendor to a routable address. This can hijack updates or cut security tools off from their cloud services.",
+  "source": "dns",
+  "condition": {
+    "all": [
+      {
+        "field": "kind",
+        "op": "equals",
+        "value": "hosts_entry"
+      },
+      {
+        "field": "names",
+        "op": "contains_any",
+        "values": [
+          "microsoft.com",
+          "windowsupdate",
+          "update.",
+          "ubuntu.com",
+          "canonical.com",
+          "apple.com",
+          "google.com",
+          "virustotal",
+          "kaspersky",
+          "eset.",
+          "avast",
+          "sophos",
+          "symantec",
+          "mcafee",
+          "crowdstrike",
+          "sentinelone"
+        ]
+      },
+      {
+        "not": {
+          "field": "value",
+          "op": "in",
+          "values": [
+            "127.0.0.1",
+            "0.0.0.0",
+            "::1"
+          ]
+        }
+      }
+    ]
+  },
+  "severity": "high",
+  "confidence": "high",
+  "attack": [
+    {
+      "id": "T1565.001",
+      "name": "Stored Data Manipulation"
+    },
+    {
+      "id": "T1562",
+      "name": "Impair Defenses"
+    }
+  ],
+  "benign_explanations": [
+    "A corporate proxy or update mirror pinned by an administrator",
+    "Testing a local mirror during software development"
+  ]
+}

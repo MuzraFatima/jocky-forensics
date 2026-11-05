@@ -1,0 +1,40 @@
+{
+  "id": "JKY-DET-005",
+  "title": "Listening on a port commonly used by backdoors or C2 frameworks",
+  "description": "A process accepts connections on a port associated with remote-access tools and command-and-control defaults (Metasploit 4444, Back Orifice 31337, IRC botnets 6667, and similar).",
+  "source": "listening_ports",
+  "condition": {
+    "field": "port",
+    "op": "in",
+    "values": [
+      4444,
+      4445,
+      1337,
+      31337,
+      12345,
+      54321,
+      6666,
+      6667,
+      5555,
+      9999,
+      2323
+    ]
+  },
+  "severity": "high",
+  "confidence": "medium",
+  "attack": [
+    {
+      "id": "T1571",
+      "name": "Non-Standard Port"
+    },
+    {
+      "id": "T1219",
+      "name": "Remote Access Software"
+    }
+  ],
+  "benign_explanations": [
+    "Android Debug Bridge listens on 5555",
+    "Local test servers on ports like 9999",
+    "Lab exercises run in an isolated VM"
+  ]
+}

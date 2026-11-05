@@ -15,7 +15,7 @@ _repo_root = Path(__file__).resolve().parent.parent.parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -671,6 +671,51 @@ def direct_collect_endpoint(source: str, target_path: str = None, normalized: bo
                 "error": str(exc),
             },
         )
+
+
+class DetectRequest(BaseModel):
+    sources: Optional[List[str]] = Field(
+        None, description="Evidence sources to collect live; defaults to every source a rule reads"
+    )
+
+
+_DEFAULT_DETECTION_SOURCES = ["processes", "services", "startup", "drivers", "listening_ports", "dns"]
+
+
+@app.get("/api/forensics/detections/rules")
+def list_detection_rules():
+    """The loaded detection rules with ATT&CK mapping and benign explanations."""
+    from backend.app.detection import load_rules
+
+    rules = load_rules()
+    return {"success": True, "count": len(rules), "rules": rules}
+
+
+@app.post("/api/forensics/detect")
+def run_detection(request: Optional[DetectRequest] = None):
+    """Collect the requested sources on this host now and run every applicable rule."""
+    from backend.app.collectors import get_collectors
+    from backend.app.detection import DetectionEngine
+    from backend.app.detection.engine import RECORD_KEYS
+
+    wanted = (request.sources if request and request.sources else _DEFAULT_DETECTION_SOURCES)
+    unknown = [s for s in wanted if s not in RECORD_KEYS]
+    if unknown:
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "error": f"No detection rules read: {unknown}", "valid_sources": sorted(RECORD_KEYS)},
+        )
+    collectors = get_collectors()
+    evidence = {}
+    for source in wanted:
+        try:
+            evidence[source] = collectors[source]()
+        except Exception as exc:  # one failing collector must not hide the others
+            evidence[source] = {"collection_status": "error", "errors": [str(exc)]}
+    import platform as _platform
+
+    result = DetectionEngine().evaluate(evidence, endpoint=_platform.node())
+    return {"success": True, **result}
 
 
 @app.get("/api/forensics/correlate")

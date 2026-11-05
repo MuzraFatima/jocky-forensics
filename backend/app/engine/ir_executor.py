@@ -258,6 +258,7 @@ class IRExecutor:
         sha256_hashes: Dict[str, str] = {}
         integrity_details: List[Dict[str, Any]] = []
         analysis_result: Dict[str, Any] = {}
+        rule_detections: Optional[Dict[str, Any]] = None
         report_summary: Dict[str, Any] = {}
 
         for idx, op in enumerate(ir.get("operations", [])):
@@ -584,6 +585,45 @@ class IRExecutor:
                         completed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     ))
 
+            # ── ANALYZE DETECTIONS (declarative rules + correlation) ─────────
+            elif capability == "ANALYZE_DETECTIONS":
+                try:
+                    from backend.app.detection import DetectionEngine
+
+                    rule_detections = DetectionEngine().evaluate(collected_data, evidence_ids, endpoint=target)
+                    record = self.evidence_store.save_evidence(
+                        case_id=case_id,
+                        source="detections",
+                        data=rule_detections,
+                        who="JOCKY Detection Engine",
+                        why=f"Rule-based detection and correlation over collected evidence for case {case_id}",
+                    )
+                    evidence_ids["detections"] = record["evidence_id"]
+                    sha256_hashes["detections"] = record["sha256"]
+                    receipts.append(_receipt_entry(
+                        index=idx,
+                        op_type=op_type,
+                        capability=capability,
+                        decision="ALLOWED",
+                        status="COMPLETED",
+                        record_count=rule_detections["finding_count"],
+                        evidence_id=record["evidence_id"],
+                        sha256=record["sha256"],
+                        started_at=op_start,
+                        completed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    ))
+                except Exception as exc:
+                    receipts.append(_receipt_entry(
+                        index=idx,
+                        op_type=op_type,
+                        capability=capability,
+                        decision="ALLOWED",
+                        status="ERROR",
+                        error=str(exc),
+                        started_at=op_start,
+                        completed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    ))
+
             # ── ANALYZE PROCESS_NETWORK ──────────────────────────────────────
             elif capability == "ANALYZE_PROCESS_NETWORK":
                 findings: List[str] = []
@@ -834,7 +874,8 @@ class IRExecutor:
             else (True if evidence_ids else None)
         )
 
-        all_completed = all(r["status"] in ("COMPLETED", "SKIPPED") for r in receipts)
+        # UNSUPPORTED means the source does not exist on this OS; that is reported, not a failure
+        all_completed = all(r["status"] in ("COMPLETED", "SKIPPED", "UNSUPPORTED") for r in receipts)
 
         return {
             "success": all_completed,
@@ -857,6 +898,7 @@ class IRExecutor:
             "correlation": analysis_result.get("correlation") if analysis_result else None,
             "timeline": analysis_result.get("timeline") if analysis_result else None,
             "detections": analysis_result.get("detections") if analysis_result else None,
+            "rule_detections": rule_detections,
             "report": report_summary,
             "timestamps": {
                 "started_at": started_at,

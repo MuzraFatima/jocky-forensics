@@ -43,6 +43,7 @@ _CAPABILITY_MAP: Dict[Tuple[str, Optional[str]], str] = {
     ("COLLECT",  "DNS"):              "COLLECT_DNS",
     ("ANALYZE",  "PROCESS_NETWORK"):  "ANALYZE_PROCESS_NETWORK",
     ("ANALYZE",  None):               "ANALYZE_PROCESS_NETWORK",   # bare ANALYZE
+    ("ANALYZE",  "DETECTIONS"):       "ANALYZE_DETECTIONS",
     ("VERIFY",   "INTEGRITY"):        "VERIFY_INTEGRITY",
     ("REPORT",   None):               "REPORT_JSON",
     ("REPORT",   "JSON"):             "REPORT_JSON",               # explicit format

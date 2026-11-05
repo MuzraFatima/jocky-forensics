@@ -115,6 +115,13 @@ COLLECT_ALIASES = {
     "DNS_CACHE": "DNS",
 }
 
+# Readable names accepted after ANALYZE
+ANALYZE_ALIASES = {
+    "THREATS": "DETECTIONS",
+    "THREAT_INDICATORS": "DETECTIONS",
+    "RULES": "DETECTIONS",
+}
+
 # PLATFORM values and their canonical form
 _PLATFORM_VALUES = {
     "DETECT": "AUTO",
@@ -505,7 +512,7 @@ class Parser:
         elif next_tok.type == TokenType.IDENTIFIER:
             # Accept bare identifiers as targets for forward compatibility
             self._advance()
-            analysis_target = next_tok.value.upper()
+            analysis_target = ANALYZE_ALIASES.get(next_tok.value.upper(), next_tok.value.upper())
 
         self._assert_end_of_statement("ANALYZE")
         return AnalyzeNode(

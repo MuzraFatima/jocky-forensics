@@ -71,6 +71,9 @@ OPERATIONS: Dict[Tuple[str, Optional[str]], OperationSpec] = {
     ("ANALYZE", "PROCESS_NETWORK"): OperationSpec(
         "ANALYZE_PROCESS_NETWORK", "jocky.analysis.v1", ALL_PLATFORMS, "Process and network correlation"
     ),
+    ("ANALYZE", "DETECTIONS"): OperationSpec(
+        "ANALYZE_DETECTIONS", "jocky.detections.v1", ALL_PLATFORMS, "Declarative detection rules and correlation"
+    ),
     ("VERIFY", "INTEGRITY"): OperationSpec(
         "VERIFY_INTEGRITY", "jocky.integrity.v1", ALL_PLATFORMS, "Re-hash stored evidence and compare"
     ),

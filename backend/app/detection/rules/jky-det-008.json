@@ -1,0 +1,61 @@
+{
+  "id": "JKY-DET-008",
+  "title": "Office document, PDF reader or mail client started a shell",
+  "description": "A shell or script host was launched by a document reader or mail client. This parent/child pair is the classic sign of a malicious attachment. Browsers are excluded because they start shells for native-messaging helpers.",
+  "source": "processes",
+  "condition": {
+    "all": [
+      {
+        "field": "name",
+        "op": "in",
+        "values": [
+          "cmd.exe",
+          "powershell.exe",
+          "pwsh.exe",
+          "wscript.exe",
+          "cscript.exe",
+          "mshta.exe",
+          "rundll32.exe",
+          "regsvr32.exe",
+          "sh",
+          "bash",
+          "dash",
+          "zsh",
+          "python",
+          "python3"
+        ]
+      },
+      {
+        "field": "parent_name",
+        "op": "in",
+        "values": [
+          "winword.exe",
+          "excel.exe",
+          "powerpnt.exe",
+          "outlook.exe",
+          "acrord32.exe",
+          "acrobat.exe",
+          "soffice.bin",
+          "evince",
+          "thunderbird"
+        ]
+      }
+    ]
+  },
+  "severity": "high",
+  "confidence": "high",
+  "attack": [
+    {
+      "id": "T1059",
+      "name": "Command and Scripting Interpreter"
+    },
+    {
+      "id": "T1566.001",
+      "name": "Spearphishing Attachment"
+    }
+  ],
+  "benign_explanations": [
+    "Macros used deliberately by finance or engineering workflows",
+    "Add-ins that call a shell to export or print documents"
+  ]
+}

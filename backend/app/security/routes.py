@@ -430,6 +430,14 @@ def report_retry_endpoint(
 
 # ─── 5. Audit Logging Endpoint ─────────────────────────────────────────────
 
+@router.get("/api/security/audit/verify")
+def audit_chain_verify_endpoint():
+    """Recomputes the audit log's hash chain and reports the first broken link, if any."""
+    from .audit import verify_audit_chain
+
+    return {"success": True, **verify_audit_chain()}
+
+
 @router.get("/api/security/audit")
 @router.get("/security/audit")
 def audit_events_endpoint(
