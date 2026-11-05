@@ -19,18 +19,22 @@ Safety Invariants:
 """
 
 import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from backend.app.evidence.hashing import compute_sha256
+from backend.app.security.audit import record_audit_event
 from backend.app.security.auth import validate_token
 
 from .manager import AgentManager, get_agent_manager
 from .models import (
     AgentHeartbeatRequest,
     AgentHeartbeatResponse,
+    AllowedCollector,
+    CollectorOperation,
     DeviceRecord,
     DeviceStatus,
     EvidenceSubmission,
@@ -384,3 +388,60 @@ def revoke_device_endpoint(
         "message": f"Device {device_id} has been revoked immediately.",
         "device_id": device_id,
     }
+
+
+# ─── 8. Multi-Endpoint Cases ──────────────────────────────────────────────────
+
+class CaseDispatchRequest(BaseModel):
+    device_ids: List[str] = Field(..., min_length=1, max_length=50, description="Paired devices to investigate")
+    collectors: List[AllowedCollector] = Field(..., min_length=1, description="Read-only collectors to run")
+    timeout_seconds: int = Field(default=120, ge=5, le=600)
+
+
+@router.post(
+    "/cases/{case_id}/dispatch",
+    summary="Send one signed collection job to each of several endpoints under one case",
+)
+def dispatch_case_endpoint(
+    case_id: str,
+    request: CaseDispatchRequest,
+    session: Dict[str, Any] = Depends(get_current_investigator),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+):
+    """
+    Queues a signed job per device. Unknown, revoked or someone else's devices
+    are listed under 'rejected'; the rest are queued regardless.
+    """
+    from backend.app.security.rbac import INVESTIGATOR, role_level
+
+    if role_level(session.get("role")) < INVESTIGATOR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dispatching jobs needs the investigator level.")
+    operations = [CollectorOperation(collector=c) for c in request.collectors]
+    result = agent_manager.dispatch_case(
+        case_id=case_id,
+        user_id=session.get("username"),
+        device_ids=request.device_ids,
+        operations=operations,
+        timeout_seconds=request.timeout_seconds,
+    )
+    record_audit_event(
+        "CASE_DISPATCHED",
+        user=session.get("username"),
+        case_id=case_id,
+        details={"dispatched": [d["device_id"] for d in result["dispatched"]],
+                 "rejected": [r["device_id"] for r in result["rejected"]],
+                 "collectors": [c.value for c in request.collectors]},
+    )
+    return {"success": bool(result["dispatched"]), **result}
+
+
+@router.get(
+    "/cases/{case_id}",
+    summary="Progress of every endpoint job dispatched under a case",
+)
+def case_status_endpoint(
+    case_id: str,
+    session: Dict[str, Any] = Depends(get_current_investigator),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+):
+    return {"success": True, **agent_manager.case_status(case_id)}
