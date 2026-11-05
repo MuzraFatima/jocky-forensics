@@ -46,6 +46,23 @@ def _read_text(path: Path, errors: List[str], limit: int = 256 * 1024) -> Option
         return None
 
 
+def _list_dir(path: Path, errors: Optional[List[str]] = None, pattern: Optional[str] = None) -> List[Path]:
+    """
+    List a directory without raising. Spool and home directories often exist
+    but are unreadable to an unprivileged collector; that is recorded as an
+    error (making the result "partial") instead of aborting the collection.
+    """
+    try:
+        if not path.is_dir():
+            return []
+        entries = path.glob(pattern) if pattern else path.iterdir()
+        return sorted(entries)
+    except (PermissionError, OSError) as exc:
+        if errors is not None:
+            errors.append(f"{path}: {exc.__class__.__name__}")
+        return []
+
+
 # ---------------------------------------------------------------------------
 # Windows registry helpers (imported lazily; winreg only exists on Windows)
 # ---------------------------------------------------------------------------
@@ -111,8 +128,8 @@ def _enabled_units(root_dir: str) -> set:
     enabled = set()
     base = _under(root_dir, "etc/systemd/system")
     if base.is_dir():
-        for wants in base.glob("*.wants"):
-            for link in wants.iterdir():
+        for wants in _list_dir(base, pattern="*.wants"):
+            for link in _list_dir(wants):
                 enabled.add(link.name)
     return enabled
 
@@ -126,7 +143,7 @@ def _linux_services(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
         directory = _under(root_dir, unit_dir)
         if not directory.is_dir():
             continue
-        for unit in sorted(directory.glob("*.service")):
+        for unit in _list_dir(directory, errors, "*.service"):
             if unit.name in seen or len(items) >= MAX_ITEMS:
                 continue
             seen.add(unit.name)
@@ -185,7 +202,7 @@ def _macos_launchd(root_dir: str, dirs: Tuple[str, ...], kind: str) -> Tuple[Lis
         directory = _under(root_dir, rel)
         if not directory.is_dir():
             continue
-        for plist in sorted(directory.glob("*.plist")):
+        for plist in _list_dir(directory, errors, "*.plist"):
             if len(items) >= MAX_ITEMS:
                 break
             items.append({"name": plist.stem, "definition_path": "/" + rel + "/" + plist.name, "source": kind})
@@ -237,7 +254,7 @@ def _windows_startup() -> Tuple[List[Dict[str, Any]], List[str]]:
         folders.append(Path(os.environ["PROGRAMDATA"]) / "Microsoft/Windows/Start Menu/Programs/StartUp")
     for folder in folders:
         if folder.is_dir():
-            for entry in folder.iterdir():
+            for entry in _list_dir(folder, errors):
                 if entry.is_file():
                     items.append(
                         {"name": entry.name, "command": str(entry), "location": str(folder), "source": "startup_folder"}
@@ -267,7 +284,7 @@ def _linux_startup(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     for rel, has_user in (("etc/cron.d", True), ("var/spool/cron/crontabs", False), ("var/spool/cron", False)):
         directory = _under(root_dir, rel)
         if directory.is_dir():
-            cron_files.extend((p, has_user) for p in sorted(directory.iterdir()) if p.is_file())
+            cron_files.extend((p, has_user) for p in _list_dir(directory, errors) if p.is_file())
     for cron, has_user in cron_files:
         text = _read_text(cron, errors)
         if not text:
@@ -291,11 +308,11 @@ def _linux_startup(root_dir: str) -> Tuple[List[Dict[str, Any]], List[str]]:
     autostart_dirs = [_under(root_dir, "etc/xdg/autostart")]
     home = _under(root_dir, "home")
     if home.is_dir():
-        autostart_dirs.extend(user / ".config/autostart" for user in home.iterdir() if user.is_dir())
+        autostart_dirs.extend(user / ".config/autostart" for user in _list_dir(home, errors) if user.is_dir())
     for directory in autostart_dirs:
         if not directory.is_dir():
             continue
-        for desktop in sorted(directory.glob("*.desktop")):
+        for desktop in _list_dir(directory, errors, "*.desktop"):
             fields = _parse_unit(_read_text(desktop, errors) or "")
             items.append(
                 {

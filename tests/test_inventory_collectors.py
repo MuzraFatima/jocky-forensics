@@ -130,3 +130,20 @@ def test_windows_live_inventory_finds_services_and_drivers():
     drivers = collect_drivers()
     assert drivers["count"] > 0
     assert {d["driver_type"] for d in drivers["items"]} <= {"kernel_driver", "file_system_driver"}
+
+
+def test_unreadable_directory_makes_the_result_partial_not_a_crash(linux_root, monkeypatch):
+    from pathlib import Path
+
+    real_iterdir = Path.iterdir
+
+    def deny_spool(self):
+        if self.name == "crontabs":
+            raise PermissionError(13, "Permission denied")
+        return real_iterdir(self)
+
+    monkeypatch.setattr(Path, "iterdir", deny_spool)
+    result = collect_startup_entries(root_dir=linux_root, platform_name="Linux")
+    assert result["collection_status"] == "partial"
+    assert any("crontabs" in e for e in result["errors"])
+    assert any(i["source"] == "xdg_autostart" for i in result["items"])
