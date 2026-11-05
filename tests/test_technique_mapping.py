@@ -17,17 +17,13 @@ Verifies:
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.analysis.mapping import (
     EvidenceTechniqueMapper,
-    ForensicContext,
-    ObservableIndicator,
-    TechniqueFinding,
-    analyze_evidence_techniques,
 )
 from backend.app.analysis.registry import TechniqueCategory
 from backend.app.engine import execute_jocky_ir
 from backend.app.language import compile_jocky
+from backend.app.main import app
 
 client = TestClient(app)
 

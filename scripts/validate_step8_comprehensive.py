@@ -2,14 +2,6 @@
 Step 8: Comprehensive Final Validation & Security Verification Script
 """
 import sys
-import os
-import json
-import time
-import hashlib
-import platform
-import subprocess
-import urllib.request
-import urllib.error
 from pathlib import Path
 
 repo_root = Path(__file__).resolve().parent.parent
@@ -17,14 +9,15 @@ if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
 from fastapi.testclient import TestClient
-from backend.app.main import app
-from backend.app.agents.manager import AgentManager, get_agent_manager
-from backend.app.evidence.vault import EvidenceVault
+
+from backend.app.agents.manager import get_agent_manager
 from backend.app.engine.hardening import (
     SecurityValidationError,
     sanitize_case_id,
     sanitize_forensic_path,
 )
+from backend.app.evidence.vault import EvidenceVault
+from backend.app.main import app
 
 client = TestClient(app)
 
@@ -64,7 +57,8 @@ dev1_token = dev1["device_token"]
 dev1_headers = {"Authorization": f"Bearer {dev1_token}", "X-Device-Id": dev1_id}
 
 import datetime
-from backend.app.agents.models import AgentJob, CollectorOperation, AllowedCollector
+
+from backend.app.agents.models import AgentJob, AllowedCollector, CollectorOperation
 
 # 3. Heartbeat & Online Status
 now_utc = datetime.datetime.now(datetime.timezone.utc).isoformat()

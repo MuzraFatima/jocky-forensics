@@ -132,7 +132,7 @@ class AuthManager:
             return
 
         try:
-            with open(self._users_file, "r", encoding="utf-8") as f:
+            with open(self._users_file, encoding="utf-8") as f:
                 saved_users = json.load(f)
 
             if isinstance(saved_users, list):

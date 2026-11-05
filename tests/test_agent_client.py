@@ -9,10 +9,9 @@ Tests:
 5. CLI Runner (jocky-agent.py): parser and command dispatching.
 """
 
-import json
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from agent.adapter import CollectorAdapter

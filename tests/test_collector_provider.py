@@ -15,15 +15,12 @@ Validates:
 
 import pytest
 
+from backend.app.engine.ir_executor import IRExecutor
 from backend.app.engine.providers import (
-    ALLOWED_COLLECTORS,
-    CollectorProvider,
     EndpointEvidenceProvider,
     LocalCollectorProvider,
 )
-from backend.app.engine.ir_executor import IRExecutor, execute_jocky_ir
 from backend.app.language import compile_jocky
-from backend.app.agents.models import AllowedCollector, EvidenceSubmission
 
 
 def test_local_collector_provider_returns_live_telemetry():

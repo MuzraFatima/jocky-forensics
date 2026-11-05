@@ -24,6 +24,7 @@ Verifies:
 """
 
 import pytest
+
 from backend.app.analysis.analyzers import (
     AdvancedAnalysisPipeline,
     ExecutionAnalyzer,
@@ -33,10 +34,7 @@ from backend.app.analysis.analyzers import (
     ProcessAnalyzer,
 )
 from backend.app.analysis.mapping import (
-    EvidenceTechniqueMapper,
     ForensicContext,
-    ObservableIndicator,
-    TechniqueFinding,
     analyze_evidence_techniques,
 )
 

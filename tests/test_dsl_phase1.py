@@ -24,8 +24,6 @@ from backend.app.language.ir import IR_VERSION, build_ir
 from backend.app.language.lexer import Lexer
 from backend.app.language.parser import Parser
 from backend.app.language.tokens import TokenType
-from backend.app.language.validator import Validator
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SECTION 1 — LEXER TESTS

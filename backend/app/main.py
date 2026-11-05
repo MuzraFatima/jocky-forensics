@@ -15,24 +15,22 @@ _repo_root = Path(__file__).resolve().parent.parent.parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from backend.app.agents.routes import router as agent_router
+from backend.app.engine import ForensicExecutor, PolicyEngine, execute_jocky_ir
 from backend.app.language import (
     JockyError,
-    JockySyntaxError,
-    JockyValidationError,
     compile_jocky,
     parse_jocky_script,
 )
-from backend.app.engine import ForensicExecutor, PolicyEngine, execute_jocky_ir
 from backend.app.security import security_router
-from backend.app.agents.routes import router as agent_router
 
 app = FastAPI(
     title="JOCKY Forensic Analysis Framework API",
@@ -70,7 +68,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"] if allow_all else allowed_origins,
     allow_origin_regex=cors_origin_regex if not allow_all else None,
-    allow_credentials=True if not allow_all else False,
+    allow_credentials=bool(not allow_all),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -400,6 +398,7 @@ def execute_endpoint(request: ScriptParseRequest):
 
     if is_remote:
         import time
+
         from backend.app.agents.manager import get_agent_manager
         from backend.app.agents.models import AgentJob, AllowedCollector, CollectorOperation
         from backend.app.engine.providers import EndpointEvidenceProvider
@@ -1089,11 +1088,11 @@ def generate_report_endpoint(request: ReportGenerationRequest):
     Includes executive threat summary, correlation lineage, evidence manifest,
     and cryptographic attestation certificate.
     """
-    from backend.app.reporting import ForensicReportBuilder
     from backend.app.analysis.correlator import correlate_evidence
-    from backend.app.analysis.timeline import build_forensic_timeline
     from backend.app.analysis.rules import evaluate_forensic_rules
+    from backend.app.analysis.timeline import build_forensic_timeline
     from backend.app.evidence import _default_vault
+    from backend.app.reporting import ForensicReportBuilder
 
     try:
         evidence = request.evidence

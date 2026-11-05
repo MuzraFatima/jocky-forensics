@@ -19,12 +19,14 @@ Safety Invariants:
 """
 
 import datetime
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from backend.app.evidence.hashing import compute_sha256
 from backend.app.security.auth import validate_token
+
 from .manager import AgentManager, get_agent_manager
 from .models import (
     AgentHeartbeatRequest,
@@ -144,7 +146,7 @@ def generate_pairing_code_endpoint(
         )
         return response
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 # ─── 2. Pairing Exchange (Enrollment) ─────────────────────────────────────────

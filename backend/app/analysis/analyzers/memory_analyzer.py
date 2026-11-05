@@ -11,7 +11,8 @@ Safety Invariants:
 - NO memory injection, process hollowing, reflective DLL injection, or memory modification.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 from backend.app.analysis.correlator import generate_process_entity_id
 from backend.app.analysis.mapping import ForensicContext, ObservableIndicator
 

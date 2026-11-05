@@ -11,8 +11,8 @@ Safety Invariants:
 - Emits CRITICAL_INCIDENT_VIEWED audit events.
 """
 
-from datetime import datetime, timezone
 import time
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from backend.app.analysis.rules import evaluate_forensic_rules
@@ -21,6 +21,7 @@ from backend.app.collectors.network import collect_network_info
 from backend.app.collectors.processes import collect_process_info
 from backend.app.collectors.windows_metadata import collect_windows_metadata
 from backend.app.evidence import _default_vault
+
 from .audit import record_audit_event
 
 

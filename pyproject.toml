@@ -1,0 +1,46 @@
+[project]
+name = "jocky-forensics"
+version = "1.1.0"
+description = "JOCKY: a cross-platform forensic investigation language, engine and orchestrator (SIH26148)"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+extend-exclude = ["frontend", "evidence", "reports", "data"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # import ordering
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "SIM", # simplify
+]
+ignore = [
+    "E501",  # long lines are handled by the formatter where it matters
+    "B008",  # FastAPI relies on calls in default arguments (Depends, Header)
+    "UP006", # keep typing.List/Dict style used across the codebase
+    "UP035",
+    "UP045",
+    "UP007",
+    "SIM105",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011", "SIM117", "E402"]
+# Entry points bootstrap sys.path before importing project modules.
+"backend/app/main.py" = ["E402"]
+"backend/test_e2e_full_workflow.py" = ["E402"]
+"jocky.py" = ["E402"]
+"jocky-agent.py" = ["E402"]
+"scripts/**" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["backend", "agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "backend"]
+addopts = "-p no:cacheprovider"

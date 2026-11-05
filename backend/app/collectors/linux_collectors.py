@@ -17,16 +17,15 @@ Safety Invariants:
 """
 
 import datetime
-import glob
 import os
 import platform
 import socket
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import psutil
 
-from backend.app.evidence.hashing import compute_sha256, hash_file
+from backend.app.evidence.hashing import hash_file
 
 
 def _resolve_path(root_dir: str, target_path: str) -> Path:
@@ -58,7 +57,7 @@ def collect_linux_system_info(root_dir: str = "/") -> Dict[str, Any]:
     os_release_path = _resolve_path(root_dir, "etc/os-release")
     if os_release_path.exists():
         try:
-            with open(os_release_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(os_release_path, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     line = line.strip()
                     if line.startswith("PRETTY_NAME="):
@@ -72,7 +71,7 @@ def collect_linux_system_info(root_dir: str = "/") -> Dict[str, Any]:
     hostname_path = _resolve_path(root_dir, "etc/hostname")
     if hostname_path.exists():
         try:
-            with open(hostname_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(hostname_path, encoding="utf-8", errors="replace") as f:
                 h_content = f.read().strip()
                 if h_content:
                     hostname = h_content
@@ -87,7 +86,7 @@ def collect_linux_system_info(root_dir: str = "/") -> Dict[str, Any]:
     if meminfo_path.exists():
         try:
             mem_dict = {}
-            with open(meminfo_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(meminfo_path, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     parts = line.split(":")
                     if len(parts) == 2:
@@ -174,7 +173,7 @@ def collect_linux_process_info(root_dir: str = "/") -> Dict[str, Any]:
             status_file = p_sub / "status"
             if status_file.exists():
                 try:
-                    with open(status_file, "r", encoding="utf-8", errors="replace") as f:
+                    with open(status_file, encoding="utf-8", errors="replace") as f:
                         for line in f:
                             if line.startswith("Name:"):
                                 name = line.split(":", 1)[1].strip()
@@ -190,7 +189,7 @@ def collect_linux_process_info(root_dir: str = "/") -> Dict[str, Any]:
             cmd_file = p_sub / "cmdline"
             if cmd_file.exists():
                 try:
-                    with open(cmd_file, "r", encoding="utf-8", errors="replace") as f:
+                    with open(cmd_file, encoding="utf-8", errors="replace") as f:
                         cmdline = f.read().replace("\x00", " ").strip()
                 except Exception:
                     pass
@@ -246,7 +245,7 @@ def collect_linux_network_info(root_dir: str = "/") -> Dict[str, Any]:
 
     if net_tcp.exists():
         try:
-            with open(net_tcp, "r", encoding="utf-8", errors="replace") as f:
+            with open(net_tcp, encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()[1:]  # skip header
                 for line in lines:
                     parts = line.strip().split()
@@ -380,7 +379,7 @@ def collect_linux_users_info(root_dir: str = "/") -> Dict[str, Any]:
 
     if passwd_path.exists():
         try:
-            with open(passwd_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(passwd_path, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):
@@ -466,7 +465,7 @@ def collect_linux_persistence_info(root_dir: str = "/") -> Dict[str, Any]:
 
         if loc_path.is_file():
             try:
-                with open(loc_path, "r", encoding="utf-8", errors="replace") as f:
+                with open(loc_path, encoding="utf-8", errors="replace") as f:
                     for idx, line in enumerate(f):
                         line = line.strip()
                         if line and not line.startswith("#"):
@@ -505,7 +504,7 @@ def collect_linux_persistence_info(root_dir: str = "/") -> Dict[str, Any]:
                 for svc_file in s_path.glob("*.service"):
                     exec_start = ""
                     try:
-                        with open(svc_file, "r", encoding="utf-8", errors="replace") as sf:
+                        with open(svc_file, encoding="utf-8", errors="replace") as sf:
                             for sline in sf:
                                 if sline.strip().startswith("ExecStart="):
                                     exec_start = sline.strip().split("=", 1)[1]

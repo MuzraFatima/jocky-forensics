@@ -15,9 +15,10 @@ Safety Invariants:
 import datetime
 import hashlib
 import os
-from pathlib import Path
 import stat
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+
 import psutil
 
 from .provenance import create_provenance, generate_collector_evidence_id

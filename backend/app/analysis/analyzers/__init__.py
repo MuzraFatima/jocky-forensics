@@ -12,6 +12,7 @@ Integrates with EvidenceTechniqueMapper to emit unified findings.
 """
 
 from typing import Any, Dict, List, Optional
+
 from backend.app.analysis.mapping import (
     EvidenceTechniqueMapper,
     ForensicContext,
@@ -20,11 +21,11 @@ from backend.app.analysis.mapping import (
 )
 from backend.app.analysis.registry import get_technique_registry
 
-from .process_analyzer import ProcessAnalyzer
-from .network_analyzer import NetworkAnalyzer
 from .execution_analyzer import ExecutionAnalyzer
-from .persistence_analyzer import PersistenceAnalyzer
 from .memory_analyzer import MemoryAnalyzer
+from .network_analyzer import NetworkAnalyzer
+from .persistence_analyzer import PersistenceAnalyzer
+from .process_analyzer import ProcessAnalyzer
 
 
 class AdvancedAnalysisPipeline:

@@ -9,14 +9,24 @@ Validates:
 5. REST API endpoint GET /api/forensics/platform reports accurate capabilities.
 """
 
-import os
 import plistlib
 import shutil
 import tempfile
-import pytest
 from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.collectors.dispatcher import (
+    dispatch_persistence_info,
+    dispatch_process_info,
+    dispatch_system_info,
+    get_platform_collectors,
+    is_darwin,
+    is_linux,
+    is_macos,
+    is_windows,
+)
 from backend.app.collectors.linux_collectors import (
     collect_linux_files_info,
     collect_linux_network_info,
@@ -33,25 +43,10 @@ from backend.app.collectors.macos_collectors import (
     collect_macos_system_info,
     collect_macos_users_info,
 )
-from backend.app.collectors.dispatcher import (
-    dispatch_files_info,
-    dispatch_network_info,
-    dispatch_persistence_info,
-    dispatch_process_info,
-    dispatch_system_info,
-    dispatch_users_info,
-    get_current_platform,
-    get_platform_collectors,
-    is_windows,
-    is_linux,
-    is_macos,
-    is_darwin,
-)
-from backend.app.collectors.system import collect_system_info as win_system_info
-from backend.app.collectors.processes import collect_process_info as win_process_info
 from backend.app.collectors.network import collect_network_info as win_network_info
+from backend.app.collectors.processes import collect_process_info as win_process_info
+from backend.app.collectors.system import collect_system_info as win_system_info
 from backend.app.main import app
-
 
 client = TestClient(app)
 

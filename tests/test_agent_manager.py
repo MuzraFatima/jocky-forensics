@@ -18,12 +18,11 @@ import shutil
 import tempfile
 import threading
 from pathlib import Path
+
 import pytest
 
 from backend.app.agents.manager import (
     AgentManager,
-    hash_device_token,
-    verify_device_token_hash,
 )
 from backend.app.agents.models import (
     AgentJob,
@@ -134,7 +133,7 @@ def test_device_registration_and_plaintext_token_not_persisted(temp_manager):
     assert dev.token_hash.startswith("pbkdf2_sha256$")
 
     # Invariant: Inspect persisted JSON on disk to verify plaintext token is NOT on disk
-    with open(temp_manager._devices_file, "r", encoding="utf-8") as f:
+    with open(temp_manager._devices_file, encoding="utf-8") as f:
         disk_content = f.read()
         assert raw_token not in disk_content
         assert dev.token_hash in disk_content

@@ -7,30 +7,27 @@ verification, graph correlation, timeline reconstruction, heuristic rule evaluat
 and multi-format report generation.
 """
 
-import os
-import sys
 import json
+import sys
 import tempfile
 from pathlib import Path
-import pytest
 
 # Ensure repository root is in sys.path
 repo_root = Path(__file__).resolve().parent.parent
 if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
-from backend.app.language import parse_jocky_script, Parser, Lexer, compile_jocky, CaseNode, TargetNode
-from backend.app.collectors.system import collect_system_info
-from backend.app.collectors.processes import collect_process_info
-from backend.app.collectors.network import collect_network_info
-from backend.app.collectors.files import collect_files_info
-from backend.app.evidence.vault import EvidenceVault
-from backend.app.evidence.hashing import compute_sha256, verify_sha256
 from backend.app.analysis.correlator import correlate_evidence
-from backend.app.analysis.timeline import build_forensic_timeline
 from backend.app.analysis.rules import evaluate_forensic_rules
-from backend.app.reporting.report_engine import ForensicReportBuilder
+from backend.app.analysis.timeline import build_forensic_timeline
+from backend.app.collectors.files import collect_files_info
+from backend.app.collectors.network import collect_network_info
+from backend.app.collectors.processes import collect_process_info
+from backend.app.collectors.system import collect_system_info
 from backend.app.engine import execute_jocky_ir
+from backend.app.evidence.vault import EvidenceVault
+from backend.app.language import CaseNode, Lexer, Parser, TargetNode, compile_jocky, parse_jocky_script
+from backend.app.reporting.report_engine import ForensicReportBuilder
 
 
 def test_e2e_full_forensics_workflow():

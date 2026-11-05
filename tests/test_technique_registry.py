@@ -14,14 +14,12 @@ Validates:
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.analysis.registry import (
     AnalysisStatus,
     TechniqueCategory,
-    TechniqueEntry,
-    TechniqueRegistry,
     get_technique_registry,
 )
+from backend.app.main import app
 
 client = TestClient(app)
 

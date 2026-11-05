@@ -14,14 +14,13 @@ Commands:
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 from typing import Optional
 
-from backend.app.language.compiler import compile_jocky
 from backend.app.engine import execute_jocky_ir
 from backend.app.evidence import _default_vault
+from backend.app.language.compiler import compile_jocky
 from backend.app.reporting import ForensicReportBuilder
 
 
@@ -73,7 +72,7 @@ def cmd_execute(args: argparse.Namespace) -> int:
         print(f"[-] Execution failed: {receipt.get('error')}", file=sys.stderr)
         return 1
 
-    print(f"[+] Execution completed successfully!")
+    print("[+] Execution completed successfully!")
     print(f"    Artifacts collected: {len(receipt.get('evidence_ids', {}))}")
     print(f"    Integrity verified:  {receipt.get('integrity_status', {}).get('verified')}")
 

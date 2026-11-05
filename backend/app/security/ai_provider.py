@@ -12,10 +12,11 @@ Safety Invariants:
 - Emits AI_ASSISTANCE_USED audit events.
 """
 
-from abc import ABC, abstractmethod
 import os
 import time
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
+
 from .audit import record_audit_event
 
 
@@ -115,7 +116,7 @@ class DemoForensicAdvisor(BaseAIProvider):
             )
         elif "integrity" in q_lower or "sha" in q_lower:
             return (
-                f"[AI Forensic Assistant]\n"
+                "[AI Forensic Assistant]\n"
                 "All forensic artifacts sealed in the Evidence Vault calculate SHA-256 digests immediately upon acquisition. "
                 "The immutable ledger prevents retrospective tampering. Check the Evidence Vault tab to view cryptographic attestation."
             )

@@ -15,14 +15,6 @@ from typing import Any, Callable, Dict, Optional
 
 # Windows collectors
 from .files import collect_files_info as win_collect_files
-from .network import collect_network_info as win_collect_network
-from .processes import collect_process_info as win_collect_processes
-from .system import collect_system_info as win_collect_system
-from .users import collect_users_info as win_collect_users
-from .windows_metadata import (
-    collect_registry_info as win_collect_registry,
-    collect_windows_metadata as win_collect_persistence,
-)
 
 # Linux collectors
 from .linux_collectors import (
@@ -42,6 +34,16 @@ from .macos_collectors import (
     collect_macos_process_info,
     collect_macos_system_info,
     collect_macos_users_info,
+)
+from .network import collect_network_info as win_collect_network
+from .processes import collect_process_info as win_collect_processes
+from .system import collect_system_info as win_collect_system
+from .users import collect_users_info as win_collect_users
+from .windows_metadata import (
+    collect_registry_info as win_collect_registry,
+)
+from .windows_metadata import (
+    collect_windows_metadata as win_collect_persistence,
 )
 
 

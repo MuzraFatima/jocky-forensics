@@ -12,8 +12,9 @@ Phase-1 additions:
 """
 
 from typing import List
-from .tokens import KEYWORDS, Token, TokenType
+
 from .errors import JockySyntaxError
+from .tokens import KEYWORDS, Token, TokenType
 
 
 class Lexer:

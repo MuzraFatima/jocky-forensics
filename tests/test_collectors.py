@@ -4,6 +4,7 @@ Unit tests for JOCKY System, Process, and Network Forensic Collectors.
 
 import json
 from unittest.mock import MagicMock, patch
+
 import psutil
 
 from backend.app.collectors import (
@@ -16,7 +17,6 @@ from backend.app.collectors import (
     collect_windows_metadata,
     get_collectors,
 )
-
 
 # =====================================================================
 # System Collector Tests

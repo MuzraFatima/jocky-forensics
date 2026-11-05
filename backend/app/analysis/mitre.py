@@ -9,6 +9,7 @@ Connects Advanced Technique Findings to the MITRE ATT&CK Enterprise Matrix:
 """
 
 from typing import Any, Dict, List, Optional, Set
+
 from .registry import TechniqueCategory, get_technique_registry
 
 # Standard Enterprise ATT&CK Kill-Chain Tactic Sequence
@@ -45,7 +46,7 @@ def build_mitre_analysis(
 ) -> Dict[str, Any]:
     """
     Synthesizes a structured MITRE ATT&CK correlation matrix from a list of technique findings.
-    
+
     Preserves:
     - Evidence Vault IDs (traceability)
     - Observable indicators & timestamps

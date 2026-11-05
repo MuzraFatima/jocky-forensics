@@ -12,11 +12,11 @@ Safety Invariants:
 """
 
 import datetime
-from enum import Enum
 import re
+from enum import Enum
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # ─── Enumerations ─────────────────────────────────────────────────────────────
 
@@ -77,15 +77,14 @@ class CollectorOperation(BaseModel):
         """Ensures collector params contain no destructive or traversal directives."""
         # Forbid dangerous keys
         forbidden_keys = {"command", "cmd", "exec", "shell", "script", "code", "eval", "write", "kill", "delete"}
-        found_forbidden = set(k.lower() for k in v.keys()).intersection(forbidden_keys)
+        found_forbidden = set(k.lower() for k in v).intersection(forbidden_keys)
         if found_forbidden:
             raise ValueError(f"Forbidden collector parameter keys detected: {found_forbidden}")
 
         # Check target_path for directory traversal if present
         target_path = v.get("target_path")
-        if target_path and isinstance(target_path, str):
-            if ".." in target_path or "\x00" in target_path:
-                raise ValueError("Path traversal ('..') or null-bytes are strictly forbidden in target_path")
+        if target_path and isinstance(target_path, str) and (".." in target_path or "\x00" in target_path):
+            raise ValueError("Path traversal ('..') or null-bytes are strictly forbidden in target_path")
 
         return v
 

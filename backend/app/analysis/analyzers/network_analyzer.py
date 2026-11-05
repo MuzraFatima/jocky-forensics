@@ -11,7 +11,8 @@ Safety Invariants:
 - NO network packet crafting, port scanning, or connection disruption.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 from backend.app.analysis.correlator import generate_network_entity_id, generate_process_entity_id
 from backend.app.analysis.mapping import ForensicContext, ObservableIndicator
 
@@ -53,7 +54,6 @@ class NetworkAnalyzer:
 
             if isinstance(raddr, dict) and raddr.get("port"):
                 r_port = raddr.get("port")
-                r_ip = raddr.get("ip", "")
                 net_ent = generate_network_entity_id(proto, laddr, raddr)
 
                 # 1. High-Risk C2 Backdoor Port

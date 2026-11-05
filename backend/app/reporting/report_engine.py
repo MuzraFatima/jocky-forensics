@@ -22,8 +22,6 @@ Key Capabilities:
 import datetime
 import html
 import json
-import platform
-import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -373,7 +371,6 @@ class ForensicReportBuilder:
 
         # 4. Advanced Technique Findings & MITRE ATT&CK Mapping
         tech_findings = report_data.get("technique_findings", [])
-        mitre_data = report_data.get("mitre_analysis", {})
         md.append("## 4. Advanced Technique Findings & MITRE ATT&CK Mapping")
         md.append("")
         if tech_findings:

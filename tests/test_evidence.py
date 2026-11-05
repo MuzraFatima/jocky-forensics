@@ -4,7 +4,6 @@ Unit tests for JOCKY Evidence Store, SHA-256 Integrity, and Chain of Custody.
 
 import json
 from pathlib import Path
-import pytest
 
 from backend.app.evidence import (
     CustodyRecord,
@@ -103,7 +102,7 @@ def test_tamper_detection(tmp_path: Path):
 
     # Directly tamper with the stored JSON file on disk
     json_path = store._get_evidence_path(evidence_id, case_id="LAB-003")
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_path, encoding="utf-8") as f:
         stored_json = json.load(f)
 
     # Tampering: attacker changes port 8000 to port 4444 (unauthorized backdoor)

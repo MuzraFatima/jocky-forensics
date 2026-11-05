@@ -10,15 +10,15 @@ Unit and integration tests for JOCKY Security & Incident Response Subsystem:
 """
 
 import uuid
+
 from fastapi.testclient import TestClient
+
+from backend.app.evidence import _default_vault
 from backend.app.main import app
 from backend.app.security import (
-    analyst_manager,
-    auth_manager,
-    report_queue,
     get_audit_events,
+    report_queue,
 )
-from backend.app.evidence import _default_vault
 
 client = TestClient(app)
 

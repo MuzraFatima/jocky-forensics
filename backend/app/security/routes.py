@@ -10,15 +10,16 @@ Exposes endpoints for:
 - Chronological audit logging
 """
 
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Header, HTTPException, Request, Response
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from .ai_provider import query_ai_assistant
+from .analyst import analyst_manager, get_analyst_status, set_analyst_status
 from .audit import get_audit_events, record_audit_event
 from .auth import authenticate_user, register_user, revoke_token, validate_token
-from .analyst import analyst_manager, get_analyst_status, set_analyst_status
-from .ai_provider import query_ai_assistant
 from .incident import get_current_incident
 from .report_queue import report_queue, send_or_queue_report
 
@@ -261,11 +262,11 @@ def generate_report_alias_endpoint(
     authorization: Optional[str] = Header(None),
 ):
     """Generates structured forensic investigation report using ForensicReportBuilder."""
-    from backend.app.reporting import ForensicReportBuilder
     from backend.app.analysis.correlator import correlate_evidence
-    from backend.app.analysis.timeline import build_forensic_timeline
     from backend.app.analysis.rules import evaluate_forensic_rules
+    from backend.app.analysis.timeline import build_forensic_timeline
     from backend.app.evidence import _default_vault
+    from backend.app.reporting import ForensicReportBuilder
 
     session = validate_token(authorization)
     user = session["username"] if session else (req.examiner or "JOCKY Lead Forensic Examiner")

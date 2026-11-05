@@ -20,14 +20,13 @@ import hashlib
 import hmac
 import json
 import os
-from pathlib import Path
 import secrets
 import threading
-from typing import Any, Dict, List, Optional, Set
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from .models import (
     AgentJob,
-    AllowedCollector,
     DeviceRecord,
     DeviceStatus,
     EvidenceSubmission,
@@ -113,7 +112,7 @@ class AgentManager:
             if not self._devices_file.exists():
                 return
             try:
-                with open(self._devices_file, "r", encoding="utf-8") as f:
+                with open(self._devices_file, encoding="utf-8") as f:
                     data = json.load(f)
                     if isinstance(data, list):
                         for item in data:

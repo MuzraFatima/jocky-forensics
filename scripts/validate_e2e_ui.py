@@ -3,12 +3,12 @@ Manual End-to-End Validation Script for Step 7 (Frontend Endpoint Management)
 """
 
 import json
-from pathlib import Path
 import subprocess
 import sys
 import threading
 import time
 import urllib.request
+from pathlib import Path
 
 repo_root = Path(__file__).resolve().parent.parent
 if str(repo_root) not in sys.path:
@@ -50,6 +50,7 @@ print('[4] Status output:\n' + status_cmd.stdout.strip())
 
 # 5. Check devices in backend
 from agent.config import AgentConfig
+
 local_cfg = AgentConfig.load()
 dev_id = local_cfg.device_id
 
@@ -83,7 +84,7 @@ def agent_worker():
     print('--> Agent worker listening for jobs...')
     while not stop_flag:
         proc = subprocess.run(['python', 'jocky-agent.py', 'start', '--once'], capture_output=True, text=True)
-        if 'Jobs processed:' in proc.stdout and not 'Jobs processed: 0' in proc.stdout:
+        if 'Jobs processed:' in proc.stdout and 'Jobs processed: 0' not in proc.stdout:
             print('--> Agent successfully processed job:\n' + proc.stdout.strip())
             break
         time.sleep(0.5)

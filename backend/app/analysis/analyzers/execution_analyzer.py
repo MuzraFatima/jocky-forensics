@@ -11,7 +11,8 @@ Safety Invariants:
 - NO arbitrary shell execution, payload generation, or script evaluation.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 from backend.app.analysis.correlator import generate_process_entity_id
 from backend.app.analysis.mapping import ForensicContext, ObservableIndicator
 

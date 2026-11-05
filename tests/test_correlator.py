@@ -2,7 +2,6 @@
 Unit tests for JOCKY Forensic Correlation Engine (Phase 4).
 """
 
-import pytest
 from backend.app.analysis.correlator import (
     ForensicCorrelator,
     correlate_evidence,

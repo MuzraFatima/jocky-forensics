@@ -9,11 +9,12 @@ Phase 4: adds CollectorProvider abstraction for local and endpoint evidence sour
 """
 
 from typing import Any, Dict, Optional
-from .policy import PolicyEngine
+
 from .executor import ForensicExecutor
-from .ir_policy import evaluate_ir_policy
 from .ir_executor import IRExecutor
-from .providers import CollectorProvider, LocalCollectorProvider, EndpointEvidenceProvider
+from .ir_policy import evaluate_ir_policy
+from .policy import PolicyEngine
+from .providers import CollectorProvider, EndpointEvidenceProvider, LocalCollectorProvider
 
 
 def evaluate_policy(execution_plan: Dict[str, Any]) -> Dict[str, Any]:

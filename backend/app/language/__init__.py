@@ -23,7 +23,7 @@ from .ast import (
 )
 from .compiler import compile_jocky
 from .errors import JockyError, JockySyntaxError, JockyValidationError
-from .ir import build_ir, IR_VERSION
+from .ir import IR_VERSION, build_ir
 from .lexer import Lexer
 from .parser import Parser
 from .tokens import Token, TokenType

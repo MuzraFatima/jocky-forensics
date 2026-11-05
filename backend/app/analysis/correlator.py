@@ -15,7 +15,7 @@ Safety Invariants:
 
 import hashlib
 import os
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 
 def generate_process_entity_id(pid: Any) -> str:
@@ -44,14 +44,14 @@ def generate_network_entity_id(
     protocol = (proto or "NET").upper()
     l_ip = laddr.get("ip", "*") if isinstance(laddr, dict) else "*"
     l_port = laddr.get("port", "*") if isinstance(laddr, dict) else "*"
-    
+
     if isinstance(raddr, dict) and raddr.get("ip"):
         r_ip = raddr.get("ip", "*")
         r_port = raddr.get("port", "*")
         target = f"{r_ip}:{r_port}"
     else:
         target = "LISTEN"
-        
+
     endpoint_str = f"{l_ip}:{l_port}_{target}"
     ep_hash = hashlib.sha256(endpoint_str.encode("utf-8")).hexdigest()[:12]
     return f"ENT-NET-{protocol}-{ep_hash}"
@@ -319,9 +319,8 @@ class ForensicCorrelator:
         for p in proc_list:
             pid = p.get("pid")
             ppid = p.get("ppid")
-            if pid is not None:
-                if ppid is not None and ppid != pid and ppid in proc_by_pid:
-                    children_map.setdefault(ppid, []).append(pid)
+            if pid is not None and ppid is not None and ppid != pid and ppid in proc_by_pid:
+                children_map.setdefault(ppid, []).append(pid)
 
         # Roots are processes whose ppid is None, or ppid not in running set, or ppid == pid
         root_pids = [

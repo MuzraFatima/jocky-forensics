@@ -12,14 +12,14 @@ Validates:
 4. Static frontend build verification (dist bundle generated cleanly)
 """
 
-import json
-from pathlib import Path
 import unittest
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.agents.manager import get_agent_manager
-from backend.app.security.auth import authenticate_user, DEFAULT_DEMO_USER, DEFAULT_DEMO_PASS
+from backend.app.main import app
+from backend.app.security.auth import DEFAULT_DEMO_PASS, DEFAULT_DEMO_USER, authenticate_user
 
 
 class TestFrontendEndpointContract(unittest.TestCase):
