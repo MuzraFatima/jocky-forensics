@@ -17,13 +17,15 @@ if str(_repo_root) not in sys.path:
 
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from backend.app.agents.routes import router as agent_router
+from backend.app.collectors.snapshot import cached as live_snapshot
 from backend.app.engine import ForensicExecutor, PolicyEngine, execute_jocky_ir
 from backend.app.language import (
     JockyError,
@@ -42,6 +44,26 @@ app = FastAPI(
 # Sign-in and role checks for /api/jocky and /api/forensics. Registered before
 # CORS so CORS stays the outer layer and 401/403 responses keep their headers.
 app.middleware("http")(rbac_middleware)
+
+# Large JSON payloads (process lists, reports, vault audits) compress 5-10x.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+# Responses that only change when the code changes can be reused by the
+# browser for a few minutes. "private" because they sit behind sign-in.
+_CACHEABLE_GET_PATHS = (
+    "/api/forensics/techniques",
+    "/api/forensics/detections/rules",
+    "/api/forensics/platform",
+    "/api/forensics/collectors",
+)
+
+
+@app.middleware("http")
+async def cache_static_api_responses(request: Request, call_next):
+    response = await call_next(request)
+    if request.method == "GET" and response.status_code == 200 and request.url.path.startswith(_CACHEABLE_GET_PATHS):
+        response.headers.setdefault("Cache-Control", "private, max-age=300")
+    return response
 
 # CORS configuration for React frontend communication & live deployment
 cors_origins_env = os.getenv("CORS_ORIGINS", "")
@@ -736,10 +758,10 @@ def get_correlate_live():
     from backend.app.collectors.users import collect_users_info
 
     try:
-        proc_data = collect_process_info()
-        net_data = collect_network_info()
-        file_data = collect_files_info(max_files=30)
-        user_data = collect_users_info()
+        proc_data = live_snapshot("processes", collect_process_info)
+        net_data = live_snapshot("network", collect_network_info)
+        file_data = live_snapshot("files", lambda: collect_files_info(max_files=30))
+        user_data = live_snapshot("users", collect_users_info)
 
         correlation = correlate_evidence({
             "processes": proc_data,
@@ -793,12 +815,12 @@ def get_timeline_live():
 
     try:
         raw_evidence = {
-            "system": collect_system_info(),
-            "processes": collect_process_info(),
-            "network": collect_network_info(),
-            "files": collect_files_info(max_files=30),
-            "users": collect_users_info(),
-            "windows_metadata": collect_windows_metadata(),
+            "system": live_snapshot("system", collect_system_info),
+            "processes": live_snapshot("processes", collect_process_info),
+            "network": live_snapshot("network", collect_network_info),
+            "files": live_snapshot("files", lambda: collect_files_info(max_files=30)),
+            "users": live_snapshot("users", collect_users_info),
+            "windows_metadata": live_snapshot("windows_metadata", collect_windows_metadata),
         }
         events = build_forensic_timeline(raw_evidence)
         return {
@@ -847,10 +869,10 @@ def get_analysis_live():
 
     try:
         raw_evidence = {
-            "processes": collect_process_info(),
-            "network": collect_network_info(),
-            "files": collect_files_info(max_files=30),
-            "windows_metadata": collect_windows_metadata(),
+            "processes": live_snapshot("processes", collect_process_info),
+            "network": live_snapshot("network", collect_network_info),
+            "files": live_snapshot("files", lambda: collect_files_info(max_files=30)),
+            "windows_metadata": live_snapshot("windows_metadata", collect_windows_metadata),
         }
         detections = evaluate_forensic_rules(raw_evidence)
         high = sum(1 for d in detections if d.get("severity") == "HIGH")
@@ -908,10 +930,18 @@ def post_analysis(request: EvidencePayloadRequest):
 # Phase 6: Evidence Vault & Tamper-Evident Chain of Custody Endpoints
 # ---------------------------------------------------------------------------
 
+def _page(items: List[Any], limit: Optional[int], offset: int) -> List[Any]:
+    """Newest-first slice of a list; no limit returns everything (the original behaviour)."""
+    ordered = sorted(items, key=lambda a: a.get("timestamp_utc") or "", reverse=True)
+    start = max(offset, 0)
+    return ordered[start:start + limit] if limit and limit > 0 else ordered[start:]
+
+
 @app.get("/api/forensics/vault/list")
-def vault_list_endpoint(case_id: Optional[str] = None):
+def vault_list_endpoint(case_id: Optional[str] = None, limit: Optional[int] = None, offset: int = 0):
     """
     Phase 6: List sealed evidence artifacts in the Evidence Vault with cryptographic status.
+    Pass limit/offset to page through large vaults; totals always cover every artifact.
     """
     from backend.app.evidence import _default_vault
     try:
@@ -923,7 +953,9 @@ def vault_list_endpoint(case_id: Optional[str] = None):
             "total_artifacts": audit["total_artifacts"],
             "valid_count": audit["valid_count"],
             "tampered_count": audit["tampered_count"],
-            "artifacts": audit["artifacts_summary"],
+            "offset": max(offset, 0),
+            "limit": limit,
+            "artifacts": _page(audit["artifacts_summary"], limit, offset),
         }
     except Exception as exc:
         return JSONResponse(
