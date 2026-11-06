@@ -376,9 +376,9 @@ export default function AdvancedTechniques({
               style={{
                 padding: '0.6rem 1.25rem',
                 borderRadius: '6px',
-                background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
                 border: 'none',
-                color: '#fff',
+                color: 'var(--text)',
                 fontWeight: 700,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
@@ -401,7 +401,7 @@ export default function AdvancedTechniques({
             const eids = f.evidence_ids || [];
 
             const sevColor =
-              sev === 'HIGH' ? '#ef4444' : sev === 'MEDIUM' ? '#f59e0b' : '#38bdf8';
+              sev === 'HIGH' ? '#fca5a5' : sev === 'MEDIUM' ? '#fcd34d' : '#67e8f9';
             const sevBg =
               sev === 'HIGH'
                 ? 'rgba(239, 68, 68, 0.12)'
@@ -523,9 +523,9 @@ export default function AdvancedTechniques({
                     <span>→</span>
                     <span style={{ color: 'var(--accent-indigo)' }}>Timeline</span>
                     <span>→</span>
-                    <span style={{ color: '#ec4899' }}>MITRE ATT&amp;CK</span>
+                    <span style={{ color: 'var(--red)' }}>MITRE ATT&amp;CK</span>
                     <span>→</span>
-                    <span style={{ color: '#fff' }}>Forensic Report</span>
+                    <span style={{ color: 'var(--text)' }}>Forensic Report</span>
                   </div>
 
                   {/* Evidence IDs */}

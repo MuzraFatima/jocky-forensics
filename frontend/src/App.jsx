@@ -60,8 +60,8 @@ function DashboardNotFound() {
       <button
         onClick={() => navigate('/dashboard')}
         style={{
-          background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-          color: '#fff',
+          background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
+          color: 'var(--text)',
           border: 'none',
           borderRadius: '6px',
           padding: '0.6rem 1.4rem',
@@ -138,7 +138,7 @@ function ProcessTreeNode({ node, depth = 0 }) {
         gap: '0.5rem',
         padding: '0.45rem 0.75rem',
         borderRadius: '6px',
-        background: depth === 0 ? '#FFFFFF' : '#F6F8F9',
+        background: depth === 0 ? 'var(--surface)' : 'var(--cyan-tint)',
         border: '1px solid var(--border-color)',
         fontSize: '0.8rem',
       }}>
@@ -825,7 +825,7 @@ export default function App() {
     if (!collectorProgress && !loading && !executeLoading && !investigationData) return null;
     return (
       <div id="collector-pipeline-ui" style={{
-        background: '#FFFFFF',
+        background: 'var(--surface)',
         border: '1px solid var(--border-color)',
         borderRadius: '12px',
         padding: '1.25rem 1.5rem',
@@ -835,8 +835,8 @@ export default function App() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.1rem', color: '#f59e0b' }}>⚡</span>
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#222426' }}>
+            <span style={{ fontSize: '1.1rem', color: 'var(--amber)' }}>⚡</span>
+            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text)' }}>
               Collector Execution Pipeline
             </span>
             <span style={{
@@ -844,15 +844,15 @@ export default function App() {
               padding: '0.15rem 0.55rem',
               borderRadius: '9999px',
               fontWeight: 600,
-              background: (loading || executeLoading) ? '#CFEFF5' : '#E8F1DE',
-              color: (loading || executeLoading) ? '#0284c7' : '#5C802B',
-              border: `1px solid ${(loading || executeLoading) ? '#8BD4E8' : '#c2e0a3'}`,
+              background: (loading || executeLoading) ? 'var(--cyan-tint)' : 'var(--green-tint)',
+              color: (loading || executeLoading) ? 'var(--cyan)' : 'var(--green)',
+              border: `1px solid ${(loading || executeLoading) ? 'var(--cyan-line)' : 'var(--green-line)'}`,
             }}>
               {(loading || executeLoading) ? 'Executing...' : 'Completed'}
             </span>
           </div>
           {(investigationData?.execution_id || executeData?.execution_id) && (
-            <span style={{ fontSize: '0.75rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>
               Execution ID: {investigationData?.execution_id || executeData?.execution_id}
             </span>
           )}
@@ -861,8 +861,8 @@ export default function App() {
         {/* Endpoint target execution indicator */}
         {selectedDeviceId && (
           <div style={{
-            background: '#F0F9FF',
-            border: '1px solid #BAE6FD',
+            background: 'var(--cyan-tint)',
+            border: '1px solid var(--cyan-line)',
             borderRadius: '6px',
             padding: '0.55rem 0.85rem',
             marginBottom: '0.85rem',
@@ -875,8 +875,8 @@ export default function App() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>🛰️</span>
-              <span style={{ color: '#4b5563' }}>Target Endpoint:</span>
-              <strong style={{ color: '#0284c7' }}>
+              <span style={{ color: 'var(--text)' }}>Target Endpoint:</span>
+              <strong style={{ color: 'var(--cyan)' }}>
                 {(() => {
                   const d = devices.find((x) => x.device_id === selectedDeviceId);
                   return d ? `${d.hostname || d.device_id} (${d.platform})` : selectedDeviceId;
@@ -885,7 +885,7 @@ export default function App() {
             </div>
             <span style={{
               fontSize: '0.74rem',
-              color: (loading || executeLoading) ? '#d97706' : '#5C802B',
+              color: (loading || executeLoading) ? 'var(--amber)' : 'var(--green)',
               fontWeight: 700,
             }}>
               {(loading || executeLoading)
@@ -902,9 +902,9 @@ export default function App() {
           gap: '0.65rem',
           flexWrap: 'wrap',
           padding: '0.75rem 1rem',
-          background: '#F6F8F9',
+          background: 'var(--cyan-tint)',
           borderRadius: '8px',
-          border: '1px solid #E1E4E6',
+          border: '1px solid var(--border)',
         }}>
           {['SYSTEM', 'PROCESSES', 'NETWORK', 'FILES'].map((stage, idx, arr) => {
             const stageKey = stage.toLowerCase();
@@ -939,21 +939,21 @@ export default function App() {
                   fontSize: '0.78rem',
                   fontWeight: 700,
                   background: isDone
-                    ? '#E8F1DE'
+                    ? 'var(--green-tint)'
                     : isRunning
-                    ? '#CFEFF5'
-                    : '#FFFFFF',
+                    ? 'var(--cyan-tint)'
+                    : 'var(--surface-2)',
                   color: isDone
-                    ? '#5C802B'
+                    ? 'var(--green)'
                     : isRunning
-                    ? '#0284c7'
-                    : '#667078',
+                    ? 'var(--cyan)'
+                    : 'var(--text-muted)',
                   border: `1px solid ${
                     isDone
-                      ? '#c2e0a3'
+                      ? 'var(--green-line)'
                       : isRunning
-                      ? '#8BD4E8'
-                      : '#D8DEE2'
+                      ? 'var(--cyan-line)'
+                      : 'var(--border)'
                   }`,
                   transition: 'all 0.2s ease',
                 }}>
@@ -961,7 +961,7 @@ export default function App() {
                   <span>{badgeLabel}</span>
                 </div>
                 {idx < arr.length - 1 && (
-                  <span style={{ color: '#667078', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
+                  <span style={{ color: 'var(--text-2)', fontWeight: 700, fontSize: '0.9rem' }}>→</span>
                 )}
               </React.Fragment>
             );
@@ -971,14 +971,14 @@ export default function App() {
         {/* Display Collector Results & Evidence Hashes */}
         {investigationData?.evidence_collected && investigationData.evidence_collected.length > 0 && (
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#222426' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)' }}>
               Collected Evidence Artifacts ({investigationData.evidence_collected.length} sealed):
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
               {investigationData.evidence_collected.map((ev, i) => (
                 <div key={i} style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #E1E4E6',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
                   padding: '0.75rem 1rem',
                   display: 'flex',
@@ -987,18 +987,18 @@ export default function App() {
                   boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0284c7' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.82rem', color: 'var(--cyan)' }}>
                       {ev.category?.toUpperCase()}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: '#5C802B', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--green)', fontWeight: 700 }}>
                       ✓ SEALED IN VAULT
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', wordBreak: 'break-all' }}>
                     {ev.evidence_id}
                   </div>
                   {ev.sha256 && (
-                    <div style={{ fontSize: '0.68rem', color: '#667078', fontFamily: 'JetBrains Mono, monospace' }}>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace' }}>
                       SHA: {ev.sha256.slice(0, 16)}...
                     </div>
                   )}
@@ -1148,7 +1148,7 @@ export default function App() {
         {/* Top SOC Navbar */}
         <header style={{
           borderBottom: '1px solid var(--border-color)',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'var(--surface)',
           position: 'sticky',
           top: 0,
           zIndex: 50,
@@ -1165,10 +1165,10 @@ export default function App() {
               title={isMobile ? 'Toggle Navigation Menu' : (sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar')}
               aria-label="Toggle Navigation Menu"
               style={{
-                background: '#FFFFFF',
+                background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
-                color: '#667078',
+                color: 'var(--text-2)',
                 width: '32px',
                 height: '32px',
                 display: 'flex',
@@ -1185,26 +1185,26 @@ export default function App() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '1.1rem' }}>⚙️</span>
-                <h1 style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#222426', margin: 0 }}>
+                <h1 style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text)', margin: 0 }}>
                   JOCKY FORENSICS
                 </h1>
                 <span style={{
                   fontSize: '0.66rem',
                   fontWeight: 700,
-                  color: '#0284c7',
-                  background: '#CFEFF5',
+                  color: 'var(--cyan)',
+                  background: 'var(--cyan-tint)',
                   padding: '0.15rem 0.45rem',
                   borderRadius: '4px',
                   letterSpacing: '0.04em',
                 }}>
                   SIH26148 PROTOTYPE
                 </span>
-                <span style={{ color: '#667078', fontSize: '0.82rem', fontWeight: 600 }}>&gt;</span>
-                <span style={{ fontSize: '0.82rem', color: '#667078', fontWeight: 600 }}>
+                <span style={{ color: 'var(--text-2)', fontSize: '0.82rem', fontWeight: 600 }}>&gt;</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-2)', fontWeight: 600 }}>
                   {activeTabLabel}
                 </span>
               </div>
-              <p style={{ fontSize: '0.72rem', color: '#667078', marginTop: '0.15rem', marginBottom: 0 }}>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-2)', marginTop: '0.15rem', marginBottom: 0 }}>
                 Domain-Specific Scripting &amp; Authorized Read-Only Forensic Architecture
               </p>
             </div>
@@ -1220,8 +1220,8 @@ export default function App() {
             borderRadius: '9999px',
             fontSize: '0.72rem',
             fontWeight: 700,
-            background: '#5C802B',
-            color: '#FFFFFF',
+            background: 'var(--green-solid)',
+            color: 'var(--text)',
           }}>
             <span>✓</span>
             STRICTLY READ-ONLY
@@ -1235,15 +1235,15 @@ export default function App() {
             borderRadius: '9999px',
             fontSize: '0.72rem',
             fontWeight: 700,
-            background: '#CFEFF5',
-            color: '#0284c7',
-            border: '1px solid #BAE6FD',
+            background: 'var(--cyan-tint)',
+            color: 'var(--cyan)',
+            border: '1px solid var(--cyan-line)',
           }}>
             <span style={{
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              backgroundColor: backendHealth.status === 'online' ? '#5C802B' : '#d97706',
+              backgroundColor: backendHealth.status === 'online' ? 'var(--green-solid)' : 'var(--amber-solid)',
             }} className="pulse-dot" />
             BACKEND: <span>{backendHealth.status.toUpperCase()}</span>
           </div>
@@ -1257,13 +1257,13 @@ export default function App() {
               borderRadius: '9999px',
               fontSize: '0.72rem',
               fontWeight: 700,
-              background: '#CFEFF5',
-              color: '#0284c7',
-              border: '1px solid #BAE6FD',
+              background: 'var(--cyan-tint)',
+              color: 'var(--cyan)',
+              border: '1px solid var(--cyan-line)',
             }}>
               <span>{platformInfo.is_windows ? '🪟' : '🐧'}</span>
               <span>{platformInfo.platform?.toUpperCase()}</span>
-              <span style={{ color: '#0369a1', fontSize: '0.68rem', fontFamily: 'monospace' }}>
+              <span style={{ color: 'var(--cyan)', fontSize: '0.68rem', fontFamily: 'monospace' }}>
                 {platformInfo.architecture}
               </span>
             </div>
@@ -1280,13 +1280,13 @@ export default function App() {
               borderRadius: '6px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              background: '#FFFFFF',
-              color: '#222426',
+              background: 'var(--surface)',
+              color: 'var(--text)',
               border: '1px solid var(--border-color)',
               cursor: investigationData ? 'pointer' : 'not-allowed',
             }}
           >
-            <span style={{ color: '#0284c7' }}>⬇</span> Export JSON
+            <span style={{ color: 'var(--cyan)' }}>⬇</span> Export JSON
           </button>
 
           <button
@@ -1303,8 +1303,8 @@ export default function App() {
               borderRadius: '6px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              background: '#FFFFFF',
-              color: '#222426',
+              background: 'var(--surface)',
+              color: 'var(--text)',
               border: '1px solid var(--border-color)',
               cursor: 'pointer',
             }}
@@ -1323,9 +1323,9 @@ export default function App() {
               borderRadius: '6px',
               fontSize: '0.78rem',
               fontWeight: 600,
-              background: '#FFFFFF',
-              color: '#E11D48',
-              border: '1px solid #FECDD3',
+              background: 'var(--surface)',
+              color: 'var(--red)',
+              border: '1px solid var(--red-line)',
               cursor: 'pointer',
             }}
           >
@@ -1353,13 +1353,13 @@ export default function App() {
               <div style={{ fontWeight: 700, color: 'var(--accent-rose)', fontSize: '0.9rem' }}>
                 {apiError.error_type} {apiError.line ? `(Line ${apiError.line}, Col ${apiError.column})` : ''}
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#fda4af', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--red)', marginTop: '0.2rem' }}>
                 {apiError.message}
               </div>
             </div>
             <button
               onClick={() => setApiError(null)}
-              style={{ background: 'transparent', border: 'none', color: '#fda4af', fontSize: '1rem', cursor: 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--red)', fontSize: '1rem', cursor: 'pointer' }}
             >
               ✕
             </button>
@@ -1368,7 +1368,7 @@ export default function App() {
 
         {/* Executive Case & Action Bar */}
         <section style={{
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
@@ -1377,14 +1377,14 @@ export default function App() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <div style={{ fontSize: '0.7rem', color: '#667078', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
                 Current Active Investigation
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', marginTop: '0.2rem' }}>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#222426', letterSpacing: '-0.02em', margin: 0 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', margin: 0 }}>
                   {investigationData?.case_id || 'LAB-2026-001'}
                 </h2>
-                <span style={{ fontSize: '0.88rem', color: '#0284c7', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.88rem', color: 'var(--cyan)', fontWeight: 600 }}>
                   Target: {investigationData?.target || 'LAB-PC'}
                 </span>
               </div>
@@ -1394,12 +1394,12 @@ export default function App() {
               <div style={{
                 padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
-                background: '#E8F1DE',
-                border: '1px solid #c2e0a3',
+                background: 'var(--green-tint)',
+                border: '1px solid var(--green-line)',
                 fontSize: '0.78rem',
               }}>
-                <span style={{ color: '#667078' }}>Status: </span>
-                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? '#5C802B' : '#5C802B' }}>
+                <span style={{ color: 'var(--text-2)' }}>Status: </span>
+                <span style={{ fontWeight: 700, color: investigationData?.status === 'COMPLETED' ? 'var(--green)' : 'var(--green)' }}>
                   {loading ? 'RUNNING...' : (investigationData?.status || 'READY')}
                 </span>
               </div>
@@ -1411,18 +1411,18 @@ export default function App() {
                 gap: '0.45rem',
                 padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
-                background: '#FFFFFF',
+                background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
               }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#667078' }}>Target:</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-2)' }}>Target:</span>
                 <select
                   id="target-device-select"
                   value={selectedDeviceId || ''}
                   onChange={(e) => setSelectedDeviceId(e.target.value || null)}
                   style={{
-                    background: '#FFFFFF',
+                    background: 'var(--surface)',
                     border: 'none',
-                    color: '#222426',
+                    color: 'var(--text)',
                     fontWeight: 600,
                     fontSize: '0.78rem',
                     padding: '0.1rem 0.3rem',
@@ -1444,8 +1444,8 @@ export default function App() {
                 onClick={() => handleExecuteScript()}
                 disabled={loading || executeLoading}
                 style={{
-                  background: (loading || executeLoading) ? '#CFEFF5' : '#8BD4E8',
-                  color: '#222426',
+                  background: (loading || executeLoading) ? 'var(--cyan-tint)' : 'var(--cyan-solid)',
+                  color: 'var(--text)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '0.55rem 1.3rem',
@@ -1471,45 +1471,45 @@ export default function App() {
         {/* Metric KPI Cards */}
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           {/* System Card */}
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Operating System</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#222426', marginTop: '0.3rem' }}>
+          <div style={{ background: 'var(--surface)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-2)', textTransform: 'uppercase', fontWeight: 700 }}>Operating System</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text)', marginTop: '0.3rem' }}>
               {systemInfo.os ? `${systemInfo.os} (${systemInfo.architecture || ''})` : 'Windows (AMD64)'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', marginTop: '0.2rem' }}>
               Host: <span className="font-mono">{systemInfo.hostname || 'DESKTOP-2QASQI4'}</span>
             </div>
           </div>
 
           {/* Processes Card */}
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Active Processes</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>
+          <div style={{ background: 'var(--surface)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-2)', textTransform: 'uppercase', fontWeight: 700 }}>Active Processes</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--cyan)', marginTop: '0.2rem' }}>
               {processCount}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', marginTop: '0.2rem' }}>
               Safe/Read-only psutil inspection
             </div>
           </div>
 
           {/* Network Sockets Card */}
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Network Telemetry</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>
+          <div style={{ background: 'var(--surface)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-2)', textTransform: 'uppercase', fontWeight: 700 }}>Network Telemetry</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--cyan)', marginTop: '0.2rem' }}>
               {networkCount}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
-              <span style={{ color: '#5C802B', fontWeight: 600 }}>{listenCount} Listen</span> • <span>{establishedCount} Est.</span>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', marginTop: '0.2rem' }}>
+              <span style={{ color: 'var(--green)', fontWeight: 600 }}>{listenCount} Listen</span> • <span>{establishedCount} Est.</span>
             </div>
           </div>
 
           {/* Evidence Integrity Card */}
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-            <div style={{ fontSize: '0.72rem', color: '#667078', textTransform: 'uppercase', fontWeight: 700 }}>Cryptographic Integrity</div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#5C802B', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <div style={{ background: 'var(--surface)', borderRadius: '10px', border: '1px solid var(--border-color)', padding: '1.15rem 1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-2)', textTransform: 'uppercase', fontWeight: 700 }}>Cryptographic Integrity</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--green)', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span>✓</span> {investigationData?.integrity_status?.verified ? 'VERIFIED (3/3 Hashes)' : 'VERIFIED (3/3 Hashes)'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#667078', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-2)', marginTop: '0.2rem' }}>
               Immutable SHA-256 Vault
             </div>
           </div>
@@ -1584,24 +1584,24 @@ export default function App() {
             element={
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
             {/* Forensic Indicators & Heuristic Analysis */}
-            <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ background: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#222426', margin: 0 }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
                   Forensic Indicators &amp; Analysis
                 </h3>
                 <span style={{
                   fontSize: '0.68rem',
                   padding: '0.2rem 0.55rem',
                   borderRadius: '4px',
-                  background: '#CFEFF5',
-                  color: '#0284c7',
+                  background: 'var(--cyan-tint)',
+                  color: 'var(--cyan)',
                   fontWeight: 700,
                   letterSpacing: '0.04em',
                 }}>
                   POTENTIAL FORENSIC INDICATORS
                 </span>
               </div>
-              <p style={{ fontSize: '0.78rem', color: '#667078', marginBottom: '1rem', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-2)', marginBottom: '1rem', lineHeight: 1.5 }}>
                 * Note: These observations represent automated baseline forensic indicators and heuristic observations. They do not claim definitive malware categorization.
               </p>
 
@@ -1613,9 +1613,9 @@ export default function App() {
                   gap: '0.6rem',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '6px',
-                  background: '#F0F9FF',
-                  border: '1px solid #BAE6FD',
-                  color: '#0369a1',
+                  background: 'var(--cyan-tint)',
+                  border: '1px solid var(--cyan-line)',
+                  color: 'var(--cyan)',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   marginBottom: '0.75rem',
@@ -1633,21 +1633,21 @@ export default function App() {
                     gap: '0.75rem',
                     padding: '0.75rem 1rem',
                     borderRadius: '6px',
-                    background: '#F8FAFC',
-                    border: '1px solid #E1E4E6',
+                    background: 'var(--cyan-tint)',
+                    border: '1px solid var(--border)',
                   }}>
-                    <span style={{ color: '#0284c7', fontSize: '0.9rem' }}>ℹ</span>
-                    <span style={{ fontSize: '0.84rem', color: '#222426', lineHeight: 1.45 }}>{finding}</span>
+                    <span style={{ color: 'var(--cyan)', fontSize: '0.9rem' }}>ℹ</span>
+                    <span style={{ fontSize: '0.84rem', color: 'var(--text)', lineHeight: 1.45 }}>{finding}</span>
                   </div>
                 )) || (
-                  <div style={{ color: '#667078', fontSize: '0.85rem' }}>Run investigation to view findings.</div>
+                  <div style={{ color: 'var(--text-2)', fontSize: '0.85rem' }}>Run investigation to view findings.</div>
                 )}
               </div>
             </div>
 
             {/* Forensic Pipeline Timeline */}
-            <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#222426', marginBottom: '1.2rem', margin: 0 }}>
+            <div style={{ background: 'var(--surface)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: '1.2rem', margin: 0 }}>
                 Investigation Pipeline Timeline
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', paddingLeft: '0.5rem', marginTop: '1.2rem' }}>
@@ -1657,7 +1657,7 @@ export default function App() {
                   top: '8px',
                   bottom: '12px',
                   width: '2px',
-                  background: '#8BD4E8',
+                  background: 'var(--cyan-solid)',
                   zIndex: 0,
                 }} />
                 {[
@@ -1674,16 +1674,16 @@ export default function App() {
                       width: '12px',
                       height: '12px',
                       borderRadius: '50%',
-                      background: '#0284c7',
-                      border: '2px solid #CFEFF5',
+                      background: 'var(--cyan-solid)',
+                      border: '2px solid var(--cyan-line)',
                       marginTop: '3px',
                       flexShrink: 0,
                     }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#222426' }}>{item.step}</div>
-                      <div style={{ fontSize: '0.74rem', color: '#5C802B', marginTop: '0.1rem', fontWeight: 600 }}>{item.status}</div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>{item.step}</div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--green)', marginTop: '0.1rem', fontWeight: 600 }}>{item.status}</div>
                       {item.time && (
-                        <div className="font-mono" style={{ fontSize: '0.68rem', color: '#667078', marginTop: '0.1rem' }}>
+                        <div className="font-mono" style={{ fontSize: '0.68rem', color: 'var(--text-2)', marginTop: '0.1rem' }}>
                           {item.time}
                         </div>
                       )}
@@ -1779,7 +1779,7 @@ export default function App() {
                   <div style={{
                     width: `${systemInfo.memory?.percent_used || 0}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #0ea5e9, #6366f1)',
+                    background: 'linear-gradient(90deg, var(--cyan-solid), var(--indigo-solid))',
                     borderRadius: '4px',
                   }} />
                 </div>
@@ -2018,8 +2018,8 @@ export default function App() {
                   onClick={() => handleDirectCollect('files')}
                   disabled={directLoading.files}
                   style={{
-                    background: directLoading.files ? 'rgba(14,165,233,0.3)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                    color: '#fff',
+                    background: directLoading.files ? 'rgba(14,165,233,0.3)' : 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
+                    color: 'var(--text)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.55rem 1.1rem',
@@ -2211,8 +2211,8 @@ export default function App() {
                   onClick={() => handleDirectCollect('users')}
                   disabled={directLoading.users}
                   style={{
-                    background: directLoading.users ? 'rgba(16,185,129,0.3)' : 'linear-gradient(135deg, #10b981, #0ea5e9)',
-                    color: '#fff',
+                    background: directLoading.users ? 'rgba(16,185,129,0.3)' : 'linear-gradient(135deg, var(--green-solid), var(--cyan-solid))',
+                    color: 'var(--text)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.55rem 1.1rem',
@@ -2376,8 +2376,8 @@ export default function App() {
                   onClick={() => handleDirectCollect('windows_metadata')}
                   disabled={directLoading.windows_metadata}
                   style={{
-                    background: directLoading.windows_metadata ? 'rgba(245,158,11,0.3)' : 'linear-gradient(135deg, #f59e0b, #6366f1)',
-                    color: '#fff',
+                    background: directLoading.windows_metadata ? 'rgba(245,158,11,0.3)' : 'linear-gradient(135deg, var(--amber-solid), var(--indigo-solid))',
+                    color: 'var(--text)',
                     border: 'none',
                     borderRadius: '6px',
                     padding: '0.55rem 1.1rem',
@@ -2529,7 +2529,7 @@ export default function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Vault Action Header */}
             <div style={{
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -2628,7 +2628,7 @@ export default function App() {
                   <span style={{ fontSize: '1.3rem' }}>🚨</span>
                   <span>CRITICAL INTEGRITY FAILURE: EVIDENCE TAMPERING DETECTED</span>
                 </div>
-                <p style={{ fontSize: '0.84rem', color: '#fca5a5', marginTop: '0.4rem', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '0.84rem', color: 'var(--red)', marginTop: '0.4rem', lineHeight: 1.5 }}>
                   The cryptographic hash of one or more sealed artifacts does not match the on-disk payload.
                   This indicates unauthorized modification or disk corruption. Chain of custody is compromised.
                 </p>
@@ -2969,7 +2969,7 @@ export default function App() {
                     onClick={handleClearScript}
                     title="Clear current script and reset to template"
                     style={{
-                      background: '#FFFFFF',
+                      background: 'var(--surface)',
                       border: '1px solid var(--border-color)',
                       color: 'var(--text-secondary)',
                       borderRadius: '4px',
@@ -3016,7 +3016,7 @@ export default function App() {
                         }
                       }}
                       style={{
-                        background: '#FFFFFF',
+                        background: 'var(--surface)',
                         border: '1px solid var(--border-color)',
                         borderRadius: '4px',
                         padding: '0.28rem 0.5rem',
@@ -3059,14 +3059,14 @@ export default function App() {
                   rows={14}
                   style={{
                     width: '100%',
-                    background: '#04070d',
+                    background: 'var(--bg)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
                     padding: '1rem',
                     fontFamily: 'JetBrains Mono, monospace',
                     fontSize: '0.85rem',
                     lineHeight: 1.6,
-                    color: '#38bdf8',
+                    color: 'var(--cyan)',
                     resize: 'vertical',
                   }}
                 />
@@ -3111,7 +3111,7 @@ export default function App() {
                         </span>
                       )}
                     </div>
-                    <div style={{ color: '#fca5a5', fontSize: '0.78rem', marginTop: '0.3rem', lineHeight: 1.45 }}>
+                    <div style={{ color: 'var(--red)', fontSize: '0.78rem', marginTop: '0.3rem', lineHeight: 1.45 }}>
                       {apiError.message}
                     </div>
                   </div>
@@ -3123,8 +3123,8 @@ export default function App() {
                     onClick={handleCompile}
                     disabled={compiling}
                     style={{
-                      background: compiling ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                      color: '#fff',
+                      background: compiling ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg, var(--indigo-solid), var(--indigo-solid))',
+                      color: 'var(--text)',
                       border: 'none',
                       borderRadius: '6px',
                       padding: '0.5rem 1.1rem',
@@ -3140,8 +3140,8 @@ export default function App() {
                     onClick={() => handleExecuteScript(scriptText)}
                     disabled={loading || executeLoading}
                     style={{
-                      background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                      color: '#fff',
+                      background: (loading || executeLoading) ? 'rgba(14, 165, 233, 0.4)' : 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
+                      color: 'var(--text)',
                       border: 'none',
                       borderRadius: '6px',
                       padding: '0.5rem 1.25rem',
@@ -3271,7 +3271,7 @@ export default function App() {
                         AST ▼
                       </div>
                       <div style={{
-                        background: '#04070d',
+                        background: 'var(--bg)',
                         borderRadius: '6px',
                         border: '1px solid var(--border-subtle)',
                         padding: '0.85rem 1rem',
@@ -3348,12 +3348,12 @@ export default function App() {
                     <div style={{ fontSize: '0.8rem', color: 'var(--accent-rose)', fontWeight: 700, marginBottom: '0.4rem' }}>
                       {compilerResult.error_type || 'JockyError'}
                       {compilerResult.line != null && (
-                        <span style={{ fontWeight: 400, color: '#fda4af', marginLeft: '0.5rem' }}>
+                        <span style={{ fontWeight: 400, color: 'var(--red)', marginLeft: '0.5rem' }}>
                           — Line {compilerResult.line}{compilerResult.column != null ? `, Column ${compilerResult.column}` : ''}
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#fda4af', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--red)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
                       {compilerResult.message}
                     </div>
                   </div>
@@ -3399,8 +3399,8 @@ export default function App() {
                 style={{
                   background: executeLoading
                     ? 'rgba(99,102,241,0.3)'
-                    : 'linear-gradient(135deg, #6366f1, #0ea5e9)',
-                  color: '#fff',
+                    : 'linear-gradient(135deg, var(--indigo-solid), var(--cyan-solid))',
+                  color: 'var(--text)',
                   border: 'none',
                   borderRadius: '7px',
                   padding: '0.6rem 1.4rem',
@@ -3435,7 +3435,7 @@ export default function App() {
                   {executeError.error_type || 'ExecuteError'}
                   {executeError.line ? ` (Line ${executeError.line}, Col ${executeError.column})` : ''}
                 </div>
-                <div style={{ fontSize: '0.84rem', color: '#fda4af', marginTop: '0.3rem' }}>
+                <div style={{ fontSize: '0.84rem', color: 'var(--red)', marginTop: '0.3rem' }}>
                   {executeError.message}
                 </div>
                 {/* Policy denial detail */}
@@ -3808,7 +3808,7 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -3831,7 +3831,7 @@ export default function App() {
                     padding: '0.2rem 0.6rem',
                     borderRadius: '4px',
                     background: 'var(--accent-cyan-soft)',
-                    color: '#0284c7',
+                    color: 'var(--cyan)',
                     fontWeight: 700,
                   }}>
                     PHASE 4
@@ -3847,8 +3847,8 @@ export default function App() {
                 onClick={() => handleAnalyzeEvidenceCorrelate()}
                 disabled={correlationLoading}
                 style={{
-                  background: '#8BD4E8',
-                  color: '#222426',
+                  background: 'var(--cyan-solid)',
+                  color: 'var(--text)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '0.6rem 1.2rem',
@@ -3947,7 +3947,7 @@ export default function App() {
                       width: '100%',
                       padding: '0.6rem 1rem',
                       borderRadius: '8px',
-                      background: '#FFFFFF',
+                      background: 'var(--surface)',
                       border: '1px solid var(--border-color)',
                       color: 'var(--text-primary)',
                       fontSize: '0.85rem',
@@ -4030,7 +4030,7 @@ export default function App() {
                         {/* Tri-Fold Columns */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                           {/* Col 1: Parent Process */}
-                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--cyan-tint)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               ↳ Parent Process (PPID)
                             </div>
@@ -4062,7 +4062,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Binary Executable */}
-                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--cyan-tint)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               📁 Binary Executable (EXECUTED_FROM)
                             </div>
@@ -4102,7 +4102,7 @@ export default function App() {
                           </div>
 
                           {/* Col 3: Active Sockets */}
-                          <div style={{ background: '#F6F8F9', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ background: 'var(--cyan-tint)', padding: '0.85rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.4rem' }}>
                               🌐 Network Sockets (OPENED_SOCKET)
                             </div>
@@ -4239,7 +4239,7 @@ export default function App() {
           <div>
             {/* Header Action Bar */}
             <div style={{
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               borderRadius: '12px',
               border: '1px solid var(--border-color)',
               padding: '1.25rem 1.5rem',
@@ -4277,8 +4277,8 @@ export default function App() {
                 onClick={handleFetchTimeline}
                 disabled={timelineLoading}
                 style={{
-                  background: '#8BD4E8',
-                  color: '#222426',
+                  background: 'var(--cyan-solid)',
+                  color: 'var(--text)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '0.6rem 1.2rem',
@@ -4374,7 +4374,7 @@ export default function App() {
                       <div
                         key={idx}
                         style={{
-                          background: '#FFFFFF',
+                          background: 'var(--surface)',
                           borderLeft: `4px solid ${borderColor}`,
                           borderRadius: '6px',
                           border: '1px solid var(--border-color)',
@@ -4494,7 +4494,7 @@ export default function App() {
                     width: '100%',
                     padding: '0.6rem 1rem',
                     borderRadius: '8px',
-                    background: '#FFFFFF',
+                    background: 'var(--surface)',
                     border: '1px solid var(--border-color)',
                     color: 'var(--text-primary)',
                     fontSize: '0.85rem',
@@ -4533,7 +4533,7 @@ export default function App() {
                           alignItems: 'flex-start',
                           gap: '1rem',
                           padding: '0.75rem',
-                          background: '#FFFFFF',
+                          background: 'var(--surface)',
                           borderRadius: '8px',
                           border: '1px solid var(--border-color)',
                           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',

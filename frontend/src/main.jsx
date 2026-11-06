@@ -23,8 +23,8 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{
           minHeight: '100vh',
-          backgroundColor: '#06090f',
-          color: '#f8fafc',
+          backgroundColor: 'var(--bg)',
+          color: 'var(--cyan)',
           padding: '2.5rem',
           display: 'flex',
           flexDirection: 'column',
@@ -36,15 +36,15 @@ class ErrorBoundary extends React.Component {
             maxWidth: '680px',
             width: '100%',
             background: 'rgba(244, 63, 94, 0.08)',
-            border: '1px solid #f43f5e',
+            border: '1px solid var(--red)',
             borderRadius: '12px',
             padding: '2rem',
             boxShadow: '0 20px 50px rgba(0,0,0,0.7)',
           }}>
-            <h2 style={{ color: '#f43f5e', marginBottom: '1rem', fontSize: '1.25rem' }}>
+            <h2 style={{ color: 'var(--red)', marginBottom: '1rem', fontSize: '1.25rem' }}>
               ⚠ JOCKY Interface Render Error
             </h2>
-            <p style={{ color: '#fda4af', marginBottom: '1rem', fontSize: '0.85rem' }}>
+            <p style={{ color: 'var(--red)', marginBottom: '1rem', fontSize: '0.85rem' }}>
               {this.state.error?.message || String(this.state.error)}
             </p>
             <button
@@ -54,8 +54,8 @@ class ErrorBoundary extends React.Component {
               }}
               style={{
                 padding: '0.6rem 1.2rem',
-                background: '#0ea5e9',
-                color: '#fff',
+                background: 'var(--cyan-solid)',
+                color: 'var(--text)',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',

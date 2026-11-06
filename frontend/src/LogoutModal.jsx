@@ -23,7 +23,7 @@ export default function LogoutModal({
       <div style={{
         width: '100%',
         maxWidth: '480px',
-        background: '#FFFFFF',
+        background: 'var(--surface)',
         border: '1px solid var(--border-color)',
         borderRadius: '14px',
         padding: '2rem',
@@ -35,18 +35,18 @@ export default function LogoutModal({
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: '#FFF1F2',
-            border: '1px solid #FECDD3',
+            background: 'var(--red-tint)',
+            border: '1px solid var(--red-line)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '1.2rem',
-            color: '#E11D48',
+            color: 'var(--red)',
           }}>
             ⎋
           </div>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#222426', letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>
               End Investigation Session?
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -58,7 +58,7 @@ export default function LogoutModal({
         {/* Informational Body */}
         <p style={{
           fontSize: '0.82rem',
-          color: '#222426',
+          color: 'var(--text)',
           lineHeight: 1.5,
           marginBottom: '1.5rem',
           background: 'var(--bg-primary)',
@@ -79,8 +79,8 @@ export default function LogoutModal({
               padding: '0.75rem 1.25rem',
               borderRadius: '8px',
               border: 'none',
-              background: '#8BD4E8',
-              color: '#222426',
+              background: 'var(--cyan-solid)',
+              color: 'var(--text)',
               fontSize: '0.85rem',
               fontWeight: 700,
               cursor: 'pointer',
@@ -101,9 +101,9 @@ export default function LogoutModal({
             style={{
               padding: '0.7rem 1.25rem',
               borderRadius: '8px',
-              border: '1px solid #FECDD3',
-              background: '#FFF1F2',
-              color: '#E11D48',
+              border: '1px solid var(--red-line)',
+              background: 'var(--red-tint)',
+              color: 'var(--red)',
               fontSize: '0.82rem',
               fontWeight: 600,
               cursor: 'pointer',
@@ -124,7 +124,7 @@ export default function LogoutModal({
               padding: '0.65rem 1.25rem',
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               color: 'var(--text-secondary)',
               fontSize: '0.82rem',
               fontWeight: 600,

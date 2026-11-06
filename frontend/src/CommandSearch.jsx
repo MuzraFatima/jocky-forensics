@@ -122,7 +122,7 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
             onChange={(e) => setQuery(e.target.value)}
             style={{
               width: '100%',
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               border: '1px solid var(--border-color)',
               borderRadius: '8px',
               padding: '0.65rem 1rem 0.65rem 2.4rem',
@@ -164,9 +164,9 @@ export default function CommandSearch({ onInsertCommand, isCompact = false, onCl
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  background: isSel ? 'var(--accent-cyan-soft)' : '#FFFFFF',
+                  background: isSel ? 'var(--accent-cyan-soft)' : 'var(--surface)',
                   border: isSel ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
-                  color: isSel ? '#0284c7' : 'var(--text-secondary)',
+                  color: isSel ? 'var(--cyan)' : 'var(--text-secondary)',
                   borderRadius: '6px',
                   padding: '0.4rem 0.75rem',
                   fontSize: '0.75rem',
