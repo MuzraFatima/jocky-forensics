@@ -1,59 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from './config.js';
 import Sidebar from './Sidebar.jsx';
 import Login from './Login.jsx';
-import CyberSupport from './CyberSupport.jsx';
 import CriticalIncidentAlert from './CriticalIncidentAlert.jsx';
 import ReportModal from './ReportModal.jsx';
 import LogoutModal from './LogoutModal.jsx';
-import CommandSearch, { SUPPORTED_COMMANDS } from './CommandSearch.jsx';
-import ReportSection from './ReportSection.jsx';
-import EndpointDevices from './EndpointDevices.jsx';
-import AdvancedTechniques from './AdvancedTechniques.jsx';
 import { api, authFetch, downloadWithAuth } from './api.js';
 import { getUniqueTargetDevices } from './deviceUtils.js';
+import { SUPPORTED_COMMANDS } from './commands.js';
+import { ID_TO_PATH, ROUTE_LABELS } from './routes.js';
+import { PageSkeleton } from './Skeleton.jsx';
+import useDebouncedValue from './useDebouncedValue.js';
 
-export const ID_TO_PATH = {
-  overview: '/dashboard',
-  endpoints: '/dashboard/endpoints',
-  script: '/dashboard/jocky',
-  evidence: '/dashboard/evidence',
-  techniques: '/dashboard/techniques',
-  timeline: '/dashboard/timeline',
-  correlation: '/dashboard/correlation',
-  reports: '/dashboard/reports',
-  support: '/dashboard/cybersecurity',
-  system: '/dashboard/system',
-  processes: '/dashboard/processes',
-  network: '/dashboard/network',
-  files: '/dashboard/files',
-  users: '/dashboard/users',
-  windows: '/dashboard/windows',
-  execute: '/dashboard/execute',
-  commands: '/dashboard/commands',
-};
-
-export const ROUTE_LABELS = {
-  '/dashboard': 'Overview & Analysis',
-  '/dashboard/': 'Overview & Analysis',
-  '/dashboard/endpoints': 'Endpoint Device Management',
-  '/dashboard/jocky': 'JOCKY Script Editor',
-  '/dashboard/evidence': 'Evidence Vault',
-  '/dashboard/techniques': 'Advanced Technique Analysis',
-  '/dashboard/timeline': 'Forensic Timeline',
-  '/dashboard/correlation': 'Correlation Graph',
-  '/dashboard/reports': 'Forensic Reports',
-  '/dashboard/cybersecurity': 'Cybersecurity Support',
-  '/dashboard/system': 'System Telemetry',
-  '/dashboard/processes': 'Active Processes',
-  '/dashboard/network': 'Network Sockets',
-  '/dashboard/files': 'Files & Binaries',
-  '/dashboard/users': 'Users & Sessions',
-  '/dashboard/windows': 'Windows Persistence',
-  '/dashboard/execute': 'Execution Engine',
-  '/dashboard/commands': 'Command Search',
-};
+// Screens a user may never open are split into their own chunks and loaded on first visit.
+const CyberSupport = lazy(() => import('./CyberSupport.jsx'));
+const EndpointDevices = lazy(() => import('./EndpointDevices.jsx'));
+const CommandSearch = lazy(() => import('./CommandSearch.jsx'));
+const ReportSection = lazy(() => import('./ReportSection.jsx'));
+const AdvancedTechniques = lazy(() => import('./AdvancedTechniques.jsx'));
 
 function DashboardNotFound() {
   const navigate = useNavigate();
@@ -307,6 +272,13 @@ export default function App() {
   const [analysisData, setAnalysisData] = useState(null);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelineSearch, setTimelineSearch] = useState('');
+  // Filter big lists on a debounced copy so typing stays smooth
+  const debouncedProcessSearch = useDebouncedValue(processSearch);
+  const debouncedNetworkSearch = useDebouncedValue(networkSearch);
+  const debouncedFileSearch = useDebouncedValue(fileSearch);
+  const debouncedServiceSearch = useDebouncedValue(serviceSearch);
+  const debouncedCorrelationSearch = useDebouncedValue(correlationSearch);
+  const debouncedTimelineSearch = useDebouncedValue(timelineSearch);
   const [timelineEventTypeFilter, setTimelineEventTypeFilter] = useState('ALL');
   const [ruleSeverityFilter, setRuleSeverityFilter] = useState('ALL');
 
@@ -490,7 +462,7 @@ export default function App() {
     }
   };
 
-  const handleToggleSidebar = () => {
+  const handleToggleSidebar = useCallback(() => {
     setSidebarCollapsed((prev) => {
       const next = !prev;
       try {
@@ -500,7 +472,9 @@ export default function App() {
       }
       return next;
     });
-  };
+  }, []);
+  const closeMobileSidebar = useCallback(() => setMobileOpen(false), []);
+  const openLogoutModal = useCallback(() => setIsLogoutModalOpen(true), []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1060,28 +1034,27 @@ export default function App() {
   };
 
   // Derived filtered data
-  const processesList = investigationData?.collected_data?.processes?.processes || [];
-  const filteredProcesses = processesList.filter((p) => {
-    if (!processSearch) return true;
-    const q = processSearch.toLowerCase();
+  const filteredProcesses = useMemo(() => (investigationData?.collected_data?.processes?.processes || []).filter((p) => {
+    if (!debouncedProcessSearch) return true;
+    const q = debouncedProcessSearch.toLowerCase();
     return (
       (p.name && p.name.toLowerCase().includes(q)) ||
       (p.pid !== undefined && String(p.pid).includes(q)) ||
       (p.username && p.username.toLowerCase().includes(q)) ||
       (p.exe && p.exe.toLowerCase().includes(q))
     );
-  });
+  }), [investigationData, debouncedProcessSearch]);
 
   const networkList = investigationData?.collected_data?.network?.connections || [];
-  const filteredNetwork = networkList.filter((conn) => {
+  const filteredNetwork = useMemo(() => (investigationData?.collected_data?.network?.connections || []).filter((conn) => {
     // Protocol / Status chips filter
     if (networkProtoFilter === 'TCP' && conn.protocol !== 'TCP') return false;
     if (networkProtoFilter === 'UDP' && conn.protocol !== 'UDP') return false;
     if (networkProtoFilter === 'LISTEN' && conn.status !== 'LISTEN') return false;
     if (networkProtoFilter === 'ESTABLISHED' && conn.status !== 'ESTABLISHED') return false;
 
-    if (!networkSearch) return true;
-    const q = networkSearch.toLowerCase();
+    if (!debouncedNetworkSearch) return true;
+    const q = debouncedNetworkSearch.toLowerCase();
     return (
       (conn.local_address && conn.local_address.toLowerCase().includes(q)) ||
       (conn.local_port !== undefined && String(conn.local_port).includes(q)) ||
@@ -1090,12 +1063,23 @@ export default function App() {
       (conn.status && conn.status.toLowerCase().includes(q)) ||
       (conn.pid !== undefined && String(conn.pid).includes(q))
     );
-  });
+  }), [investigationData, networkProtoFilter, debouncedNetworkSearch]);
 
   const systemInfo = investigationData?.collected_data?.system || {};
   const networkInfo = investigationData?.collected_data?.network || {};
   const processCount = investigationData?.collected_data?.processes?.count || 0;
   const networkCount = networkInfo.count || 0;
+
+  // A stable object, so the memoised sidebar only re-renders when a count changes
+  const sidebarCounts = useMemo(() => ({
+    correlation: correlationData?.summary?.correlated_chains_count ?? null,
+    techniques: (investigationData?.technique_findings ?? investigationData?.analysis?.technique_findings ?? []).length || null,
+    timeline: timelineData?.length ?? null,
+    processes: processCount || null,
+    network: networkCount || null,
+    evidence: vaultAudit?.total_artifacts ?? null,
+    onlineEndpoints: getUniqueTargetDevices(devices).filter((d) => Boolean(d.is_online)).length,
+  }), [correlationData, investigationData, timelineData, processCount, networkCount, vaultAudit, devices]);
   const listenCount = networkList.filter((c) => c.status === 'LISTEN').length;
   const establishedCount = networkList.filter((c) => c.status === 'ESTABLISHED').length;
 
@@ -1103,6 +1087,7 @@ export default function App() {
   const activeTabLabel = ROUTE_LABELS[cleanPath] || (cleanPath.startsWith('/dashboard') ? 'Dashboard' : 'Overview & Analysis');
 
   return (
+    <Suspense fallback={<PageSkeleton />}>
     <Routes>
       {/* Authentication Route */}
       <Route
@@ -1141,20 +1126,12 @@ export default function App() {
                 collapsed={sidebarCollapsed}
                 onToggleCollapse={handleToggleSidebar}
                 mobileOpen={mobileOpen}
-                onCloseMobile={() => setMobileOpen(false)}
+                onCloseMobile={closeMobileSidebar}
                 platformInfo={platformInfo}
                 session={session}
-                onOpenLogout={() => setIsLogoutModalOpen(true)}
+                onOpenLogout={openLogoutModal}
                 analystStatus={analystStatus}
-                counts={{
-                  correlation: correlationData?.summary?.correlated_chains_count ?? null,
-                  techniques: (investigationData?.technique_findings ?? investigationData?.analysis?.technique_findings ?? []).length || null,
-                  timeline: timelineData?.length ?? null,
-                  processes: processCount || null,
-                  network: networkCount || null,
-                  evidence: vaultAudit?.total_artifacts ?? null,
-                  onlineEndpoints: getUniqueTargetDevices(devices).filter((d) => Boolean(d.is_online)).length,
-                }}
+                counts={sidebarCounts}
               />
 
               {/* Main Content Layout Container */}
@@ -1539,6 +1516,7 @@ export default function App() {
           </div>
         </section>
 
+        <Suspense fallback={<PageSkeleton />}>
         <Routes>
           {/* TAB: CYBERSECURITY SUPPORT */}
           <Route
@@ -2005,10 +1983,10 @@ export default function App() {
           const filesList = filesObj?.files || [];
           const procBinaries = filesObj?.process_binaries || [];
           const filteredFiles = filesList.filter((f) =>
-            !fileSearch ||
-            f.filename?.toLowerCase().includes(fileSearch.toLowerCase()) ||
-            f.path?.toLowerCase().includes(fileSearch.toLowerCase()) ||
-            f.extension?.toLowerCase().includes(fileSearch.toLowerCase())
+            !debouncedFileSearch ||
+            f.filename?.toLowerCase().includes(debouncedFileSearch.toLowerCase()) ||
+            f.path?.toLowerCase().includes(debouncedFileSearch.toLowerCase()) ||
+            f.extension?.toLowerCase().includes(debouncedFileSearch.toLowerCase())
           );
 
           return (
@@ -2364,10 +2342,10 @@ export default function App() {
           const services = winObj?.services || [];
           const osMeta = winObj?.os_metadata || {};
           const filteredServices = services.filter((s) =>
-            !serviceSearch ||
-            s.name?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
-            s.display_name?.toLowerCase().includes(serviceSearch.toLowerCase()) ||
-            s.binpath?.toLowerCase().includes(serviceSearch.toLowerCase())
+            !debouncedServiceSearch ||
+            s.name?.toLowerCase().includes(debouncedServiceSearch.toLowerCase()) ||
+            s.display_name?.toLowerCase().includes(debouncedServiceSearch.toLowerCase()) ||
+            s.binpath?.toLowerCase().includes(debouncedServiceSearch.toLowerCase())
           );
 
           return (
@@ -3982,8 +3960,8 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {(correlationData?.correlated_chains || [])
                     .filter((chain) => {
-                      if (!correlationSearch) return true;
-                      const q = correlationSearch.toLowerCase();
+                      if (!debouncedCorrelationSearch) return true;
+                      const q = debouncedCorrelationSearch.toLowerCase();
                       return (
                         chain.process_name?.toLowerCase().includes(q) ||
                         String(chain.pid).includes(q) ||
@@ -4531,8 +4509,8 @@ export default function App() {
                 {(timelineData || [])
                   .filter((evt) => {
                     if (timelineEventTypeFilter !== 'ALL' && evt.event_type !== timelineEventTypeFilter) return false;
-                    if (!timelineSearch) return true;
-                    const q = timelineSearch.toLowerCase();
+                    if (!debouncedTimelineSearch) return true;
+                    const q = debouncedTimelineSearch.toLowerCase();
                     return (
                       evt.description?.toLowerCase().includes(q) ||
                       evt.entity?.toLowerCase().includes(q) ||
@@ -4636,6 +4614,7 @@ export default function App() {
           {/* Catch-all 404 inside dashboard */}
           <Route path="*" element={<DashboardNotFound />} />
         </Routes>
+        </Suspense>
 
       </main>
 
@@ -4720,5 +4699,6 @@ export default function App() {
   {/* Catch-all route */}
   <Route path="*" element={<Navigate to={session ? "/dashboard" : "/login"} replace />} />
 </Routes>
+    </Suspense>
   );
 }
