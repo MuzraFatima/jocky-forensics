@@ -40,7 +40,8 @@ class EvidenceVault:
             # Locate jocky-forensics/evidence/vault relative to repository
             current_dir = Path(__file__).resolve().parent
             repo_root = current_dir.parent.parent.parent
-            self.base_dir = repo_root / "evidence" / "vault"
+            # JOCKY_EVIDENCE_DIR moves all evidence (tests point it at a temp folder)
+            self.base_dir = Path(os.getenv("JOCKY_EVIDENCE_DIR") or repo_root / "evidence") / "vault"
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self.cases_dir = self.base_dir / "cases"

@@ -34,7 +34,8 @@ class EvidenceStore:
             current_dir = Path(__file__).resolve().parent
             # navigate to jocky-forensics root
             repo_root = current_dir.parent.parent.parent
-            self.base_dir = repo_root / "evidence"
+            # JOCKY_EVIDENCE_DIR moves all evidence (tests point it at a temp folder)
+            self.base_dir = Path(os.getenv("JOCKY_EVIDENCE_DIR") or repo_root / "evidence")
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
         # AES-256-GCM at rest when a key is configured (see evidence/storage.py)
