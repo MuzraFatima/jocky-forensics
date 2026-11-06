@@ -664,27 +664,26 @@ export default function App() {
     }
   };
 
-  // Check backend health on mount and auto-trigger initial run if online
+  // Health is public, so check it straight away (the login screen shows it).
+  // Everything else needs a session: run it once the user has signed in,
+  // and again after a fresh sign-in, instead of firing 401s on the login page.
+  const sessionToken = session?.token;
   useEffect(() => {
-    authFetch(`${API_BASE}/api/health`)
+    fetch(`${API_BASE}/api/health`)
       .then((res) => res.json())
-      .then((data) => {
-        setBackendHealth({ status: 'online', details: data });
-        // Run initial live investigation
-        handleRunInvestigation(CANONICAL_SCRIPT);
-      })
-      .catch((err) => {
-        setBackendHealth({ status: 'offline', error: err.message });
-      });
+      .then((data) => setBackendHealth({ status: 'online', details: data }))
+      .catch((err) => setBackendHealth({ status: 'offline', error: err.message }));
+  }, []);
 
-    // Fetch cross-platform status and initial vault audit
+  useEffect(() => {
+    if (!sessionToken) return;
+    handleRunInvestigation(CANONICAL_SCRIPT);
     authFetch(`${API_BASE}/api/forensics/platform`)
       .then((res) => res.json())
       .then((data) => { if (data.success) setPlatformInfo(data); })
       .catch(() => {});
-
     handleFetchVault();
-  }, []);
+  }, [sessionToken]);
 
   const handleExecuteScript = async (codeToRun = scriptText) => {
     setLoading(true);
