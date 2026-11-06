@@ -160,9 +160,9 @@ export default function Login({ onLoginSuccess }) {
           }}>
             JOCKY FORENSICS
             <span style={{
-              fontSize: '0.62rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
-              color: '#0284c7',
+              color: '#0369a1',
               background: 'var(--accent-cyan-soft, #CFEFF5)',
               border: '1px solid #BAE6FD',
               padding: '0.15rem 0.4rem',
@@ -237,7 +237,7 @@ export default function Login({ onLoginSuccess }) {
             color: '#222426',
             lineHeight: 1.45,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0284c7', fontWeight: 700, marginBottom: '0.2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0369a1', fontWeight: 700, marginBottom: '0.2rem' }}>
               <span>🔒</span> QUICK DEMO CREDENTIALS
             </div>
             Pre-configured accounts for SIH evaluation:
@@ -249,8 +249,8 @@ export default function Login({ onLoginSuccess }) {
                   background: '#FFFFFF',
                   border: '1px solid #BAE6FD',
                   borderRadius: '4px',
-                  color: '#0284c7',
-                  fontSize: '0.7rem',
+                  color: '#0369a1',
+                  fontSize: '0.75rem',
                   padding: '0.25rem 0.55rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -267,7 +267,7 @@ export default function Login({ onLoginSuccess }) {
                   border: '1px solid var(--border-color, #D8DEE2)',
                   borderRadius: '4px',
                   color: '#4f46e5',
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   padding: '0.25rem 0.55rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -401,8 +401,11 @@ export default function Login({ onLoginSuccess }) {
                   color: 'var(--text-muted, #667078)',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
-                  padding: '0.2rem',
+                  padding: '0.35rem 0.5rem',
+                  minHeight: '28px',
+                  minWidth: '44px',
                 }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -494,7 +497,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#0284c7',
+                  color: '#0369a1',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -513,7 +516,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#0284c7',
+                  color: '#0369a1',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -532,7 +535,7 @@ export default function Login({ onLoginSuccess }) {
           paddingTop: '0.9rem',
           borderTop: '1px solid var(--border-color, #D8DEE2)',
           textAlign: 'center',
-          fontSize: '0.7rem',
+          fontSize: '0.75rem',
           color: 'var(--text-muted, #667078)',
         }}>
           Protected by SHA-256 Chain-of-Custody &bull; PBKDF2 Password Hashing &bull; Read-Only Telemetry Guards
