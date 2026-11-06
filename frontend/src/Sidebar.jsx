@@ -205,7 +205,7 @@ function PanelToggleIcon({ collapsed = false, size = 18 }) {
   );
 }
 
-export default function Sidebar({
+function Sidebar({
   onSelectTab,
   collapsed,
   onToggleCollapse,
@@ -794,3 +794,6 @@ export default function Sidebar({
     </>
   );
 }
+
+// Skips re-rendering while the user types in a search box elsewhere on the page
+export default React.memo(Sidebar);

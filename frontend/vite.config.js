@@ -8,6 +8,17 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          // React and the router change far less often than app code, so they get
+          // their own long-cached chunk instead of being re-downloaded on every release.
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+          },
+        },
+      },
+    },
     server: {
       port: 5173,
       host: true,

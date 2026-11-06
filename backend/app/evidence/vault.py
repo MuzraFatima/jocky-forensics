@@ -47,6 +47,8 @@ class EvidenceVault:
         self.cases_dir.mkdir(parents=True, exist_ok=True)
         # AES-256-GCM at rest when a key is configured (see evidence/storage.py)
         self.cipher = cipher if cipher is not None else cipher_from_environment()
+        # evidence_id -> file path, so lookups do not glob the whole vault each time
+        self._index: Dict[str, Path] = {}
 
     def _generate_evidence_id(self, case_id: str, source: str) -> str:
         """Generate a deterministic, collision-resistant evidence identifier."""
@@ -61,10 +63,17 @@ class EvidenceVault:
         if case_id:
             c_dir = self.cases_dir / case_id
             c_dir.mkdir(parents=True, exist_ok=True)
-            return c_dir / f"{clean_id}.json"
+            path = c_dir / f"{clean_id}.json"
+            self._index[clean_id] = path
+            return path
 
-        # Search across all case subdirectories
+        indexed = self._index.get(clean_id)
+        if indexed is not None and indexed.exists():
+            return indexed
+
+        # Not indexed yet (sealed by another process or before start-up): search once
         for found in self.cases_dir.glob(f"**/{clean_id}.json"):
+            self._index[clean_id] = found
             return found
 
         return self.cases_dir / f"{clean_id}.json"

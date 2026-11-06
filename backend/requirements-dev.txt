@@ -1,0 +1,8 @@
+# Test and lint tools; not needed to run JOCKY
+-r requirements.txt
+pytest>=8.0.0
+# FastAPI TestClient needs httpx
+httpx>=0.27.0
+pytest-timeout>=2.3.0
+pytest-github-actions-annotate-failures>=0.2.0
+ruff==0.16.5

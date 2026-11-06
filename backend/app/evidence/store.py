@@ -39,6 +39,8 @@ class EvidenceStore:
         self.base_dir.mkdir(parents=True, exist_ok=True)
         # AES-256-GCM at rest when a key is configured (see evidence/storage.py)
         self.cipher = cipher if cipher is not None else cipher_from_environment()
+        # evidence_id -> file path, so lookups do not glob the whole store each time
+        self._index: Dict[str, Path] = {}
 
     def _generate_evidence_id(self, case_id: str, source: str) -> str:
         """Generate an unambiguous, collision-resistant evidence ID."""
@@ -52,10 +54,17 @@ class EvidenceStore:
         if case_id:
             case_dir = self.base_dir / case_id
             case_dir.mkdir(parents=True, exist_ok=True)
-            return case_dir / f"{evidence_id}.json"
-        
-        # Search in subdirectories if case_id not directly provided
+            path = case_dir / f"{evidence_id}.json"
+            self._index[evidence_id] = path
+            return path
+
+        indexed = self._index.get(evidence_id)
+        if indexed is not None and indexed.exists():
+            return indexed
+
+        # Not indexed yet (written by another process or before start-up): search once
         for item in self.base_dir.glob(f"**/{evidence_id}.json"):
+            self._index[evidence_id] = item
             return item
 
         return self.base_dir / f"{evidence_id}.json"

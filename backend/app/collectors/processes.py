@@ -43,153 +43,54 @@ def collect_process_info() -> Dict[str, Any]:
     """
     process_records: List[Dict[str, Any]] = []
 
-    # Required process attributes
-    attrs = [
-        "pid",
-        "ppid",
-        "name",
-        "cmdline",
-        "username",
-        "exe",
-        "cpu_percent",
-        "memory_percent",
-        "status",
-        "create_time",
-    ]
+    # One parent-PID table for the whole snapshot. On Windows psutil rebuilds
+    # the full process table for every Process.ppid() call, which made this
+    # collector take seconds (one table scan per process).
+    ppid_map: Dict[int, int] = {}
+    platform_ppid_map = getattr(psutil._psplatform, "ppid_map", None)
+    if callable(platform_ppid_map):
+        try:
+            ppid_map = platform_ppid_map()
+        except Exception:
+            ppid_map = {}
+
+    attrs = ["pid", "name", "cmdline", "username", "exe", "cpu_percent", "memory_percent", "status", "create_time"]
+    if not ppid_map:
+        attrs.append("ppid")
 
     try:
-        # ad_value=None ensures AccessDenied during individual attribute reads
-        # populates the dictionary with None rather than raising an immediate exception
+        # ad_value=None turns AccessDenied on any single attribute into None.
+        # Those fields are not re-read: asking again is denied again and only
+        # doubles the cost for every protected process.
         proc_iter = psutil.process_iter(attrs=attrs, ad_value=None)
     except Exception:
-        # Fallback in the unlikely event process_iter itself cannot initialize
         proc_iter = []
 
     for proc in proc_iter:
+        info = getattr(proc, "info", None) or {}
         try:
-            info = proc.info if hasattr(proc, "info") and proc.info else {}
-
-            pid = info.get("pid")
-            if pid is None and hasattr(proc, "pid"):
-                try:
-                    pid = proc.pid
-                except Exception:
-                    pid = None
-
-            # Parent PID fallback
-            ppid = info.get("ppid")
-            if ppid is None and hasattr(proc, "ppid"):
-                try:
-                    ppid = proc.ppid()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    ppid = None
-                except Exception:
-                    ppid = None
-
-            # Name fallback
-            name = info.get("name")
-            if not name:
-                try:
-                    name = proc.name()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    name = "unknown"
-                except Exception:
-                    name = "unknown"
-
-            # Command line fallback
+            pid = info.get("pid", proc.pid)
+            ppid = ppid_map.get(pid) if ppid_map else info.get("ppid")
             cmdline = info.get("cmdline")
-            if cmdline is None and hasattr(proc, "cmdline"):
-                try:
-                    cmdline = proc.cmdline()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    cmdline = None
-                except Exception:
-                    cmdline = None
             cmdline = [str(arg) for arg in cmdline] if isinstance(cmdline, list) else None
-
-            # Username
-            username = info.get("username")
-            if not username:
-                try:
-                    username = proc.username()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    username = None
-                except Exception:
-                    username = None
-
-            # Executable path
-            exe = info.get("exe")
-            if not exe:
-                try:
-                    exe = proc.exe()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    exe = None
-                except Exception:
-                    exe = None
-
-            # CPU utilization (non-blocking snapshot)
             cpu_percent = info.get("cpu_percent")
-            if cpu_percent is None:
-                try:
-                    cpu_percent = proc.cpu_percent(interval=None)
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    cpu_percent = None
-                except Exception:
-                    cpu_percent = None
-            if isinstance(cpu_percent, (int, float)):
-                cpu_percent = round(cpu_percent, 2)
-
-            # Memory utilization percentage
             mem_percent = info.get("memory_percent")
-            if mem_percent is None:
-                try:
-                    mem_percent = proc.memory_percent()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    mem_percent = None
-                except Exception:
-                    mem_percent = None
-            if isinstance(mem_percent, (int, float)):
-                mem_percent = round(mem_percent, 2)
-
-            # Status
-            status = info.get("status")
-            if not status:
-                try:
-                    status = proc.status()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    status = "unknown"
-                except Exception:
-                    status = "unknown"
-
-            # Creation time
-            create_time_raw = info.get("create_time")
-            if create_time_raw is None:
-                try:
-                    create_time_raw = proc.create_time()
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    create_time_raw = None
-                except Exception:
-                    create_time_raw = None
-            create_time_iso = _safe_format_timestamp(create_time_raw)
-
             process_records.append({
                 "pid": pid,
                 "ppid": ppid,
-                "name": name or "unknown",
+                "name": info.get("name") or "unknown",
                 "cmdline": cmdline,
-                "username": username or None,
-                "exe": exe or None,
-                "cpu_percent": cpu_percent,
-                "memory_percent": mem_percent,
-                "status": status or "unknown",
-                "create_time": create_time_iso,
+                "username": info.get("username") or None,
+                "exe": info.get("exe") or None,
+                "cpu_percent": round(cpu_percent, 2) if isinstance(cpu_percent, (int, float)) else None,
+                "memory_percent": round(mem_percent, 2) if isinstance(mem_percent, (int, float)) else None,
+                "status": info.get("status") or "unknown",
+                "create_time": _safe_format_timestamp(info.get("create_time")),
             })
-
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            # Gracefully ignore individual process termination or access restrictions
+            # The process exited or is fully protected; skip it
             continue
         except Exception:
-            # Shield collector from any unforeseen per-process error
             continue
 
     return {

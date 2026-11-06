@@ -1,0 +1,42 @@
+// Sidebar ids, dashboard paths and their page titles.
+
+export const ID_TO_PATH = {
+  overview: '/dashboard',
+  endpoints: '/dashboard/endpoints',
+  script: '/dashboard/jocky',
+  evidence: '/dashboard/evidence',
+  techniques: '/dashboard/techniques',
+  timeline: '/dashboard/timeline',
+  correlation: '/dashboard/correlation',
+  reports: '/dashboard/reports',
+  support: '/dashboard/cybersecurity',
+  system: '/dashboard/system',
+  processes: '/dashboard/processes',
+  network: '/dashboard/network',
+  files: '/dashboard/files',
+  users: '/dashboard/users',
+  windows: '/dashboard/windows',
+  execute: '/dashboard/execute',
+  commands: '/dashboard/commands',
+};
+
+export const ROUTE_LABELS = {
+  '/dashboard': 'Overview & Analysis',
+  '/dashboard/': 'Overview & Analysis',
+  '/dashboard/endpoints': 'Endpoint Device Management',
+  '/dashboard/jocky': 'JOCKY Script Editor',
+  '/dashboard/evidence': 'Evidence Vault',
+  '/dashboard/techniques': 'Advanced Technique Analysis',
+  '/dashboard/timeline': 'Forensic Timeline',
+  '/dashboard/correlation': 'Correlation Graph',
+  '/dashboard/reports': 'Forensic Reports',
+  '/dashboard/cybersecurity': 'Cybersecurity Support',
+  '/dashboard/system': 'System Telemetry',
+  '/dashboard/processes': 'Active Processes',
+  '/dashboard/network': 'Network Sockets',
+  '/dashboard/files': 'Files & Binaries',
+  '/dashboard/users': 'Users & Sessions',
+  '/dashboard/windows': 'Windows Persistence',
+  '/dashboard/execute': 'Execution Engine',
+  '/dashboard/commands': 'Command Search',
+};

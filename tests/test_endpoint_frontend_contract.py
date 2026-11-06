@@ -156,8 +156,8 @@ class TestFrontendEndpointContract(unittest.TestCase):
         js_files = list(assets_dir.glob("*.js"))
         self.assertGreater(len(js_files), 0, "Production JS bundle must be generated")
 
-        # Read bundle to confirm key tokens are bundled
-        bundle_text = js_files[0].read_text(encoding="utf-8")
+        # Screens are code-split, so look across every chunk for the tokens
+        bundle_text = " ".join(f.read_text(encoding="utf-8") for f in js_files)
         self.assertIn("Endpoint Device Management", bundle_text)
         self.assertIn("Single-Use Pairing Code", bundle_text)
         self.assertIn("python jocky-agent.py pair", bundle_text)
