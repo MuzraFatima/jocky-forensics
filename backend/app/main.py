@@ -17,7 +17,7 @@ if str(_repo_root) not in sys.path:
 
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
@@ -33,7 +33,7 @@ from backend.app.language import (
     parse_jocky_script,
 )
 from backend.app.security import security_router
-from backend.app.security.rbac import rbac_middleware
+from backend.app.security.rbac import RBACMiddleware
 
 app = FastAPI(
     title="JOCKY Forensic Analysis Framework API",
@@ -43,7 +43,7 @@ app = FastAPI(
 
 # Sign-in and role checks for /api/jocky and /api/forensics. Registered before
 # CORS so CORS stays the outer layer and 401/403 responses keep their headers.
-app.middleware("http")(rbac_middleware)
+app.add_middleware(RBACMiddleware)
 
 # Large JSON payloads (process lists, reports, vault audits) compress 5-10x.
 app.add_middleware(GZipMiddleware, minimum_size=1024)
@@ -58,12 +58,28 @@ _CACHEABLE_GET_PATHS = (
 )
 
 
-@app.middleware("http")
-async def cache_static_api_responses(request: Request, call_next):
-    response = await call_next(request)
-    if request.method == "GET" and response.status_code == 200 and request.url.path.startswith(_CACHEABLE_GET_PATHS):
-        response.headers.setdefault("Cache-Control", "private, max-age=300")
-    return response
+class CacheStaticResponses:
+    """Plain ASGI middleware that adds Cache-Control to the static-data GETs listed above."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope.get("method") != "GET" or not scope.get("path", "").startswith(_CACHEABLE_GET_PATHS):
+            return await self.app(scope, receive, send)
+
+        async def send_with_cache_header(message):
+            if message["type"] == "http.response.start" and message.get("status") == 200:
+                headers = list(message.get("headers", []))
+                if not any(k.lower() == b"cache-control" for k, _ in headers):
+                    headers.append((b"cache-control", b"private, max-age=300"))
+                message = {**message, "headers": headers}
+            await send(message)
+
+        return await self.app(scope, receive, send_with_cache_header)
+
+
+app.add_middleware(CacheStaticResponses)
 
 # CORS configuration for React frontend communication & live deployment
 cors_origins_env = os.getenv("CORS_ORIGINS", "")

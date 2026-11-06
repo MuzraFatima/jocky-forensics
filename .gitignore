@@ -34,3 +34,6 @@ htmlcov/
 # Evidence encryption key and audit log written at runtime (never commit)
 data/*.key
 data/*.jsonl
+
+# Personal notes, user guide and slides kept next to the project but never published
+/personal/

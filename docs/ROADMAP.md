@@ -37,7 +37,9 @@ the remaining work as five phases (0–4). Each phase lands as one pull request 
 | 1 — Language and compiler | Merged (#2) |
 | 2 — Cross-platform forensic library | Merged (#3) |
 | 3 — Detection and evidence integrity | Merged (#4) |
-| 4 — Secure orchestration and hardening | In review |
+| 4 — Secure orchestration and hardening | Merged (#5) |
+| Performance pass | Merged (#6) |
+| Browser end-to-end test, README, license | Final pull request |
 
 ## Phase 0 — Foundation and CI
 - ruff config and a clean lint pass over the Python code

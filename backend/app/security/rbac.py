@@ -22,7 +22,6 @@ import os
 import re
 from typing import Optional, Tuple
 
-from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from .audit import record_audit_event
@@ -67,11 +66,6 @@ def role_level(role: Optional[str]) -> int:
     return ROLE_LEVELS.get((role or "").strip().lower(), INVESTIGATOR)
 
 
-def _bearer(request: Request) -> Optional[str]:
-    header = request.headers.get("authorization") or ""
-    return header[7:].strip() if header.lower().startswith("bearer ") else (header.strip() or None)
-
-
 def auth_enforced() -> bool:
     return os.getenv("JOCKY_AUTH_DISABLED", "").strip().lower() not in ("1", "true", "yes")
 
@@ -105,11 +99,28 @@ def check_request(method: str, path: str, token: Optional[str]) -> Tuple[Optiona
     return None, session
 
 
-async def rbac_middleware(request: Request, call_next):
-    path = request.url.path
-    if request.method == "OPTIONS" or not path.startswith(PROTECTED_PREFIXES) or not auth_enforced():
-        return await call_next(request)
-    status, body = check_request(request.method, path, _bearer(request))
-    if status:
-        return JSONResponse(status_code=status, content=body)
-    return await call_next(request)
+class RBACMiddleware:
+    """
+    Plain ASGI middleware (not BaseHTTPMiddleware): it only inspects the
+    request line and headers, answers 401/403 itself, and otherwise hands the
+    untouched request to the app. No extra task or response buffering, so a
+    browser aborting a request mid-stream cannot wedge the server.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        method = scope.get("method", "GET")
+        path = scope.get("path", "")
+        if method == "OPTIONS" or not path.startswith(PROTECTED_PREFIXES) or not auth_enforced():
+            return await self.app(scope, receive, send)
+        headers = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
+        auth = headers.get("authorization", "")
+        token = auth[7:].strip() if auth.lower().startswith("bearer ") else (auth.strip() or None)
+        status, body = check_request(method, path, token)
+        if status:
+            return await JSONResponse(status_code=status, content=body)(scope, receive, send)
+        return await self.app(scope, receive, send)
