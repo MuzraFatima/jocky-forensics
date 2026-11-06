@@ -116,15 +116,15 @@ export default function Login({ onLoginSuccess }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'var(--bg-primary, #F6F8F9)',
+      background: 'var(--bg-primary, var(--cyan-tint))',
       padding: '1.5rem',
       fontFamily: 'inherit',
     }}>
       <div style={{
         width: '100%',
         maxWidth: '480px',
-        background: '#FFFFFF',
-        border: '1px solid var(--border-color, #D8DEE2)',
+        background: 'var(--surface)',
+        border: '1px solid var(--border-color, var(--border))',
         borderRadius: '14px',
         padding: '2.25rem 2rem',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
@@ -135,13 +135,13 @@ export default function Login({ onLoginSuccess }) {
             width: '46px',
             height: '46px',
             borderRadius: '12px',
-            background: 'var(--accent-cyan-bg, #8BD4E8)',
+            background: 'var(--accent-cyan-bg, var(--cyan-solid))',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 800,
             fontSize: '22px',
-            color: '#222426',
+            color: 'var(--text)',
             boxShadow: '0 2px 8px rgba(139, 212, 232, 0.4)',
             marginBottom: '0.75rem',
           }}>
@@ -152,7 +152,7 @@ export default function Login({ onLoginSuccess }) {
             fontSize: '1.35rem',
             fontWeight: 800,
             letterSpacing: '-0.02em',
-            color: '#222426',
+            color: 'var(--text)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -162,9 +162,9 @@ export default function Login({ onLoginSuccess }) {
             <span style={{
               fontSize: '0.75rem',
               fontWeight: 700,
-              color: '#0369a1',
-              background: 'var(--accent-cyan-soft, #CFEFF5)',
-              border: '1px solid #BAE6FD',
+              color: 'var(--cyan)',
+              background: 'var(--accent-cyan-soft, var(--cyan-tint))',
+              border: '1px solid var(--cyan-line)',
               padding: '0.15rem 0.4rem',
               borderRadius: '4px',
             }}>
@@ -172,7 +172,7 @@ export default function Login({ onLoginSuccess }) {
             </span>
           </h1>
 
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, #667078)', marginTop: '0.35rem' }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted, var(--text-2))', marginTop: '0.35rem' }}>
             Authorized Read-Only Digital Forensics &amp; Incident Investigation
           </p>
         </div>
@@ -181,10 +181,10 @@ export default function Login({ onLoginSuccess }) {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          background: 'var(--bg-primary, #F6F8F9)',
+          background: 'var(--bg-primary, var(--cyan-tint))',
           padding: '0.25rem',
           borderRadius: '8px',
-          border: '1px solid var(--border-color, #D8DEE2)',
+          border: '1px solid var(--border-color, var(--border))',
           marginBottom: '1.25rem',
         }}>
           <button
@@ -194,8 +194,8 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.55rem 0.5rem',
               borderRadius: '6px',
               border: 'none',
-              background: mode === 'login' ? '#FFFFFF' : 'transparent',
-              color: mode === 'login' ? '#222426' : 'var(--text-muted, #667078)',
+              background: mode === 'login' ? 'var(--surface)' : 'transparent',
+              color: mode === 'login' ? 'var(--text)' : 'var(--text-muted, var(--text-2))',
               fontWeight: mode === 'login' ? 700 : 500,
               fontSize: '0.82rem',
               cursor: 'pointer',
@@ -212,8 +212,8 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.55rem 0.5rem',
               borderRadius: '6px',
               border: 'none',
-              background: mode === 'register' ? '#FFFFFF' : 'transparent',
-              color: mode === 'register' ? '#222426' : 'var(--text-muted, #667078)',
+              background: mode === 'register' ? 'var(--surface)' : 'transparent',
+              color: mode === 'register' ? 'var(--text)' : 'var(--text-muted, var(--text-2))',
               fontWeight: mode === 'register' ? 700 : 500,
               fontSize: '0.82rem',
               cursor: 'pointer',
@@ -228,16 +228,16 @@ export default function Login({ onLoginSuccess }) {
         {/* Demo Fill Banner (Login Mode Only) */}
         {mode === 'login' && (
           <div style={{
-            background: 'var(--accent-cyan-soft, #CFEFF5)',
-            border: '1px solid #BAE6FD',
+            background: 'var(--accent-cyan-soft, var(--cyan-tint))',
+            border: '1px solid var(--cyan-line)',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
             fontSize: '0.74rem',
-            color: '#222426',
+            color: 'var(--text)',
             lineHeight: 1.45,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0369a1', fontWeight: 700, marginBottom: '0.2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--cyan)', fontWeight: 700, marginBottom: '0.2rem' }}>
               <span>🔒</span> QUICK DEMO CREDENTIALS
             </div>
             Pre-configured accounts for SIH evaluation:
@@ -246,10 +246,10 @@ export default function Login({ onLoginSuccess }) {
                 type="button"
                 onClick={() => handleFillDemo('investigator')}
                 style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #BAE6FD',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--cyan-line)',
                   borderRadius: '4px',
-                  color: '#0369a1',
+                  color: 'var(--cyan)',
                   fontSize: '0.75rem',
                   padding: '0.25rem 0.55rem',
                   fontWeight: 600,
@@ -263,10 +263,10 @@ export default function Login({ onLoginSuccess }) {
                 type="button"
                 onClick={() => handleFillDemo('admin')}
                 style={{
-                  background: '#FFFFFF',
-                  border: '1px solid var(--border-color, #D8DEE2)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-color, var(--border))',
                   borderRadius: '4px',
-                  color: '#4f46e5',
+                  color: 'var(--indigo)',
                   fontSize: '0.75rem',
                   padding: '0.25rem 0.55rem',
                   fontWeight: 600,
@@ -283,12 +283,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Error Notification Banner */}
         {errorMsg && (
           <div style={{
-            background: '#FFF1F2',
-            border: '1px solid #FECDD3',
+            background: 'var(--red-tint)',
+            border: '1px solid var(--red-line)',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
-            color: '#E11D48',
+            color: 'var(--red)',
             fontSize: '0.8rem',
             display: 'flex',
             alignItems: 'center',
@@ -302,12 +302,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Success Notification Banner */}
         {successMsg && (
           <div style={{
-            background: 'var(--accent-emerald-soft, #E8F1DE)',
-            border: '1px solid #BBF7D0',
+            background: 'var(--accent-emerald-soft, var(--green-tint))',
+            border: '1px solid var(--green-line)',
             borderRadius: '8px',
             padding: '0.7rem 0.85rem',
             marginBottom: '1.25rem',
-            color: 'var(--accent-emerald, #5C802B)',
+            color: 'var(--accent-emerald, var(--green))',
             fontSize: '0.8rem',
             display: 'flex',
             alignItems: 'center',
@@ -321,7 +321,7 @@ export default function Login({ onLoginSuccess }) {
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, var(--text-2))', marginBottom: '0.35rem' }}>
               {mode === 'register' ? 'Email / Investigator Username' : 'Investigator Username / Email'}
             </label>
             <input
@@ -333,18 +333,18 @@ export default function Login({ onLoginSuccess }) {
               style={{
                 width: '100%',
                 padding: '0.65rem 0.85rem',
-                background: '#FFFFFF',
-                border: '1px solid var(--border-color, #D8DEE2)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border-color, var(--border))',
                 borderRadius: '6px',
                 fontSize: '0.85rem',
-                color: '#222426',
+                color: 'var(--text)',
               }}
             />
           </div>
 
           {mode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, var(--text-2))', marginBottom: '0.35rem' }}>
                 Investigator Role &amp; Clearance
               </label>
               <select
@@ -353,11 +353,11 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 0.85rem',
-                  background: '#FFFFFF',
-                  border: '1px solid var(--border-color, #D8DEE2)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-color, var(--border))',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#222426',
+                  color: 'var(--text)',
                 }}
               >
                 <option value="Lead Forensic Examiner">Lead Forensic Examiner</option>
@@ -368,7 +368,7 @@ export default function Login({ onLoginSuccess }) {
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, var(--text-2))', marginBottom: '0.35rem' }}>
               {mode === 'register' ? 'Create Password (min 6 characters)' : 'Access Password'}
             </label>
             <div style={{ position: 'relative' }}>
@@ -381,11 +381,11 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 2.5rem 0.65rem 0.85rem',
-                  background: '#FFFFFF',
-                  border: '1px solid var(--border-color, #D8DEE2)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-color, var(--border))',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#222426',
+                  color: 'var(--text)',
                 }}
               />
               <button
@@ -398,7 +398,7 @@ export default function Login({ onLoginSuccess }) {
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
-                  color: 'var(--text-muted, #667078)',
+                  color: 'var(--text-muted, var(--text-2))',
                   fontSize: '0.8rem',
                   cursor: 'pointer',
                   padding: '0.35rem 0.5rem',
@@ -414,7 +414,7 @@ export default function Login({ onLoginSuccess }) {
 
           {mode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, var(--text-2))', marginBottom: '0.35rem' }}>
                 Confirm Password
               </label>
               <input
@@ -426,18 +426,18 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   width: '100%',
                   padding: '0.65rem 0.85rem',
-                  background: '#FFFFFF',
-                  border: '1px solid var(--border-color, #D8DEE2)',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border-color, var(--border))',
                   borderRadius: '6px',
                   fontSize: '0.85rem',
-                  color: '#222426',
+                  color: 'var(--text)',
                 }}
               />
             </div>
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, #667078)', marginBottom: '0.35rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary, var(--text-2))', marginBottom: '0.35rem' }}>
               Target Case Designation
             </label>
             <input
@@ -448,11 +448,11 @@ export default function Login({ onLoginSuccess }) {
               style={{
                 width: '100%',
                 padding: '0.65rem 0.85rem',
-                background: '#FFFFFF',
-                border: '1px solid var(--border-color, #D8DEE2)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border-color, var(--border))',
                 borderRadius: '6px',
                 fontSize: '0.85rem',
-                color: '#222426',
+                color: 'var(--text)',
                 fontFamily: 'monospace',
               }}
             />
@@ -466,8 +466,8 @@ export default function Login({ onLoginSuccess }) {
               padding: '0.75rem 1rem',
               borderRadius: '8px',
               border: 'none',
-              background: loading ? 'var(--accent-cyan-soft, #CFEFF5)' : 'var(--accent-cyan-bg, #8BD4E8)',
-              color: '#222426',
+              background: loading ? 'var(--accent-cyan-soft, var(--cyan-tint))' : 'var(--accent-cyan-bg, var(--cyan-solid))',
+              color: 'var(--text)',
               fontWeight: 700,
               fontSize: '0.9rem',
               cursor: loading ? 'not-allowed' : 'pointer',
@@ -487,7 +487,7 @@ export default function Login({ onLoginSuccess }) {
         </form>
 
         {/* Bottom Switch Link */}
-        <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-secondary, #667078)' }}>
+        <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-secondary, var(--text-2))' }}>
           {mode === 'login' ? (
             <span>
               Need a custom account?{' '}
@@ -497,7 +497,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#0369a1',
+                  color: 'var(--cyan)',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -516,7 +516,7 @@ export default function Login({ onLoginSuccess }) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#0369a1',
+                  color: 'var(--cyan)',
                   cursor: 'pointer',
                   fontWeight: 600,
                   textDecoration: 'underline',
@@ -533,10 +533,10 @@ export default function Login({ onLoginSuccess }) {
         <div style={{
           marginTop: '1.5rem',
           paddingTop: '0.9rem',
-          borderTop: '1px solid var(--border-color, #D8DEE2)',
+          borderTop: '1px solid var(--border-color, var(--border))',
           textAlign: 'center',
           fontSize: '0.75rem',
-          color: 'var(--text-muted, #667078)',
+          color: 'var(--text-muted, var(--text-2))',
         }}>
           Protected by SHA-256 Chain-of-Custody &bull; PBKDF2 Password Hashing &bull; Read-Only Telemetry Guards
         </div>

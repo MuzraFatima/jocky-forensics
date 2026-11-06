@@ -45,7 +45,7 @@ export default function ReportSection({
       {/* Action Header Card */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.5rem',
@@ -118,7 +118,7 @@ export default function ReportSection({
               placeholder="e.g. JOCKY Lead Forensic Examiner"
               style={{
                 width: '100%',
-                background: '#FFFFFF',
+                background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 padding: '0.55rem 0.85rem',
@@ -154,9 +154,9 @@ export default function ReportSection({
             onClick={() => handleGenerate('HTML')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'HTML' ? '#8BD4E8' : 'var(--bg-surface)',
+              background: reportFormat === 'HTML' ? 'var(--cyan-solid)' : 'var(--bg-surface)',
               border: '1px solid var(--border-color)',
-              color: reportFormat === 'HTML' ? '#222426' : 'var(--text-primary)',
+              color: reportFormat === 'HTML' ? 'var(--text)' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -175,9 +175,9 @@ export default function ReportSection({
             onClick={() => handleGenerate('JSON')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'JSON' ? '#8BD4E8' : 'var(--bg-surface)',
+              background: reportFormat === 'JSON' ? 'var(--cyan-solid)' : 'var(--bg-surface)',
               border: '1px solid var(--border-color)',
-              color: reportFormat === 'JSON' ? '#222426' : 'var(--text-primary)',
+              color: reportFormat === 'JSON' ? 'var(--text)' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -196,9 +196,9 @@ export default function ReportSection({
             onClick={() => handleGenerate('MARKDOWN')}
             disabled={reportLoading}
             style={{
-              background: reportFormat === 'MARKDOWN' ? '#8BD4E8' : 'var(--bg-surface)',
+              background: reportFormat === 'MARKDOWN' ? 'var(--cyan-solid)' : 'var(--bg-surface)',
               border: '1px solid var(--border-color)',
-              color: reportFormat === 'MARKDOWN' ? '#222426' : 'var(--text-primary)',
+              color: reportFormat === 'MARKDOWN' ? 'var(--text)' : 'var(--text-primary)',
               borderRadius: '6px',
               padding: '0.55rem 1.1rem',
               fontSize: '0.82rem',
@@ -310,9 +310,9 @@ export default function ReportSection({
               <button
                 onClick={() => handleDownload(reportFormat)}
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                  background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
                   border: 'none',
-                  color: '#fff',
+                  color: 'var(--text)',
                   borderRadius: '6px',
                   padding: '0.4rem 0.9rem',
                   fontSize: '0.78rem',
@@ -355,7 +355,7 @@ export default function ReportSection({
                 width: '100%',
                 height: '520px',
                 border: 'none',
-                background: '#ffffff',
+                background: 'var(--surface)',
               }}
             />
           </div>
@@ -365,11 +365,11 @@ export default function ReportSection({
               className="font-mono"
               style={{
                 margin: 0,
-                background: '#04070d',
+                background: 'var(--bg)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '8px',
                 padding: '1.25rem',
-                color: reportFormat === 'JSON' ? '#38bdf8' : '#e2e8f0',
+                color: reportFormat === 'JSON' ? 'var(--cyan)' : 'var(--cyan)',
                 fontSize: '0.8rem',
                 lineHeight: 1.5,
                 maxHeight: '520px',

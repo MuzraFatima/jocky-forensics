@@ -223,7 +223,7 @@ export default function InvestigatorDashboard({
       {/* Top Banner / Quick Controls */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
@@ -351,9 +351,9 @@ export default function InvestigatorDashboard({
             onClick={() => onRunInvestigation && onRunInvestigation()}
             disabled={loading}
             style={{
-              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
               border: 'none',
-              color: '#fff',
+              color: 'var(--text)',
               borderRadius: '6px',
               padding: '0.5rem 1.1rem',
               fontSize: '0.8rem',

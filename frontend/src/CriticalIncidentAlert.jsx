@@ -33,8 +33,8 @@ export default function CriticalIncidentAlert({
 
   return (
     <div style={{
-      background: '#FFF1F2',
-      border: '1px solid #FECDD3',
+      background: 'var(--red-tint)',
+      border: '1px solid var(--red-line)',
       borderRadius: '12px',
       padding: collapsed ? '0.75rem 1.25rem' : '1.25rem 1.5rem',
       marginBottom: '1.5rem',
@@ -58,16 +58,16 @@ export default function CriticalIncidentAlert({
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#9F1239', letterSpacing: '-0.01em' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--red)', letterSpacing: '-0.01em' }}>
                 🚨 Potential Critical Security Incident Detected
               </h3>
 
               <span style={{
                 fontSize: '0.68rem',
                 fontWeight: 800,
-                color: '#9F1239',
-                background: '#FFE4E6',
-                border: '1px solid #FECDD3',
+                color: 'var(--red)',
+                background: 'var(--red-tint)',
+                border: '1px solid var(--red-line)',
                 padding: '0.15rem 0.5rem',
                 borderRadius: '4px',
                 letterSpacing: '0.05em',
@@ -127,28 +127,28 @@ export default function CriticalIncidentAlert({
             gap: '0.75rem',
             marginBottom: '1rem',
           }}>
-            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
+            <div style={{ background: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--red-line)' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Case &amp; Target</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#222426', marginTop: '0.2rem' }}>
-                {incident.case_id} &bull; <span style={{ color: '#0284c7' }}>{incident.target}</span>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)', marginTop: '0.2rem' }}>
+                {incident.case_id} &bull; <span style={{ color: 'var(--cyan)' }}>{incident.target}</span>
               </div>
             </div>
 
-            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
+            <div style={{ background: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--red-line)' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Detection Reason</div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#E11D48', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--red)', marginTop: '0.2rem' }}>
                 {incident.detection_name || incident.rule_id}
               </div>
             </div>
 
-            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
+            <div style={{ background: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--red-line)' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Evidence Indicators</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284c7', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--cyan)', marginTop: '0.2rem' }}>
                 {incident.related_evidence_count} Findings ({incident.high_severity_count} High)
               </div>
             </div>
 
-            <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid #FECDD3' }}>
+            <div style={{ background: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--red-line)' }}>
               <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Cryptographic Integrity</div>
               <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent-emerald)', marginTop: '0.2rem' }}>
                 {incident.evidence_integrity_status || 'VERIFIED (SHA-256)'}
@@ -159,11 +159,11 @@ export default function CriticalIncidentAlert({
           {/* Description Detail */}
           <div style={{
             fontSize: '0.8rem',
-            color: '#222426',
-            background: '#FFFFFF',
+            color: 'var(--text)',
+            background: 'var(--surface)',
             padding: '0.75rem 1rem',
             borderRadius: '6px',
-            border: '1px solid #FECDD3',
+            border: '1px solid var(--red-line)',
             borderLeft: '4px solid var(--accent-rose)',
             marginBottom: '1.1rem',
             lineHeight: 1.45,
@@ -175,7 +175,7 @@ export default function CriticalIncidentAlert({
           {preservedNotice && (
             <div style={{
               background: 'var(--accent-emerald-soft)',
-              border: '1px solid #BBF7D0',
+              border: '1px solid var(--green-line)',
               borderRadius: '6px',
               padding: '0.5rem 0.75rem',
               color: 'var(--accent-emerald)',
@@ -193,10 +193,10 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onViewIncident}
               style={{
-                background: '#FFFFFF',
+                background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
-                color: '#222426',
+                color: 'var(--text)',
                 padding: '0.5rem 1rem',
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -212,7 +212,7 @@ export default function CriticalIncidentAlert({
               disabled={verifying}
               style={{
                 background: 'var(--accent-emerald-soft)',
-                border: '1px solid #BBF7D0',
+                border: '1px solid var(--green-line)',
                 borderRadius: '6px',
                 color: 'var(--accent-emerald)',
                 padding: '0.5rem 1rem',
@@ -228,10 +228,10 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onContactSecurity}
               style={{
-                background: '#8BD4E8',
+                background: 'var(--cyan-solid)',
                 border: 'none',
                 borderRadius: '6px',
-                color: '#222426',
+                color: 'var(--text)',
                 padding: '0.5rem 1rem',
                 fontSize: '0.8rem',
                 fontWeight: 700,
@@ -245,7 +245,7 @@ export default function CriticalIncidentAlert({
               type="button"
               onClick={onGenerateReport}
               style={{
-                background: '#FFFFFF',
+                background: 'var(--surface)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 color: 'var(--text-secondary)',

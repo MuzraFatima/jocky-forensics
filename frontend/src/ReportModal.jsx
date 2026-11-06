@@ -113,7 +113,7 @@ export default function ReportModal({
       <div style={{
         width: '100%',
         maxWidth: '560px',
-        background: '#FFFFFF',
+        background: 'var(--surface)',
         border: '1px solid var(--border-color)',
         borderRadius: '14px',
         padding: '2rem',
@@ -123,7 +123,7 @@ export default function ReportModal({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{ fontSize: '1.3rem' }}>📄</span>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#222426' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)' }}>
               {isLogoutWorkflow ? 'End Session: Generate & Send Report?' : 'Generate & Send Report?'}
             </h3>
           </div>
@@ -140,11 +140,11 @@ export default function ReportModal({
         {/* Warning & Scope Description */}
         <div style={{
           background: 'var(--accent-cyan-soft)',
-          border: '1px solid #BAE6FD',
+          border: '1px solid var(--cyan-line)',
           borderRadius: '8px',
           padding: '0.85rem 1rem',
           fontSize: '0.78rem',
-          color: '#222426',
+          color: 'var(--text)',
           lineHeight: 1.45,
           marginBottom: '1.25rem',
         }}>
@@ -179,7 +179,7 @@ export default function ReportModal({
               </span>
             </div>
 
-            <div style={{ fontSize: '0.82rem', color: '#fff', marginBottom: '0.4rem' }}>
+            <div style={{ fontSize: '0.82rem', color: 'var(--text)', marginBottom: '0.4rem' }}>
               <strong>Case:</strong> {deliveryResult.case_id} &bull; <strong>Format:</strong> {deliveryResult.format}
             </div>
 
@@ -198,7 +198,7 @@ export default function ReportModal({
 
             {deliveryResult.status === 'QUEUED' && (
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#fef3c7', marginBottom: '0.5rem' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--amber)', marginBottom: '0.5rem' }}>
                   Reason: {deliveryResult.error_reason}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -233,10 +233,10 @@ export default function ReportModal({
                   type="button"
                   onClick={onLogoutAfterReport}
                   style={{
-                    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                    background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
                     border: 'none',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: 'var(--text)',
                     padding: '0.55rem 1.25rem',
                     fontSize: '0.85rem',
                     fontWeight: 700,
@@ -253,7 +253,7 @@ export default function ReportModal({
                     background: 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: 'var(--text)',
                     padding: '0.55rem 1.25rem',
                     fontSize: '0.85rem',
                     fontWeight: 600,
@@ -281,10 +281,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: '#FFFFFF',
+                    background: 'var(--surface)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    color: '#222426',
+                    color: 'var(--text)',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -305,10 +305,10 @@ export default function ReportModal({
                   style={{
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    background: '#FFFFFF',
+                    background: 'var(--surface)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    color: '#222426',
+                    color: 'var(--text)',
                     fontSize: '0.82rem',
                   }}
                 >
@@ -341,7 +341,7 @@ export default function ReportModal({
                 type="button"
                 onClick={handleToggleService}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '4px',
                   color: 'var(--text-secondary)',
@@ -355,7 +355,7 @@ export default function ReportModal({
             </div>
 
             {errorMsg && (
-              <div style={{ color: '#E11D48', fontSize: '0.78rem', marginBottom: '1rem' }}>
+              <div style={{ color: 'var(--red)', fontSize: '0.78rem', marginBottom: '1rem' }}>
                 ⚠ {errorMsg}
               </div>
             )}
@@ -367,7 +367,7 @@ export default function ReportModal({
                 onClick={onClose}
                 disabled={loading}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   color: 'var(--text-secondary)',
@@ -385,10 +385,10 @@ export default function ReportModal({
                 onClick={handleGenerateOnly}
                 disabled={loading}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px',
-                  color: '#222426',
+                  color: 'var(--text)',
                   padding: '0.55rem 1rem',
                   fontSize: '0.82rem',
                   fontWeight: 600,
@@ -403,10 +403,10 @@ export default function ReportModal({
                 onClick={handleGenerateAndSend}
                 disabled={loading}
                 style={{
-                  background: loading ? 'var(--accent-cyan-soft)' : '#8BD4E8',
+                  background: loading ? 'var(--accent-cyan-soft)' : 'var(--cyan-solid)',
                   border: 'none',
                   borderRadius: '8px',
-                  color: '#222426',
+                  color: 'var(--text)',
                   padding: '0.55rem 1.25rem',
                   fontSize: '0.85rem',
                   fontWeight: 700,

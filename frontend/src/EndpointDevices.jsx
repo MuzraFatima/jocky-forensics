@@ -198,7 +198,7 @@ export default function EndpointDevices({
       {/* Target Selector Banner */}
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRadius: '12px',
           border: '1px solid var(--border-color)',
           padding: '1.25rem 1.5rem',
@@ -293,9 +293,9 @@ export default function EndpointDevices({
           <button
             onClick={handleOpenPairModal}
             style={{
-              background: '#8BD4E8',
+              background: 'var(--cyan-solid)',
               border: 'none',
-              color: '#222426',
+              color: 'var(--text)',
               borderRadius: '8px',
               padding: '0.5rem 1.1rem',
               fontSize: '0.82rem',
@@ -482,9 +482,9 @@ export default function EndpointDevices({
           <button
             onClick={handleOpenPairModal}
             style={{
-              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              background: 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
               border: 'none',
-              color: '#fff',
+              color: 'var(--text)',
               borderRadius: '6px',
               padding: '0.6rem 1.25rem',
               fontSize: '0.85rem',
@@ -831,9 +831,9 @@ export default function EndpointDevices({
                     onClick={handleCopyCommand}
                     style={{
                       flex: 1,
-                      background: copyCmdSuccess ? 'rgba(16, 185, 129, 0.2)' : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                      background: copyCmdSuccess ? 'rgba(16, 185, 129, 0.2)' : 'linear-gradient(135deg, var(--cyan-solid), var(--indigo-solid))',
                       border: copyCmdSuccess ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
-                      color: copyCmdSuccess ? 'var(--accent-emerald)' : '#fff',
+                      color: copyCmdSuccess ? 'var(--accent-emerald)' : 'var(--text)',
                       borderRadius: '6px',
                       padding: '0.6rem 1rem',
                       fontSize: '0.82rem',
